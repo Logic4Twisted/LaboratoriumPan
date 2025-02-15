@@ -7,13 +7,14 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PancakeService {
-    private List<Order>         orders          = new ArrayList<>();
+	private Map<UUID, Order> mapOrders = new HashMap<UUID, Order>();
     private Set<UUID>           completedOrders = new HashSet<>();
     private Set<UUID>           preparedOrders  = new HashSet<>();
     private List<PancakeRecipe> pancakes        = new ArrayList<>();
     
+    
     private Optional<Order> getOrder(UUID orderId) {
-    	return orders.stream().filter(o -> o.getId().equals(orderId)).findFirst();
+    	return Optional.ofNullable(mapOrders.get(orderId));
     }
     
     private boolean orderExists(UUID orderId) {
@@ -22,7 +23,7 @@ public class PancakeService {
 
     public Order createOrder(int building, int room) {
         Order order = new Order(building, room);
-        orders.add(order);
+        mapOrders.put(order.getId(), order);
         return order;
     }
     
@@ -130,7 +131,7 @@ public class PancakeService {
         OrderLog.logCancelOrder(order, this.pancakes);
 
         pancakes.removeIf(pancake -> pancake.getOrderId().equals(orderId));
-        orders.removeIf(o -> o.getId().equals(orderId));
+        mapOrders.remove(orderId);
         completedOrders.removeIf(u -> u.equals(orderId));
         preparedOrders.removeIf(u -> u.equals(orderId));
 
@@ -203,7 +204,7 @@ public class PancakeService {
         OrderLog.logDeliverOrder(order, this.pancakes);
 
         pancakes.removeIf(pancake -> pancake.getOrderId().equals(orderId));
-        orders.removeIf(o -> o.getId().equals(orderId));
+        mapOrders.remove(orderId);
         preparedOrders.removeIf(u -> u.equals(orderId));
 
         return new Object[] {order, pancakesToDeliver};
