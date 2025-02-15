@@ -26,6 +26,13 @@ public class PancakeService {
         return order;
     }
     
+    /**
+    * Creates a list of pancakes
+    *
+    * @param type of pancake, DarkChocolatePancake etc.
+    * @param count of pancakes to create
+    * @return A list of descriptions of pancakes in the order.
+    */
     public static List<Pancake> createPancakes(String type, int count) {
         List<Pancake> pancakes = new ArrayList<>();
         for (int i = 0; i < count; i++) {
@@ -67,35 +74,24 @@ public class PancakeService {
                        .map(PancakeRecipe::description).toList();
     }
 
-    private void addPancake(Collection<Pancake> pancakeRecipes, UUID orderId) {
+    /**
+     * Adds a collection of pancakes to a specified order.
+     * 
+     * This method associates each pancake in the given collection with the specified order,
+     * updates its order ID, and logs the addition. If the order does not exist, no pancakes
+     * are added.
+     *
+     * @param pancakesToAdd The collection of {@link Pancake} objects to be added.
+     * @param orderId The UUID of the order to which the pancakes should be assigned.
+     */
+    private void addPancake(Collection<Pancake> pancakesToAdd, UUID orderId) {
     	getOrder(orderId).ifPresent(order -> {
-    		for (PancakeRecipe pancakeRecipe : pancakeRecipes) {
+    		for (PancakeRecipe pancakeRecipe : pancakesToAdd) {
     			pancakeRecipe.setOrderId(orderId);
             	pancakes.add(pancakeRecipe);
             	OrderLog.logAddPancake(order, pancakeRecipe.description(), pancakes);
     		}
     	});
-    }
-    
-    private void addPancake(PancakeRecipe pancakeRecipe, UUID orderId) {
-    	getOrder(orderId).ifPresent(order -> {
-    		pancakeRecipe.setOrderId(orderId);
-        	pancakes.add(pancakeRecipe);
-        	OrderLog.logAddPancake(order, pancakeRecipe.description(), pancakes);
-    	});
-    }
-
-    /**
-     * Adds a pancake to a specific order and logs the addition.
-     *
-     * @param pancake The {@link PancakeRecipe} object representing the pancake to be added.
-     * @param order   The {@link Order} to which the pancake will be assigned.
-     */
-    private void addPancake(PancakeRecipe pancake, Order order) {
-        pancake.setOrderId(order.getId());
-        pancakes.add(pancake);
-
-        OrderLog.logAddPancake(order, pancake.description(), pancakes);
     }
 
     /**
