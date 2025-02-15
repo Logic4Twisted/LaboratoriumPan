@@ -37,7 +37,12 @@ public class Pancake implements PancakeRecipe {
 			return false;
 		}
 		Pancake other = (Pancake) obj;
-		return other.orderId.equals(other.getOrderId()) && other.getType() == this.getType();
+		return other.getOrderId().equals(other.getOrderId()) && other.getType() == this.getType();
+	}
+	
+	@Override
+	public int hashCode() {
+		return orderId.hashCode();
 	}
 
 }
