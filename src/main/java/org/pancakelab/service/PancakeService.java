@@ -121,7 +121,7 @@ public class PancakeService {
      * @param orderId The ID of the order to cancel.
      */
     public void cancelOrder(UUID orderId) {
-    	Optional<Order> optionalOrder = orders.stream().filter(o -> o.getId().equals(orderId)).findFirst();
+    	Optional<Order> optionalOrder = getOrder(orderId);
     	if (optionalOrder.isEmpty()) {
     		OrderLog.logNotExistingOrder(orderId);
     		return;
