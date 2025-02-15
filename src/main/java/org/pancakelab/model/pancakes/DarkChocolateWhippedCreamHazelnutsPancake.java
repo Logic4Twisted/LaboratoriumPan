@@ -6,6 +6,6 @@ public class DarkChocolateWhippedCreamHazelnutsPancake extends DarkChocolateWhip
 
     @Override
     public List<String> ingredients() {
-        return List.of("dark chocolate", "mustard", "whipped cream", "hazelnuts");
+        return List.of("dark chocolate", "whipped cream", "hazelnuts");
     }
 }

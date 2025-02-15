@@ -1,18 +1,22 @@
 package org.pancakelab.service;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.pancakelab.model.Order;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.pancakelab.model.Order;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -495,6 +499,26 @@ public class PancakeServiceTest {
         assertEquals(order.getId(), ((Order) deliveredOrder[0]).getId());
         assertTrue(pancakeService.viewOrder(order.getId()).isEmpty());
     }
+    
+    
+    @Test
+    public void GivenNewOrder_WhenAppendingToDescription_ThenNotUpdated_Test() {
+    	// setup
+        Order order = pancakeService.createOrder(10, 20);
+        addPancakes(order);
+        pancakeService.completeOrder(order.getId());
+        
+        List<String> expected = new LinkedList<String>();
+        for (String desc : pancakeService.viewOrder(order.getId())) {
+        	expected.add("" + desc);
+        }
+        for (String desc : pancakeService.viewOrder(order.getId())) {
+        	desc.replace("Choc", "Xxxx");
+        }
+        System.out.println(String.join(",", pancakeService.viewOrder(order.getId())));
+        assertEquals(String.join(",", expected), String.join(",", pancakeService.viewOrder(order.getId())));
+    }
+    
 
     private void addPancakes(Order order) {
         pancakeService.addDarkChocolatePancake(order.getId(), 3);

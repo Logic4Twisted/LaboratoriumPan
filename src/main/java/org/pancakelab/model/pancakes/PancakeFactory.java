@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PancakeFactory {
-	private static final Map<String, Pancake> pancakeCache = new HashMap<>();
+	private static final Map<String, PancakeType> pancakeCache = new HashMap<>();
 
     public static Pancake getPancake(String type) {
-        return pancakeCache.computeIfAbsent(type, t -> switch (t) {
+        PancakeType pancakeType = pancakeCache.computeIfAbsent(type, t -> switch (t) {
             case "DarkChocolatePancake" -> new DarkChocolatePancake();
             case "DarkChocolateWhippedCreamPancake" -> new DarkChocolateWhippedCreamPancake();
             case "DarkChocolateWhippedCreamHazelnutsPancake" -> new DarkChocolateWhippedCreamHazelnutsPancake();
@@ -16,6 +16,7 @@ public class PancakeFactory {
             
             default -> throw new IllegalArgumentException("Unknown pancake type: " + t);
         });
+        return new Pancake(pancakeType);
     }
 
 }
