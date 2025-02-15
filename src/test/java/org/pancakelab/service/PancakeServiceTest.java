@@ -405,6 +405,96 @@ public class PancakeServiceTest {
         assertEquals(List.of(), ordersPancakes);
     }
     
+    @Test
+    public void GivenNonExistentOrder_WhenCancellingOrder_ThenNothingHappens_Test() {
+        // setup
+        UUID invalidOrderId = UUID.randomUUID();
+
+        // exercise
+        pancakeService.cancelOrder(invalidOrderId);
+
+        // verify (no exception should be thrown, no changes to the system)
+        assertFalse(pancakeService.listCompletedOrders().contains(invalidOrderId));
+        assertFalse(pancakeService.listPreparedOrders().contains(invalidOrderId));
+    }
+    
+    @Test
+    public void GivenOrderWithoutPancakes_WhenCompletingOrder_ThenOrderCompleted_Test() {
+        // setup
+        Order order = pancakeService.createOrder(10, 20);
+
+        // exercise
+        pancakeService.completeOrder(order.getId());
+
+        // verify
+        assertTrue(pancakeService.listCompletedOrders().contains(order.getId()));
+    }
+    
+    @Test
+    public void GivenOrderNotCompleted_WhenPreparingOrder_ThenOrderNotPrepared_Test() {
+        // setup
+        Order order = pancakeService.createOrder(10, 20);
+        addPancakes(order);
+
+        // exercise
+        pancakeService.prepareOrder(order.getId());
+
+        // verify
+        assertFalse(pancakeService.listPreparedOrders().contains(order.getId()));
+    }
+    
+    @Test
+    public void GivenOrderDelivered_WhenDeliveringAgain_ThenOrderNotFound_Test() {
+        // setup
+        Order order = pancakeService.createOrder(10, 20);
+        addPancakes(order);
+        pancakeService.completeOrder(order.getId());
+        pancakeService.prepareOrder(order.getId());
+
+        // first delivery
+        Object[] firstDelivery = pancakeService.deliverOrder(order.getId());
+
+        // exercise
+        Object[] secondDelivery = pancakeService.deliverOrder(order.getId());
+
+        // verify
+        assertNotNull(firstDelivery);
+        assertNull(secondDelivery);
+    }
+    
+    @Test
+    public void GivenLargeNumberOfPancakes_WhenAddingAndRemoving_ThenSystemHandlesProperly_Test() {
+        // setup
+        Order order = pancakeService.createOrder(10, 20);
+        int largeCount = 10_000;
+        
+        // exercise
+        pancakeService.addDarkChocolatePancake(order.getId(), largeCount);
+        
+        // verify
+        assertEquals(largeCount, pancakeService.viewOrder(order.getId()).size());
+
+        // remove half and check again
+        pancakeService.removePancakes(DARK_CHOCOLATE_PANCAKE_DESCRIPTION, order.getId(), largeCount / 2);
+        assertEquals(largeCount / 2, pancakeService.viewOrder(order.getId()).size());
+    }
+    
+    @Test
+    public void GivenNewOrder_WhenProcessedThroughLifecycle_ThenSuccessfullyDelivered_Test() {
+        // setup
+        Order order = pancakeService.createOrder(10, 20);
+        addPancakes(order);
+
+        // exercise
+        pancakeService.completeOrder(order.getId());
+        pancakeService.prepareOrder(order.getId());
+        Object[] deliveredOrder = pancakeService.deliverOrder(order.getId());
+
+        // verify
+        assertNotNull(deliveredOrder);
+        assertEquals(order.getId(), ((Order) deliveredOrder[0]).getId());
+        assertTrue(pancakeService.viewOrder(order.getId()).isEmpty());
+    }
 
     private void addPancakes(Order order) {
         pancakeService.addDarkChocolatePancake(order.getId(), 3);

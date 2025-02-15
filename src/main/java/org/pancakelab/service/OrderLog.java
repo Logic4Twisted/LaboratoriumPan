@@ -40,4 +40,8 @@ public class OrderLog {
     public static void logNotExistingOrder(UUID orderId) {
     	log.append("Order %s does not exist".formatted(orderId.toString()));
     }
+    
+    public static void LogNotCompletedOrder(UUID orderId) {
+    	log.append("Order %s is not completed yet".formatted(orderId.toString()));
+    }
 }

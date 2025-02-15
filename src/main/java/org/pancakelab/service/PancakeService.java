@@ -109,7 +109,7 @@ public class PancakeService {
                    removedCount.getAndIncrement() < count;
         });
 
-        Order order = orders.stream().filter(o -> o.getId().equals(orderId)).findFirst().get();
+        Order order = getOrder(orderId).get();
         OrderLog.logRemovePancakes(order, description, removedCount.get(), pancakes);
     }
 
@@ -167,6 +167,10 @@ public class PancakeService {
     public void prepareOrder(UUID orderId) {
     	if (!orderExists(orderId)) {
     		OrderLog.logNotExistingOrder(orderId);
+    		return;
+    	}
+    	if (!completedOrders.contains(orderId)) {
+    		OrderLog.LogNotCompletedOrder(orderId);
     		return;
     	}
         preparedOrders.add(orderId);
