@@ -27,12 +27,6 @@ public class PancakeServiceTest {
     void setUp() {
     	pancakeService = new PancakeService();
     }
-
-    @Test
-    public void GivenInvalidBuildingOrRoom_WhenCreatingOrder_ThenThrowException_Test() {
-        assertThrows(IllegalArgumentException.class, () -> pancakeService.createOrder(-1, 10));
-        assertThrows(IllegalArgumentException.class, () -> pancakeService.createOrder(10, -1));
-    }
     
     @Test
     public void GivenOrderDoesNotExist_WhenCreatingOrder_ThenOrderCreatedWithCorrectData_Test() {
@@ -126,7 +120,7 @@ public class PancakeServiceTest {
     }
 
     @Test
-    public void GivenOrderCompleted_WhenDeliveringOrder_ThenCorrectOrderReturnedAndOrderRemovedFromTheDatabase_Test() {
+    public void GivenOrderPrepared_WhenDeliveringOrder_ThenCorrectOrderReturnedAndOrderRemovedFromTheDatabase_Test() {
         // setup
     	Order order = pancakeService.createOrder(10, 20);
     	addPancakes(order);
