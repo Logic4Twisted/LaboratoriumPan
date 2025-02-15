@@ -11,46 +11,48 @@ public class PancakeService {
     private Set<UUID>           completedOrders = new HashSet<>();
     private Set<UUID>           preparedOrders  = new HashSet<>();
     private List<PancakeRecipe> pancakes        = new ArrayList<>();
+    
+    private Optional<Order> getOrder(UUID orderId) {
+    	return orders.stream().filter(o -> o.getId().equals(orderId)).findFirst();
+    }
+    
+    private boolean orderExists(UUID orderId) {
+    	return getOrder(orderId).isPresent();
+    }
 
     public Order createOrder(int building, int room) {
         Order order = new Order(building, room);
         orders.add(order);
         return order;
     }
+    
+    public static List<Pancake> createPancakes(String type, int count) {
+        List<Pancake> pancakes = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            pancakes.add(PancakeFactory.getPancake(type));
+        }
+        return pancakes;
+    }
+    
 
     public void addDarkChocolatePancake(UUID orderId, int count) {
-        for (int i = 0; i < count; ++i) {
-            addPancake(new DarkChocolatePancake(),
-                       orders.stream().filter(o -> o.getId().equals(orderId)).findFirst().get());
-        }
+    	addPancake(createPancakes("DarkChocolatePancake", count), orderId);
     }
 
     public void addDarkChocolateWhippedCreamPancake(UUID orderId, int count) {
-        for (int i = 0; i < count; ++i) {
-            addPancake(new DarkChocolateWhippedCreamPancake(),
-                       orders.stream().filter(o -> o.getId().equals(orderId)).findFirst().get());
-        }
+    	addPancake(createPancakes("DarkChocolateWhippedCreamPancake", count), orderId);
     }
 
     public void addDarkChocolateWhippedCreamHazelnutsPancake(UUID orderId, int count) {
-        for (int i = 0; i < count; ++i) {
-            addPancake(new DarkChocolateWhippedCreamHazelnutsPancake(),
-                       orders.stream().filter(o -> o.getId().equals(orderId)).findFirst().get());
-        }
+    	addPancake(createPancakes("DarkChocolateWhippedCreamHazelnutsPancake", count), orderId);
     }
 
     public void addMilkChocolatePancake(UUID orderId, int count) {
-        for (int i = 0; i < count; ++i) {
-            addPancake(new MilkChocolatePancake(),
-                       orders.stream().filter(o -> o.getId().equals(orderId)).findFirst().get());
-        }
+    	addPancake(createPancakes("MilkChocolatePancake", count), orderId);
     }
 
     public void addMilkChocolateHazelnutsPancake(UUID orderId, int count) {
-        for (int i = 0; i < count; ++i) {
-            addPancake(new MilkChocolateHazelnutsPancake(),
-                       orders.stream().filter(o -> o.getId().equals(orderId)).findFirst().get());
-        }
+    	addPancake(createPancakes("MilkChocolateHazelnutsPancake", count), orderId);
     }
 
     /**
@@ -65,6 +67,23 @@ public class PancakeService {
                        .map(PancakeRecipe::description).toList();
     }
 
+    private void addPancake(Collection<Pancake> pancakeRecipes, UUID orderId) {
+    	getOrder(orderId).ifPresent(order -> {
+    		for (PancakeRecipe pancakeRecipe : pancakeRecipes) {
+    			pancakeRecipe.setOrderId(orderId);
+            	pancakes.add(pancakeRecipe);
+            	OrderLog.logAddPancake(order, pancakeRecipe.description(), pancakes);
+    		}
+    	});
+    }
+    
+    private void addPancake(PancakeRecipe pancakeRecipe, UUID orderId) {
+    	getOrder(orderId).ifPresent(order -> {
+    		pancakeRecipe.setOrderId(orderId);
+        	pancakes.add(pancakeRecipe);
+        	OrderLog.logAddPancake(order, pancakeRecipe.description(), pancakes);
+    	});
+    }
 
     /**
      * Adds a pancake to a specific order and logs the addition.
@@ -100,11 +119,18 @@ public class PancakeService {
 
     /**
      * Cancels an order and removes all its pancakes.
+     * 
+     * changed behaviour: if order does not exists it does not throw an exception 
      *
      * @param orderId The ID of the order to cancel.
      */
     public void cancelOrder(UUID orderId) {
-        Order order = orders.stream().filter(o -> o.getId().equals(orderId)).findFirst().get();
+    	Optional<Order> optionalOrder = orders.stream().filter(o -> o.getId().equals(orderId)).findFirst();
+    	if (optionalOrder.isEmpty()) {
+    		OrderLog.logNotExistingOrder(orderId);
+    		return;
+    	}
+        Order order = optionalOrder.get();
         OrderLog.logCancelOrder(order, this.pancakes);
 
         pancakes.removeIf(pancake -> pancake.getOrderId().equals(orderId));
@@ -121,6 +147,10 @@ public class PancakeService {
      * @param orderId The ID of the order to complete.
      */
     public void completeOrder(UUID orderId) {
+    	if (!orderExists(orderId)) {
+    		OrderLog.logNotExistingOrder(orderId);
+    		return;
+    	}
         completedOrders.add(orderId);
     }
 
@@ -139,6 +169,10 @@ public class PancakeService {
      * @param orderId The ID of the order to prepare.
      */
     public void prepareOrder(UUID orderId) {
+    	if (!orderExists(orderId)) {
+    		OrderLog.logNotExistingOrder(orderId);
+    		return;
+    	}
         preparedOrders.add(orderId);
         completedOrders.removeIf(u -> u.equals(orderId));
     }
@@ -164,7 +198,7 @@ public class PancakeService {
     public Object[] deliverOrder(UUID orderId) {
         if (!preparedOrders.contains(orderId)) return null;
 
-        Order order = orders.stream().filter(o -> o.getId().equals(orderId)).findFirst().get();
+        Order order = getOrder(orderId).get();
         List<String> pancakesToDeliver = viewOrder(orderId);
         OrderLog.logDeliverOrder(order, this.pancakes);
 

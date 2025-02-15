@@ -86,9 +86,42 @@ public class PancakeServiceTest {
 
         // tear down
     }
+    
+    
+    @Test
+    public void GivenPancakesExists_WhenRemovingNotAddedPancakes_ThenCorrectNumberOfPancakesRemoved_Test() {
+        // setup
+    	Order order = pancakeService.createOrder(10, 20);
+    	pancakeService.addDarkChocolatePancake(order.getId(), 3);
+    	
+        // exercise
+        pancakeService.removePancakes(MILK_CHOCOLATE_PANCAKE_DESCRIPTION, order.getId(), 3);
+
+        // verify
+        List<String> ordersPancakes = pancakeService.viewOrder(order.getId());
+
+        assertEquals(List.of(DARK_CHOCOLATE_PANCAKE_DESCRIPTION,
+        					DARK_CHOCOLATE_PANCAKE_DESCRIPTION,
+        					DARK_CHOCOLATE_PANCAKE_DESCRIPTION), ordersPancakes);
+
+        // tear down
+    }
+    
+    @Test
+    public void GivenNonExistentOrder_WhenAddingPancakes_ThenNoPancakesAdded_Test() {
+        // setup
+        UUID invalidOrderId = UUID.randomUUID();
+
+        // exercise
+        pancakeService.addDarkChocolatePancake(invalidOrderId, 3);
+        
+        // verify
+        assertTrue(pancakeService.viewOrder(invalidOrderId).isEmpty());
+    }
+    
 
     @Test
-    public void GivenOrderExists_WhenCompletingOrder_ThenOrderCompleted_Test() {
+    public void GivenOrderExists_WhenCompletingOrder_ThenOrderCompletedAndPrepared_Test() {
         // setup
     	Order order = pancakeService.createOrder(10, 20);
 
@@ -96,14 +129,31 @@ public class PancakeServiceTest {
         pancakeService.completeOrder(order.getId());
 
         // verify
-        Set<UUID> completedOrdersOrders = pancakeService.listCompletedOrders();
-        assertTrue(completedOrdersOrders.contains(order.getId()));
-
+        Set<UUID> completedOrders = pancakeService.listCompletedOrders();
+        assertTrue(completedOrders.contains(order.getId()));
+        
+        Set<UUID> preparedOrders = pancakeService.listPreparedOrders();
+        assertTrue(preparedOrders.isEmpty());
         // tear down
     }
 
+    
     @Test
-    public void GivenOrderExists_WhenPreparingOrder_ThenOrderPrepared_Test() {
+    public void GivenOrderCompleted_WhenDeliverignOrder_ThenOrderDelivery_Test() {
+        // setup
+    	Order order = pancakeService.createOrder(10, 20);
+    	addPancakes(order);
+    	pancakeService.completeOrder(order.getId());
+
+        // exercise
+        Object[] result = pancakeService.deliverOrder(order.getId());
+
+        // verify
+        assertNull(result);
+    }
+    
+    @Test
+    public void GivenOrderCompleted_WhenPreparingOrder_ThenOrderPrepared_Test() {
         // setup
     	Order order = pancakeService.createOrder(10, 20);
     	addPancakes(order);
@@ -115,9 +165,28 @@ public class PancakeServiceTest {
         // verify
         Set<UUID> preparedOrders = pancakeService.listPreparedOrders();
         assertTrue(preparedOrders.contains(order.getId()));
-
-        // tear down
     }
+    
+    @Test
+    public void GivenOrderCompletedButNotPrepared_WhenDeliveringOrder_ThenOrderNotDelivered_Test() {
+        // setup
+    	Order order = pancakeService.createOrder(10, 20);
+    	addPancakes(order);
+    	pancakeService.completeOrder(order.getId());
+
+        // exercise
+        Object[] result = pancakeService.deliverOrder(order.getId());
+
+        // verify
+        assertNull(result);
+        
+        Set<UUID> complatedOrders = pancakeService.listCompletedOrders();
+        assertTrue(complatedOrders.contains(order.getId()));
+        
+        Set<UUID> preparedOrders = pancakeService.listPreparedOrders();
+        assertFalse(preparedOrders.contains(order.getId()));
+    }
+    
 
     @Test
     public void GivenOrderPrepared_WhenDeliveringOrder_ThenCorrectOrderReturnedAndOrderRemovedFromTheDatabase_Test() {
@@ -163,6 +232,179 @@ public class PancakeServiceTest {
 
         // tear down
     }
+    
+    @Test
+    public void GivenOrderCompleted_WhenCancellingOrder_ThenOrderAndPancakesRemoved_Test() {
+        // setup
+    	Order order = pancakeService.createOrder(10, 20);
+        addPancakes(order);
+        pancakeService.completeOrder(order.getId());
+        
+        // exercise
+        pancakeService.cancelOrder(order.getId());
+
+        // verify
+        Set<UUID> completedOrders = pancakeService.listCompletedOrders();
+        assertFalse(completedOrders.contains(order.getId()));
+
+        Set<UUID> preparedOrders = pancakeService.listPreparedOrders();
+        assertFalse(preparedOrders.contains(order.getId()));
+
+        List<String> ordersPancakes = pancakeService.viewOrder(order.getId());
+
+        assertEquals(List.of(), ordersPancakes);
+
+        // tear down
+    }
+    
+    @Test
+    public void GivenOrderPrepared_WhenCancellingOrder_ThenOrderDoesNotExis_Test() {
+        // setup
+    	Order order = pancakeService.createOrder(10, 20);
+        addPancakes(order);
+        pancakeService.completeOrder(order.getId());
+        pancakeService.prepareOrder(order.getId());
+        
+        // exercise
+        pancakeService.cancelOrder(order.getId());
+
+        // verify
+        Set<UUID> completedOrders = pancakeService.listCompletedOrders();
+        assertFalse(completedOrders.contains(order.getId()));
+
+        Set<UUID> preparedOrders = pancakeService.listPreparedOrders();
+        assertFalse(preparedOrders.contains(order.getId()));
+
+        List<String> ordersPancakes = pancakeService.viewOrder(order.getId());
+
+        assertEquals(List.of(), ordersPancakes);
+
+        // tear down
+    }
+    
+    @Test
+    public void GivenOrderDelivered_WhenCancellingOrder_ThenOrderDoesNotExist_Test() {
+        // setup
+    	Order order = pancakeService.createOrder(10, 20);
+        addPancakes(order);
+        pancakeService.completeOrder(order.getId());
+        pancakeService.prepareOrder(order.getId());
+        pancakeService.deliverOrder(order.getId());
+        
+        // exercise
+        pancakeService.cancelOrder(order.getId());
+
+        // verify
+        Set<UUID> completedOrders = pancakeService.listCompletedOrders();
+        assertFalse(completedOrders.contains(order.getId()));
+
+        Set<UUID> preparedOrders = pancakeService.listPreparedOrders();
+        assertFalse(preparedOrders.contains(order.getId()));
+
+        List<String> ordersPancakes = pancakeService.viewOrder(order.getId());
+
+        assertEquals(List.of(), ordersPancakes);
+       
+    }
+    
+    @Test
+    public void GivenOrderCancelled_WhenCancellingOrder_ThenOrderDoesNotExist_Test() {
+        // setup
+    	Order order = pancakeService.createOrder(10, 20);
+        addPancakes(order);
+        pancakeService.completeOrder(order.getId());
+        pancakeService.cancelOrder(order.getId());
+        
+        // exercise
+        pancakeService.cancelOrder(order.getId());
+
+        // verify
+        Set<UUID> completedOrders = pancakeService.listCompletedOrders();
+        assertFalse(completedOrders.contains(order.getId()));
+
+        Set<UUID> preparedOrders = pancakeService.listPreparedOrders();
+        assertFalse(preparedOrders.contains(order.getId()));
+
+        List<String> ordersPancakes = pancakeService.viewOrder(order.getId());
+
+        assertEquals(List.of(), ordersPancakes);
+       
+    }
+    
+    @Test
+    public void GivenOrderCancelled_WhenCompletingOrderAgain_ThenOrderDoesNotExist_Test() {
+        // setup
+    	Order order = pancakeService.createOrder(10, 20);
+        addPancakes(order);
+        pancakeService.completeOrder(order.getId());
+        pancakeService.cancelOrder(order.getId());
+        
+        // exercise
+        pancakeService.completeOrder(order.getId());
+
+        // verify
+        Set<UUID> completedOrders = pancakeService.listCompletedOrders();
+        assertFalse(completedOrders.contains(order.getId()));
+
+        Set<UUID> preparedOrders = pancakeService.listPreparedOrders();
+        assertFalse(preparedOrders.contains(order.getId()));
+
+        List<String> ordersPancakes = pancakeService.viewOrder(order.getId());
+
+        assertEquals(List.of(), ordersPancakes);
+    }
+    
+    
+    @Test
+    public void GivenOrderCancelled_WhenPreparingOrder_ThenOrderDoesNotExist_Test() {
+        // setup
+    	Order order = pancakeService.createOrder(10, 20);
+        addPancakes(order);
+        pancakeService.completeOrder(order.getId());
+        pancakeService.cancelOrder(order.getId());
+        
+        // exercise
+        pancakeService.prepareOrder(order.getId());
+
+        // verify
+        Set<UUID> completedOrders = pancakeService.listCompletedOrders();
+        assertFalse(completedOrders.contains(order.getId()));
+
+        Set<UUID> preparedOrders = pancakeService.listPreparedOrders();
+        assertFalse(preparedOrders.contains(order.getId()));
+
+        List<String> ordersPancakes = pancakeService.viewOrder(order.getId());
+
+        assertEquals(List.of(), ordersPancakes);
+       
+    }
+    
+    @Test
+    public void GivenOrderCancelled_WhenDeliveringOrder_ThenOrderDoesNotExist_Test() {
+        // setup
+    	Order order = pancakeService.createOrder(10, 20);
+        addPancakes(order);
+        pancakeService.completeOrder(order.getId());
+        pancakeService.prepareOrder(order.getId());
+        pancakeService.cancelOrder(order.getId());
+        
+        // exercise
+        Object[] result = pancakeService.deliverOrder(order.getId());
+
+        // verify
+        assertNull(result);
+        
+        Set<UUID> completedOrders = pancakeService.listCompletedOrders();
+        assertFalse(completedOrders.contains(order.getId()));
+
+        Set<UUID> preparedOrders = pancakeService.listPreparedOrders();
+        assertFalse(preparedOrders.contains(order.getId()));
+
+        List<String> ordersPancakes = pancakeService.viewOrder(order.getId());
+
+        assertEquals(List.of(), ordersPancakes);
+    }
+    
 
     private void addPancakes(Order order) {
         pancakeService.addDarkChocolatePancake(order.getId(), 3);
