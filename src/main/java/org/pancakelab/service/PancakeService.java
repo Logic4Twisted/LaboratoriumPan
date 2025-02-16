@@ -1,5 +1,6 @@
 package org.pancakelab.service;
 
+import org.pancakelab.model.DeliveryResult;
 import org.pancakelab.model.Order;
 import org.pancakelab.model.pancakes.*;
 
@@ -21,8 +22,12 @@ public class PancakeService {
     	return getOrder(orderId).isPresent();
     }
     
-    private boolean isOrderAlreadyCompleted(UUID orderId) {
+    private boolean isOrderCompleted(UUID orderId) {
     	return completedOrders.contains(orderId) || preparedOrders.contains(orderId);
+    }
+    
+    private boolean isOrderPrepared(UUID orderId) {
+    	return preparedOrders.contains(orderId);
     }
 
     public Order createOrder(int building, int room) {
@@ -80,7 +85,7 @@ public class PancakeService {
      */
     private void addPancake(Collection<Pancake> pancakesToAdd, UUID orderId) {
     	getOrder(orderId).ifPresent(order -> {
-    		if (isOrderAlreadyCompleted(orderId)) {
+    		if (isOrderCompleted(orderId)) {
     			return;
     		}
     		for (PancakeRecipe pancakeRecipe : pancakesToAdd) {
@@ -100,7 +105,7 @@ public class PancakeService {
      * @param count The number of pancakes to remove.
      */
     public void removePancakes(String description, UUID orderId, int count) {
-    	if (isOrderAlreadyCompleted(orderId)) {
+    	if (isOrderCompleted(orderId)) {
 			return;
 		}
         final AtomicInteger removedCount = new AtomicInteger(0);
@@ -206,22 +211,30 @@ public class PancakeService {
      * Delivers an order and removes it from the system.
      *
      * @param orderId The ID of the order to deliver.
-     * @return An array where:
-     *         - The first element is the delivered {@link Order}.
-     *         - The second element is a list of pancake descriptions.
-     *         Returns {@code null} if the order was not prepared.
+     * @return DeliveryResult
      */
-    public Object[] deliverOrder(UUID orderId) {
-        if (!preparedOrders.contains(orderId)) return null;
+    public DeliveryResult deliverOrder(UUID orderId) {
+        if (!isOrderPrepared(orderId)) {
+        	return new DeliveryResult(false, null, List.of());
+        }
 
         Order order = getOrder(orderId).get();
         List<String> pancakesToDeliver = viewOrder(orderId);
         OrderLog.logDeliverOrder(order, this.pancakes);
 
+        removeOrder(orderId);
+        
+        return new DeliveryResult(true, order, pancakesToDeliver);
+    }
+    
+    /**
+     * Remove order helper method
+     * 
+     * @param orderId The ID of the order to remove
+     */
+    private void removeOrder(UUID orderId) {
         pancakes.removeIf(pancake -> pancake.getOrderId().equals(orderId));
         mapOrders.remove(orderId);
-        preparedOrders.removeIf(u -> u.equals(orderId));
-
-        return new Object[] {order, pancakesToDeliver};
+        preparedOrders.remove(orderId);
     }
 }

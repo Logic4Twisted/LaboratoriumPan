@@ -16,6 +16,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.pancakelab.model.DeliveryResult;
 import org.pancakelab.model.Order;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -190,10 +191,10 @@ public class PancakeServiceTest {
     	pancakeService.completeOrder(order.getId());
 
         // exercise
-        Object[] result = pancakeService.deliverOrder(order.getId());
+        DeliveryResult result = pancakeService.deliverOrder(order.getId());
 
         // verify
-        assertNull(result);
+        assertFalse(result.isSuccess());
     }
     
     @Test
@@ -219,10 +220,10 @@ public class PancakeServiceTest {
     	pancakeService.completeOrder(order.getId());
 
         // exercise
-        Object[] result = pancakeService.deliverOrder(order.getId());
+        DeliveryResult result = pancakeService.deliverOrder(order.getId());
 
         // verify
-        assertNull(result);
+        assertFalse(result.isSuccess());
         
         Set<UUID> complatedOrders = pancakeService.listCompletedOrders();
         assertTrue(complatedOrders.contains(order.getId()));
@@ -242,14 +243,14 @@ public class PancakeServiceTest {
     	pancakeService.prepareOrder(order.getId());
 
         // exercise
-        Object[] deliveredOrder = pancakeService.deliverOrder(order.getId());
+        DeliveryResult deliveredOrder = pancakeService.deliverOrder(order.getId());
 
         // verify
         List<String> ordersPancakes = pancakeService.viewOrder(order.getId());
 
         assertEquals(List.of(), ordersPancakes);
-        assertEquals(order.getId(), ((Order) deliveredOrder[0]).getId());
-        assertEquals(pancakesToDeliver, (List<String>) deliveredOrder[1]);
+        assertEquals(order.getId(), deliveredOrder.getOrder().getId());
+        assertEquals(pancakesToDeliver, deliveredOrder.getPancakesToDeliver());
 
         // tear down
     }
@@ -433,10 +434,10 @@ public class PancakeServiceTest {
         pancakeService.cancelOrder(order.getId());
         
         // exercise
-        Object[] result = pancakeService.deliverOrder(order.getId());
+        DeliveryResult result = pancakeService.deliverOrder(order.getId());
 
         // verify
-        assertNull(result);
+        assertFalse(result.isSuccess());
         
         Set<UUID> completedOrders = pancakeService.listCompletedOrders();
         assertFalse(completedOrders.contains(order.getId()));
@@ -496,14 +497,23 @@ public class PancakeServiceTest {
         pancakeService.prepareOrder(order.getId());
 
         // first delivery
-        Object[] firstDelivery = pancakeService.deliverOrder(order.getId());
+        DeliveryResult firstDelivery = pancakeService.deliverOrder(order.getId());
 
         // exercise
-        Object[] secondDelivery = pancakeService.deliverOrder(order.getId());
+        DeliveryResult secondDelivery = pancakeService.deliverOrder(order.getId());
 
         // verify
-        assertNotNull(firstDelivery);
-        assertNull(secondDelivery);
+        assertTrue(firstDelivery.isSuccess());
+        assertFalse(secondDelivery.isSuccess());
+    }
+    
+    @Test
+    public void WhenDeliveringUnknownOrder_ThenFailGracefuly_Test() {
+    	// exercise
+    	DeliveryResult delivery = pancakeService.deliverOrder(UUID.randomUUID());
+    	
+    	//verify
+    	assertFalse(delivery.isSuccess());
     }
     
     @Test
@@ -532,11 +542,11 @@ public class PancakeServiceTest {
         // exercise
         pancakeService.completeOrder(order.getId());
         pancakeService.prepareOrder(order.getId());
-        Object[] deliveredOrder = pancakeService.deliverOrder(order.getId());
+        DeliveryResult deliveredOrder = pancakeService.deliverOrder(order.getId());
 
         // verify
-        assertNotNull(deliveredOrder);
-        assertEquals(order.getId(), ((Order) deliveredOrder[0]).getId());
+        assertTrue(deliveredOrder.isSuccess());
+        assertEquals(order.getId(), deliveredOrder.getOrder().getId());
         assertTrue(pancakeService.viewOrder(order.getId()).isEmpty());
     }
     
