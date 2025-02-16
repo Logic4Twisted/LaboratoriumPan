@@ -23,7 +23,7 @@ public class PancakeService {
     }
     
     private boolean isOrderCompleted(UUID orderId) {
-    	return completedOrders.contains(orderId) || preparedOrders.contains(orderId);
+    	return completedOrders.contains(orderId) || isOrderPrepared(orderId);
     }
     
     private boolean isOrderPrepared(UUID orderId) {
@@ -91,7 +91,8 @@ public class PancakeService {
     		for (PancakeRecipe pancakeRecipe : pancakesToAdd) {
     			pancakeRecipe.setOrderId(orderId);
             	pancakes.add(pancakeRecipe);
-            	OrderLog.logAddPancake(order, pancakeRecipe.description(), pancakes);
+            	//TODO fix this so its not called repeatedly
+            	OrderLog.logAddPancake(order, pancakeRecipe.description(), 1);
     		}
     	});
     }
@@ -118,7 +119,7 @@ public class PancakeService {
         Optional<Order> optionalOrder = getOrder(orderId);
         if (optionalOrder.isPresent()) {
         	Order order = optionalOrder.get();
-        	OrderLog.logRemovePancakes(order, description, removedCount.get(), pancakes);
+        	OrderLog.logRemovePancakes(order, description, removedCount.get(), viewOrder(orderId).size());
         }
     }
     
@@ -148,11 +149,10 @@ public class PancakeService {
     		return;
     	}
         Order order = optionalOrder.get();
-        OrderLog.logCancelOrder(order, this.pancakes);
-
+        long pancakesInOrder = viewOrder(orderId).size();
         removeOrder(orderId);
 
-        OrderLog.logCancelOrder(order,pancakes);
+        OrderLog.logCancelOrder(order,pancakesInOrder);
     }
 
     /**
@@ -217,7 +217,7 @@ public class PancakeService {
 
         Order order = getOrder(orderId).get();
         List<String> pancakesToDeliver = viewOrder(orderId);
-        OrderLog.logDeliverOrder(order, this.pancakes);
+        OrderLog.logDeliverOrder(order, pancakesToDeliver.size());
 
         removeOrder(orderId);
         
