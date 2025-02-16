@@ -1,15 +1,16 @@
 package org.pancakelab.model;
 
 import java.util.List;
+import java.util.UUID;
 
 public class DeliveryResult {
     private final boolean success;
-    private final Order order;
+    private final UUID orderId;
     private final List<String> pancakesToDeliver;
 
-    public DeliveryResult(boolean success, Order order, List<String> pancakesToDeliver) {
+    public DeliveryResult(boolean success, UUID orderId, List<String> pancakesToDeliver) {
         this.success = success;
-        this.order = order;
+        this.orderId = orderId;
         this.pancakesToDeliver = pancakesToDeliver;
     }
 
@@ -17,8 +18,8 @@ public class DeliveryResult {
         return success;
     }
 
-    public Order getOrder() {
-        return order;
+    public UUID getOrderId() {
+        return orderId;
     }
 
     public List<String> getPancakesToDeliver() {
@@ -29,7 +30,7 @@ public class DeliveryResult {
     public String toString() {
         return "DeliveryResult{" +
                 "success=" + success +
-                ", order=" + order +
+                ", order=" + orderId +
                 ", pancakesToDeliver=" + pancakesToDeliver +
                 '}';
     }

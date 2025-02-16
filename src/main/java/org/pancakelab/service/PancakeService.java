@@ -30,10 +30,16 @@ public class PancakeService {
     	return preparedOrders.contains(orderId);
     }
 
-    public Order createOrder(int building, int room) {
+    /**
+     * Create an order 
+     * @param building
+     * @param room
+     * @return UUID of order that was created
+     */
+    public UUID createOrder(int building, int room) {
         Order order = new Order(building, room);
         mapOrders.put(order.getId(), order);
-        return order;
+        return order.getId();
     }
     
     /**
@@ -43,7 +49,7 @@ public class PancakeService {
     * @param count of pancakes to create
     * @return A list of descriptions of pancakes in the order.
     */
-    public static List<Pancake> createPancakes(String type, int count) {
+    private static List<Pancake> createPancakes(String type, int count) {
         List<Pancake> pancakes = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             pancakes.add(PancakeFactory.getPancake(type));
@@ -221,7 +227,7 @@ public class PancakeService {
 
         removeOrder(orderId);
         
-        return new DeliveryResult(true, order, pancakesToDeliver);
+        return new DeliveryResult(true, order.getId(), pancakesToDeliver);
     }
     
     /**
