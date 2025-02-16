@@ -20,6 +20,10 @@ public class PancakeService {
     private boolean orderExists(UUID orderId) {
     	return getOrder(orderId).isPresent();
     }
+    
+    private boolean isOrderAlreadyCompleted(UUID orderId) {
+    	return completedOrders.contains(orderId) || preparedOrders.contains(orderId);
+    }
 
     public Order createOrder(int building, int room) {
         Order order = new Order(building, room);
@@ -63,6 +67,56 @@ public class PancakeService {
     	addPancake(createPancakes("MilkChocolateHazelnutsPancake", count), orderId);
     }
 
+
+    /**
+     * Adds a collection of pancakes to a specified order.
+     * 
+     * This method associates each pancake in the given collection with the specified order,
+     * updates its order ID, and logs the addition. If the order does not exist or order
+     * already completed, no pancakes are added.
+     *
+     * @param pancakesToAdd The collection of {@link Pancake} objects to be added.
+     * @param orderId The UUID of the order to which the pancakes should be assigned.
+     */
+    private void addPancake(Collection<Pancake> pancakesToAdd, UUID orderId) {
+    	getOrder(orderId).ifPresent(order -> {
+    		if (isOrderAlreadyCompleted(orderId)) {
+    			return;
+    		}
+    		for (PancakeRecipe pancakeRecipe : pancakesToAdd) {
+    			pancakeRecipe.setOrderId(orderId);
+            	pancakes.add(pancakeRecipe);
+            	OrderLog.logAddPancake(order, pancakeRecipe.description(), pancakes);
+    		}
+    	});
+    }
+
+    /**
+     * Removes specified pancakes from an order. If the order is completed, no pancakes
+     * are removed
+     *
+     * @param description The description of the pancake type to remove.
+     * @param orderId The ID of the order.
+     * @param count The number of pancakes to remove.
+     */
+    public void removePancakes(String description, UUID orderId, int count) {
+    	if (isOrderAlreadyCompleted(orderId)) {
+			return;
+		}
+        final AtomicInteger removedCount = new AtomicInteger(0);
+        pancakes.removeIf(pancake -> {
+            return pancake.getOrderId().equals(orderId) &&
+                   pancake.description().equals(description) &&
+                   removedCount.getAndIncrement() < count;
+        });
+
+        Optional<Order> optionalOrder = getOrder(orderId);
+        if (optionalOrder.isPresent()) {
+        	Order order = optionalOrder.get();
+        	OrderLog.logRemovePancakes(order, description, removedCount.get(), pancakes);
+        }
+    }
+    
     /**
      * Retrieves a list of pancake descriptions in an order.
      *
@@ -73,45 +127,6 @@ public class PancakeService {
         return pancakes.stream()
                        .filter(pancake -> pancake.getOrderId().equals(orderId))
                        .map(PancakeRecipe::description).toList();
-    }
-
-    /**
-     * Adds a collection of pancakes to a specified order.
-     * 
-     * This method associates each pancake in the given collection with the specified order,
-     * updates its order ID, and logs the addition. If the order does not exist, no pancakes
-     * are added.
-     *
-     * @param pancakesToAdd The collection of {@link Pancake} objects to be added.
-     * @param orderId The UUID of the order to which the pancakes should be assigned.
-     */
-    private void addPancake(Collection<Pancake> pancakesToAdd, UUID orderId) {
-    	getOrder(orderId).ifPresent(order -> {
-    		for (PancakeRecipe pancakeRecipe : pancakesToAdd) {
-    			pancakeRecipe.setOrderId(orderId);
-            	pancakes.add(pancakeRecipe);
-            	OrderLog.logAddPancake(order, pancakeRecipe.description(), pancakes);
-    		}
-    	});
-    }
-
-    /**
-     * Removes specified pancakes from an order.
-     *
-     * @param description The description of the pancake type to remove.
-     * @param orderId The ID of the order.
-     * @param count The number of pancakes to remove.
-     */
-    public void removePancakes(String description, UUID orderId, int count) {
-        final AtomicInteger removedCount = new AtomicInteger(0);
-        pancakes.removeIf(pancake -> {
-            return pancake.getOrderId().equals(orderId) &&
-                   pancake.description().equals(description) &&
-                   removedCount.getAndIncrement() < count;
-        });
-
-        Order order = getOrder(orderId).get();
-        OrderLog.logRemovePancakes(order, description, removedCount.get(), pancakes);
     }
 
     /**

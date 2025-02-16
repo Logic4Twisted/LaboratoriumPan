@@ -23,9 +23,11 @@ import org.pancakelab.model.Order;
 public class PancakeServiceTest {
     private PancakeService pancakeService;
     
-    private final static String DARK_CHOCOLATE_PANCAKE_DESCRIPTION           = "Delicious pancake with dark chocolate!";
-    private final static String MILK_CHOCOLATE_PANCAKE_DESCRIPTION           = "Delicious pancake with milk chocolate!";
-    private final static String MILK_CHOCOLATE_HAZELNUTS_PANCAKE_DESCRIPTION = "Delicious pancake with milk chocolate, hazelnuts!";
+    private final static String DARK_CHOCOLATE_PANCAKE_DESCRIPTION           				= "Delicious pancake with dark chocolate!";
+    private final static String MILK_CHOCOLATE_PANCAKE_DESCRIPTION           				= "Delicious pancake with milk chocolate!";
+    private final static String MILK_CHOCOLATE_HAZELNUTS_PANCAKE_DESCRIPTION 				= "Delicious pancake with milk chocolate, hazelnuts!";
+    private final static String DARK_CHOCOLATE_WHIPPED_CREAM_PANCAKE_DESCRIPTION 			= "Delicious pancake with dark chocolate, whipped cream!";
+    private final static String DARK_CHOCOLATE_WHIPPED_CREAM_HAZELNUTS_PANCAKE_DESCRIPTION 	= "Delicious pancake with dark chocolate, whipped cream, hazelnuts!";
     
     @BeforeEach
     void setUp() {
@@ -69,6 +71,30 @@ public class PancakeServiceTest {
 
         // tear down
     }
+    
+    @Test
+    public void GivenOrderExists_WhenAddingAllPancakes_ThenCorrectPancakesAdded_Test() {
+        // setup
+    	Order order = pancakeService.createOrder(10, 20);
+
+        // exercise
+    	pancakeService.addDarkChocolatePancake(order.getId(), 1);
+    	pancakeService.addDarkChocolateWhippedCreamPancake(order.getId(), 1);
+    	pancakeService.addDarkChocolateWhippedCreamHazelnutsPancake(order.getId(), 1);
+    	pancakeService.addMilkChocolatePancake(order.getId(), 1);
+    	pancakeService.addMilkChocolateHazelnutsPancake(order.getId(), 1);
+
+        // verify
+        List<String> ordersPancakes = pancakeService.viewOrder(order.getId());
+
+        assertEquals(List.of(DARK_CHOCOLATE_PANCAKE_DESCRIPTION,
+                             DARK_CHOCOLATE_WHIPPED_CREAM_PANCAKE_DESCRIPTION,
+                             DARK_CHOCOLATE_WHIPPED_CREAM_HAZELNUTS_PANCAKE_DESCRIPTION,
+                             MILK_CHOCOLATE_PANCAKE_DESCRIPTION,
+                             MILK_CHOCOLATE_HAZELNUTS_PANCAKE_DESCRIPTION), ordersPancakes);
+
+        // tear down
+    }
 
     @Test
     public void GivenPancakesExists_WhenRemovingPancakes_ThenCorrectNumberOfPancakesRemoved_Test() {
@@ -89,6 +115,20 @@ public class PancakeServiceTest {
                              MILK_CHOCOLATE_HAZELNUTS_PANCAKE_DESCRIPTION), ordersPancakes);
 
         // tear down
+    }
+    
+    @Test
+    public void GivenPancakesExist_WhenRemovePancakesFromDifferentOrder_ThenCorrectNumberOfPancakes_Test() {
+        // setup
+    	Order order = pancakeService.createOrder(10, 20);
+    	pancakeService.addDarkChocolatePancake(order.getId(), 1);
+    	
+    	// exercise
+    	pancakeService.removePancakes(DARK_CHOCOLATE_PANCAKE_DESCRIPTION, UUID.randomUUID(), 1);
+    	
+    	// verify
+    	List<String> orderPancakes = pancakeService.viewOrder(order.getId());
+    	assertEquals(List.of(DARK_CHOCOLATE_PANCAKE_DESCRIPTION), orderPancakes);
     }
     
     
