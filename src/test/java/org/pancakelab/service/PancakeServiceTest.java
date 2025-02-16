@@ -525,11 +525,11 @@ public class PancakeServiceTest {
         pancakeService.addDarkChocolatePancake(orderId, largeCount);
         
         // verify
-        assertEquals(largeCount, pancakeService.viewOrder(orderId).size());
+        assertEquals(PancakeService.MAX_PANCAKE_COUNT, pancakeService.viewOrder(orderId).size());
 
         // remove half and check again
         pancakeService.removePancakes(DARK_CHOCOLATE_PANCAKE_DESCRIPTION, orderId, largeCount / 2);
-        assertEquals(largeCount / 2, pancakeService.viewOrder(orderId).size());
+        assertEquals(0, pancakeService.viewOrder(orderId).size());
     }
     
     @Test

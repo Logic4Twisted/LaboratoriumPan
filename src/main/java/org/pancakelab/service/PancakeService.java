@@ -33,6 +33,8 @@ public class PancakeService {
     	"hazelnuts"
     ));
     
+    public static final int MAX_PANCAKE_COUNT = 100;
+    
     
     private Optional<Order> getOrder(UUID orderId) {
     	return Optional.ofNullable(mapOrders.get(orderId));
@@ -88,6 +90,8 @@ public class PancakeService {
         if (!orderExists(orderId) || isOrderCompleted(orderId)) {
             return;
         }
+        
+        count = Math.min(count, MAX_PANCAKE_COUNT);
 
         List<CustomPancake> pancakesToAdd = new ArrayList<>();
         for (int i = 0; i < count; i++) {
@@ -108,9 +112,9 @@ public class PancakeService {
      */
     private List<String> getApprovedIngredients(List<String> ingredients) {
         return ingredients.stream()
-                .map(String::toLowerCase)  // Normalize case first
-                .filter(APPROVED_INGREDIENTS::contains) // Check against set
-                .toList(); // Returns immutable list
+                .map(String::toLowerCase)  
+                .filter(APPROVED_INGREDIENTS::contains) 
+                .toList();
     }
     
     
