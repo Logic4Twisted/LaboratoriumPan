@@ -150,10 +150,7 @@ public class PancakeService {
         Order order = optionalOrder.get();
         OrderLog.logCancelOrder(order, this.pancakes);
 
-        pancakes.removeIf(pancake -> pancake.getOrderId().equals(orderId));
-        mapOrders.remove(orderId);
-        completedOrders.removeIf(u -> u.equals(orderId));
-        preparedOrders.removeIf(u -> u.equals(orderId));
+        removeOrder(orderId);
 
         OrderLog.logCancelOrder(order,pancakes);
     }
@@ -235,6 +232,7 @@ public class PancakeService {
     private void removeOrder(UUID orderId) {
         pancakes.removeIf(pancake -> pancake.getOrderId().equals(orderId));
         mapOrders.remove(orderId);
+        completedOrders.remove(orderId);
         preparedOrders.remove(orderId);
     }
 }
