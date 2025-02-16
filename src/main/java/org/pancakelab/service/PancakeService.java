@@ -1,17 +1,37 @@
 package org.pancakelab.service;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
 import org.pancakelab.model.DeliveryResult;
 import org.pancakelab.model.Order;
-import org.pancakelab.model.pancakes.*;
-
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import org.pancakelab.model.pancakes.CustomPancake;
+import org.pancakelab.model.pancakes.Pancake;
+import org.pancakelab.model.pancakes.PancakeBuilder;
+import org.pancakelab.model.pancakes.PancakeRecipe;
 
 public class PancakeService {
 	private Map<UUID, Order> mapOrders = new HashMap<UUID, Order>();
     private Set<UUID>           completedOrders = new HashSet<>();
     private Set<UUID>           preparedOrders  = new HashSet<>();
     private List<PancakeRecipe> pancakes        = new ArrayList<>();
+    
+    private static final Set<String> APPROVED_INGREDIENTS = new HashSet<>(Set.of(
+    	"dark chocolate", 
+    	"milk chocolate", 
+    	"whipped cream", 
+    	"hazelnuts"
+    ));
     
     
     private Optional<Order> getOrder(UUID orderId) {
@@ -42,40 +62,64 @@ public class PancakeService {
         return order.getId();
     }
     
-    /**
-    * Creates a list of pancakes
-    *
-    * @param type of pancake, DarkChocolatePancake etc.
-    * @param count of pancakes to create
-    * @return A list of descriptions of pancakes in the order.
-    */
-    private static List<Pancake> createPancakes(String type, int count) {
-        List<Pancake> pancakes = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            pancakes.add(PancakeFactory.getPancake(type));
-        }
-        return pancakes;
-    }
-    
 
     public void addDarkChocolatePancake(UUID orderId, int count) {
-    	addPancake(createPancakes("DarkChocolatePancake", count), orderId);
+    	addCustomPancake(orderId, List.of("dark chocolate"), count);
     }
 
     public void addDarkChocolateWhippedCreamPancake(UUID orderId, int count) {
-    	addPancake(createPancakes("DarkChocolateWhippedCreamPancake", count), orderId);
+    	addCustomPancake(orderId, List.of("dark chocolate", "whipped cream"), count);
     }
 
     public void addDarkChocolateWhippedCreamHazelnutsPancake(UUID orderId, int count) {
-    	addPancake(createPancakes("DarkChocolateWhippedCreamHazelnutsPancake", count), orderId);
+    	addCustomPancake(orderId, List.of("dark chocolate", "whipped cream", "hazelnuts"), count);
     }
 
     public void addMilkChocolatePancake(UUID orderId, int count) {
-    	addPancake(createPancakes("MilkChocolatePancake", count), orderId);
+    	addCustomPancake(orderId, List.of("milk chocolate"), count);
     }
 
     public void addMilkChocolateHazelnutsPancake(UUID orderId, int count) {
-    	addPancake(createPancakes("MilkChocolateHazelnutsPancake", count), orderId);
+    	addCustomPancake(orderId, List.of("milk chocolate", "hazelnuts"), count);
+    }
+    
+    
+    private void addCustomPancake(UUID orderId, List<String> ingredients, int count) {
+        if (!orderExists(orderId) || isOrderCompleted(orderId)) {
+            return;
+        }
+
+        List<CustomPancake> pancakesToAdd = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+        	PancakeBuilder builder = new PancakeBuilder();
+                
+            for (String ingredient : getApprovedIngredients(ingredients)) {
+            	builder.addIngredient(ingredient);            
+            }
+            CustomPancake customPancake = builder.build();
+            customPancake.setOrderId(orderId);
+            pancakesToAdd.add(customPancake);
+        }
+        addPancake(pancakesToAdd, orderId);
+    }
+    
+    /**
+     * Filters and returns only approved ingredients, converted to lowercase.
+     */
+    private List<String> getApprovedIngredients(List<String> ingredients) {
+        return ingredients.stream()
+                .map(String::toLowerCase)  // Normalize case first
+                .filter(APPROVED_INGREDIENTS::contains) // Check against set
+                .toList(); // Returns immutable list
+    }
+    
+    
+    /**
+     * Make sense to provide users with available ingredients
+     * @return List of ingredients
+     */
+    public List<String> getAvailableIngredients() {
+    	return new LinkedList<String>(APPROVED_INGREDIENTS);
     }
 
 
@@ -89,7 +133,7 @@ public class PancakeService {
      * @param pancakesToAdd The collection of {@link Pancake} objects to be added.
      * @param orderId The UUID of the order to which the pancakes should be assigned.
      */
-    private void addPancake(Collection<Pancake> pancakesToAdd, UUID orderId) {
+    private void addPancake(Collection<CustomPancake> pancakesToAdd, UUID orderId) {
     	getOrder(orderId).ifPresent(order -> {
     		if (isOrderCompleted(orderId)) {
     			return;
@@ -97,8 +141,7 @@ public class PancakeService {
     		for (PancakeRecipe pancakeRecipe : pancakesToAdd) {
     			pancakeRecipe.setOrderId(orderId);
             	pancakes.add(pancakeRecipe);
-            	//TODO fix this so its not called repeatedly
-            	OrderLog.logAddPancake(order, pancakeRecipe.description(), 1);
+            	OrderLog.logAddPancake(order, pancakeRecipe.description(), viewOrder(orderId).size());
     		}
     	});
     }
@@ -112,7 +155,7 @@ public class PancakeService {
      * @param count The number of pancakes to remove.
      */
     public void removePancakes(String description, UUID orderId, int count) {
-    	if (isOrderCompleted(orderId)) {
+    	if (!orderExists(orderId) || isOrderCompleted(orderId)) {
 			return;
 		}
         final AtomicInteger removedCount = new AtomicInteger(0);

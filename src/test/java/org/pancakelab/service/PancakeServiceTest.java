@@ -568,6 +568,26 @@ public class PancakeServiceTest {
         assertEquals(String.join(",", expected), String.join(",", pancakeService.viewOrder(orderId)));
     }
     
+    @Test
+    public void testGetAvailableIngredients() {
+        PancakeService pancakeService = new PancakeService();
+
+        // Expected ingredients (from the HashSet in PancakeService)
+        Set<String> expectedIngredients = Set.of("dark chocolate", "milk chocolate", "whipped cream", "hazelnuts");
+
+        // Get available ingredients
+        List<String> availableIngredients = pancakeService.getAvailableIngredients();
+
+        // Check that the list contains all approved ingredients
+        assertEquals(expectedIngredients.size(), availableIngredients.size(), "Ingredient list size mismatch!");
+        assertTrue(availableIngredients.containsAll(expectedIngredients), "Missing approved ingredients!");
+
+        // Ensure the list is immutable (modifying it doesn't affect the original)
+        availableIngredients.add("strawberries"); // This should not modify the actual approved set
+        List<String> newAvailableIngredients = pancakeService.getAvailableIngredients();
+        assertFalse(newAvailableIngredients.contains("strawberries"), "New ingredient was incorrectly added!");
+    }
+    
 
     private void addPancakes(UUID orderId) {
         pancakeService.addDarkChocolatePancake(orderId, 3);
