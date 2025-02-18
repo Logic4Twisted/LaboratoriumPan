@@ -26,11 +26,16 @@ public class PancakeService {
     private Set<UUID>           preparedOrders  = new HashSet<>();
     private List<PancakeRecipe> pancakes        = new ArrayList<>();
     
+    public static String INGREDIENT_DARK_CHOCOLATE = "dark chocolate";
+    public static String INGREDIENT_MILK_CHOCOLATE = "milk chocolate";
+    public static String INGREDIENT_WHIPPED_CREAM = "whipped cream";
+    public static String INGREDIENT_HAZELNUTS = "hazelnuts";
+    
     private static final Set<String> APPROVED_INGREDIENTS = new HashSet<>(Set.of(
-    	"dark chocolate", 
-    	"milk chocolate", 
-    	"whipped cream", 
-    	"hazelnuts"
+    	INGREDIENT_DARK_CHOCOLATE, 
+    	INGREDIENT_MILK_CHOCOLATE, 
+    	INGREDIENT_WHIPPED_CREAM, 
+    	INGREDIENT_HAZELNUTS
     ));
     
     public static final int MAX_PANCAKE_COUNT = 100;
@@ -66,23 +71,23 @@ public class PancakeService {
     
 
     public void addDarkChocolatePancake(UUID orderId, int count) {
-    	addCustomPancake(orderId, List.of("dark chocolate"), count);
+    	addCustomPancake(orderId, List.of(INGREDIENT_DARK_CHOCOLATE), count);
     }
 
     public void addDarkChocolateWhippedCreamPancake(UUID orderId, int count) {
-    	addCustomPancake(orderId, List.of("dark chocolate", "whipped cream"), count);
+    	addCustomPancake(orderId, List.of(INGREDIENT_DARK_CHOCOLATE, INGREDIENT_WHIPPED_CREAM), count);
     }
 
     public void addDarkChocolateWhippedCreamHazelnutsPancake(UUID orderId, int count) {
-    	addCustomPancake(orderId, List.of("dark chocolate", "whipped cream", "hazelnuts"), count);
+    	addCustomPancake(orderId, List.of(INGREDIENT_DARK_CHOCOLATE, INGREDIENT_WHIPPED_CREAM, INGREDIENT_HAZELNUTS), count);
     }
 
     public void addMilkChocolatePancake(UUID orderId, int count) {
-    	addCustomPancake(orderId, List.of("milk chocolate"), count);
+    	addCustomPancake(orderId, List.of(INGREDIENT_MILK_CHOCOLATE), count);
     }
 
     public void addMilkChocolateHazelnutsPancake(UUID orderId, int count) {
-    	addCustomPancake(orderId, List.of("milk chocolate", "hazelnuts"), count);
+    	addCustomPancake(orderId, List.of(INGREDIENT_MILK_CHOCOLATE, INGREDIENT_HAZELNUTS), count);
     }
     
     
