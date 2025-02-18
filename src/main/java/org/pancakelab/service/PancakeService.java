@@ -24,7 +24,6 @@ public class PancakeService {
 	private Map<UUID, Order> mapOrders = new HashMap<UUID, Order>();
     private Set<UUID>           completedOrders = new HashSet<>();
     private Set<UUID>           preparedOrders  = new HashSet<>();
-    //private List<PancakeRecipe> pancakes        = new ArrayList<>();
     private Map<Order, List<PancakeRecipe>> orderToPancakes = new HashMap<Order, List<PancakeRecipe>>();
     
     public static String INGREDIENT_DARK_CHOCOLATE = "dark chocolate";
@@ -150,7 +149,7 @@ public class PancakeService {
     			return;
     		}
     		
-    		List<PancakeRecipe> pancakesInOrder = orderToPancakes.getOrDefault(order, new LinkedList<PancakeRecipe>());
+    		List<PancakeRecipe> pancakesInOrder = orderToPancakes.get(order);
     		for (CustomPancake pancake : pancakesToAdd) {
     			pancake.setOrderId(orderId);
     			pancakesInOrder.add(pancake);
@@ -292,7 +291,11 @@ public class PancakeService {
      * @param orderId The ID of the order to remove
      */
     private void removeOrder(UUID orderId) {
-        orderToPancakes.getOrDefault(orderId, new LinkedList<PancakeRecipe>()).removeIf(pancake -> pancake.getOrderId().equals(orderId));
+    	if (!orderExists(orderId)) {
+    		return;
+    	}
+    	Order order = mapOrders.get(orderId);
+        orderToPancakes.get(order).removeIf(pancake -> pancake.getOrderId().equals(orderId));
         mapOrders.remove(orderId);
         completedOrders.remove(orderId);
         preparedOrders.remove(orderId);
