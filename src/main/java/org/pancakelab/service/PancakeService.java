@@ -22,7 +22,7 @@ import org.pancakelab.model.pancakes.PancakeRecipe;
 
 public class PancakeService {
 	private Map<UUID, Order> mapOrders = new HashMap<UUID, Order>();
-    private Map<Order, List<PancakeRecipe>> orderToPancakes = new HashMap<Order, List<PancakeRecipe>>();
+    //private Map<Order, List<PancakeRecipe>> orderToPancakes = new HashMap<Order, List<PancakeRecipe>>();
     
     public static String INGREDIENT_DARK_CHOCOLATE = "dark chocolate";
     public static String INGREDIENT_MILK_CHOCOLATE = "milk chocolate";
@@ -71,7 +71,6 @@ public class PancakeService {
     public UUID createOrder(int building, int room) {
         Order order = new Order(building, room);
         mapOrders.put(order.getId(), order);
-        orderToPancakes.put(order, new LinkedList<PancakeRecipe>());
         return order.getId();
     }
     
@@ -154,13 +153,11 @@ public class PancakeService {
     			return;
     		}
     		
-    		List<PancakeRecipe> pancakesInOrder = orderToPancakes.get(order);
     		for (CustomPancake pancake : pancakesToAdd) {
     			pancake.setOrderId(orderId);
-    			pancakesInOrder.add(pancake);
-    			OrderLog.logAddPancake(order, pancake.description(), pancakesInOrder.size());
+    			order.addPancake(pancake);
+    			OrderLog.logAddPancake(order, pancake.description(), order.getPancakes().size());
     		}
-    		orderToPancakes.put(order, pancakesInOrder);
     	});
     }
 
@@ -176,15 +173,15 @@ public class PancakeService {
     	if (!orderExists(orderId) || isOrderCompleted(orderId)) {
 			return;
 		}
-        final AtomicInteger removedCount = new AtomicInteger(0);
         Order order = getOrder(orderId).get();
-        orderToPancakes.get(order).removeIf(pancake -> {
-            return pancake.getOrderId().equals(orderId) &&
-                   pancake.description().equals(description) &&
-                   removedCount.getAndIncrement() < count;
-        });
+        int countRemoved = 0;
+        for (int i = 0; i < count; i++) {
+        	if (order.removePancake(description)) {
+        		countRemoved++;
+        	};
+        }
 
-        OrderLog.logRemovePancakes(order, description, removedCount.get(), orderToPancakes.get(order).size());
+        OrderLog.logRemovePancakes(order, description, countRemoved, order.getPancakes().size());
     }
     
     /**
@@ -197,8 +194,7 @@ public class PancakeService {
     	if (!orderExists(orderId)) {
     		return new LinkedList<String>();
     	}
-        return orderToPancakes.getOrDefault(getOrder(orderId).get(), new LinkedList<PancakeRecipe>()).stream()
-                       .map(PancakeRecipe::description).toList();
+    	return getOrder(orderId).get().getPancakes().stream().map(PancakeRecipe::description).toList();
     }
 
     /**
@@ -293,11 +289,6 @@ public class PancakeService {
      * @param orderId The ID of the order to remove
      */
     private void removeOrder(UUID orderId) {
-    	if (!orderExists(orderId)) {
-    		return;
-    	}
-    	Order order = mapOrders.get(orderId);
-        orderToPancakes.remove(order);
         mapOrders.remove(orderId);
     }
 }

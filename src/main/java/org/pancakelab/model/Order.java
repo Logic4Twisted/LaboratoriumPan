@@ -3,6 +3,7 @@ package org.pancakelab.model;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.pancakelab.model.pancakes.PancakeRecipe;
@@ -51,11 +52,15 @@ public class Order {
     	pancakes.add(pancake);
     }
     
-    public void removePancake(PancakeRecipe pancake) {
-    	pancakes.stream()
-    		.filter(p -> p.equals(pancake))
-    		.findFirst()
-    		.ifPresent(pancakes::remove);
+    public boolean removePancake(String description) {
+    	Optional<PancakeRecipe> pancake = pancakes.stream()
+    		.filter(p -> p.description().equals(description))
+    		.findFirst();
+    	if (pancake.isPresent()) {
+    		pancakes.remove(pancake.get());
+    		return true;
+    	}
+    	return false;
     }
 
     public UUID getId() {

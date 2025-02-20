@@ -45,7 +45,7 @@ class OrderManagerTest {
         order.addPancake(pancake1);
         order.addPancake(pancake2);
 
-        order.removePancake(pancake1);
+        order.removePancake(pancake1.description());
         List<PancakeRecipe> recipes = order.getPancakes();
 
         assertEquals(1, recipes.size(), "List should contain only one pancake after removal");
@@ -60,7 +60,7 @@ class OrderManagerTest {
         PancakeRecipe nonExisting = builder
         		.addIngredient(PancakeService.INGREDIENT_HAZELNUTS)
         		.addIngredient(PancakeService.INGREDIENT_WHIPPED_CREAM).build();
-        order.removePancake(nonExisting);
+        order.removePancake(nonExisting.description());
 
         List<PancakeRecipe> recipes = order.getPancakes();
         assertEquals(1, recipes.size(), "List should still contain one pancake");
