@@ -1,13 +1,19 @@
 package org.pancakelab.model;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+
+import org.pancakelab.model.pancakes.PancakeRecipe;
 
 public class Order {
     private final UUID id;
     private final int building;
     private final int room;
     private OrderStatus status;
+    
+    private List<PancakeRecipe> pancakes;
 
     public Order(int building, int room) {
     	validateBuildingAndRoom(building, room);
@@ -15,6 +21,7 @@ public class Order {
         this.building = building;
         this.room = room;
         status = OrderStatus.INITIATED;
+        pancakes = new LinkedList<PancakeRecipe>();
     }
     
     private void validateBuildingAndRoom(int building, int room) {
@@ -24,6 +31,31 @@ public class Order {
         if (room <= 0) {
             throw new IllegalArgumentException("Room number must be greater than zero.");
         }
+    }
+    
+    private void setStatus(OrderStatus nextStatus) {
+    	if (status == OrderStatus.INITIATED && nextStatus == OrderStatus.COMPLETED) {
+    		this.status = nextStatus;
+    	} else if (status == OrderStatus.COMPLETED && nextStatus == OrderStatus.PREPARED) {
+    		this.status = nextStatus;
+    	} else if (status == OrderStatus.PREPARED && nextStatus == OrderStatus.DELIVERED) {
+    		this.status = nextStatus;
+    	}
+    }
+    
+    public List<PancakeRecipe> getPancakes() {
+    	return new LinkedList<PancakeRecipe>(pancakes);
+    }
+    
+    public void addPancake(PancakeRecipe pancake) {
+    	pancakes.add(pancake);
+    }
+    
+    public void removePancake(PancakeRecipe pancake) {
+    	pancakes.stream()
+    		.filter(p -> p.equals(pancake))
+    		.findFirst()
+    		.ifPresent(pancakes::remove);
     }
 
     public UUID getId() {
@@ -36,16 +68,6 @@ public class Order {
 
     public int getRoom() {
         return room;
-    }
-    
-    private void setStatus(OrderStatus nextStatus) {
-    	if (status == OrderStatus.INITIATED && nextStatus == OrderStatus.COMPLETED) {
-    		this.status = nextStatus;
-    	} else if (status == OrderStatus.COMPLETED && nextStatus == OrderStatus.PREPARED) {
-    		this.status = nextStatus;
-    	} else if (status == OrderStatus.PREPARED && nextStatus == OrderStatus.DELIVERED) {
-    		this.status = nextStatus;
-    	}
     }
     
     public void completed() {

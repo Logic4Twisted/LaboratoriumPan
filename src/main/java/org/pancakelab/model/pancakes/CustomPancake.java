@@ -1,5 +1,6 @@
 package org.pancakelab.model.pancakes;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -36,5 +37,18 @@ public class CustomPancake implements PancakeRecipe {
 	
 	public void addIngredient(String ingredient) {
 		this.ingredients.add(ingredient);
+	}
+	
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null || this.getClass() != obj.getClass()) {
+			return false;
+		}
+		CustomPancake other = (CustomPancake) obj;
+		Collections.sort(other.ingredients());
+		Collections.sort(this.ingredients);
+		return this.ingredients.equals(other.ingredients());
 	}
 }
