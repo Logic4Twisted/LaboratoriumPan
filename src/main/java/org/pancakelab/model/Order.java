@@ -7,12 +7,14 @@ public class Order {
     private final UUID id;
     private final int building;
     private final int room;
+    private OrderStatus status;
 
     public Order(int building, int room) {
     	validateBuildingAndRoom(building, room);
         this.id = UUID.randomUUID();
         this.building = building;
         this.room = room;
+        status = OrderStatus.INITIATED;
     }
     
     private void validateBuildingAndRoom(int building, int room) {
@@ -34,6 +36,48 @@ public class Order {
 
     public int getRoom() {
         return room;
+    }
+    
+    private void setStatus(OrderStatus nextStatus) {
+    	if (status == OrderStatus.INITIATED && nextStatus == OrderStatus.COMPLETED) {
+    		this.status = nextStatus;
+    	} else if (status == OrderStatus.COMPLETED && nextStatus == OrderStatus.PREPARED) {
+    		this.status = nextStatus;
+    	} else if (status == OrderStatus.PREPARED && nextStatus == OrderStatus.DELIVERED) {
+    		this.status = nextStatus;
+    	}
+    }
+    
+    public void completed() {
+    	setStatus(OrderStatus.COMPLETED);
+    }
+    
+    public void prepared() {
+    	setStatus(OrderStatus.PREPARED);
+    }
+    
+    public void delivered() {
+    	setStatus(OrderStatus.DELIVERED);
+    }
+    
+    public boolean isInitated() {
+    	return getStatus() == OrderStatus.INITIATED;
+    }
+    
+    public boolean isCompleted() {
+    	return getStatus() == OrderStatus.COMPLETED;
+    }
+    
+    public boolean isPrepared() {
+    	return getStatus() == OrderStatus.PREPARED;
+    }
+    
+    public boolean isDelivered() {
+    	return getStatus() == OrderStatus.DELIVERED;
+    }
+    
+    public OrderStatus getStatus() {
+    	return status;
     }
 
     @Override

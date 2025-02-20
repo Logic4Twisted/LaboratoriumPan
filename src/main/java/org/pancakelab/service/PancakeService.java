@@ -22,8 +22,6 @@ import org.pancakelab.model.pancakes.PancakeRecipe;
 
 public class PancakeService {
 	private Map<UUID, Order> mapOrders = new HashMap<UUID, Order>();
-    private Set<UUID>           completedOrders = new HashSet<>();
-    private Set<UUID>           preparedOrders  = new HashSet<>();
     private Map<Order, List<PancakeRecipe>> orderToPancakes = new HashMap<Order, List<PancakeRecipe>>();
     
     public static String INGREDIENT_DARK_CHOCOLATE = "dark chocolate";
@@ -50,11 +48,18 @@ public class PancakeService {
     }
     
     private boolean isOrderCompleted(UUID orderId) {
-    	return completedOrders.contains(orderId) || isOrderPrepared(orderId);
+    	if (orderExists(orderId)) {
+    		Order order = getOrder(orderId).get();
+        	return order.isCompleted() || order.isPrepared();
+    	}
+    	return false;
     }
     
     private boolean isOrderPrepared(UUID orderId) {
-    	return preparedOrders.contains(orderId);
+    	if (orderExists(orderId)) {
+    		return getOrder(orderId).get().isPrepared();
+    	}
+    	return false;
     }
 
     /**
@@ -222,11 +227,9 @@ public class PancakeService {
      * @param orderId The ID of the order to complete.
      */
     public void completeOrder(UUID orderId) {
-    	if (!orderExists(orderId)) {
-    		OrderLog.logNotExistingOrder(orderId);
-    		return;
+    	if (orderExists(orderId)) {
+    		getOrder(orderId).get().completed();
     	}
-        completedOrders.add(orderId);
     }
 
     /**
@@ -235,7 +238,10 @@ public class PancakeService {
      * @return A set containing IDs of completed orders.
      */
     public Set<UUID> listCompletedOrders() {
-        return completedOrders;
+        return mapOrders.values().stream()
+        		.filter(order -> order.isCompleted())
+        		.map(order -> order.getId())
+        		.collect(Collectors.toSet());
     }
 
     /**
@@ -244,16 +250,9 @@ public class PancakeService {
      * @param orderId The ID of the order to prepare.
      */
     public void prepareOrder(UUID orderId) {
-    	if (!orderExists(orderId)) {
-    		OrderLog.logNotExistingOrder(orderId);
-    		return;
+    	if (orderExists(orderId)) {
+    		getOrder(orderId).get().prepared();
     	}
-    	if (!completedOrders.contains(orderId)) {
-    		OrderLog.LogNotCompletedOrder(orderId);
-    		return;
-    	}
-        preparedOrders.add(orderId);
-        completedOrders.removeIf(u -> u.equals(orderId));
     }
 
     /**
@@ -262,7 +261,10 @@ public class PancakeService {
      * @return A set containing IDs of prepared orders.
      */
     public Set<UUID> listPreparedOrders() {
-        return preparedOrders;
+        return mapOrders.values().stream()
+        		.filter(order -> order.isPrepared())
+        		.map(order -> order.getId())
+        		.collect(Collectors.toSet());
     }
 
     /**
@@ -295,9 +297,7 @@ public class PancakeService {
     		return;
     	}
     	Order order = mapOrders.get(orderId);
-        orderToPancakes.get(order).removeIf(pancake -> pancake.getOrderId().equals(orderId));
+        orderToPancakes.remove(order);
         mapOrders.remove(orderId);
-        completedOrders.remove(orderId);
-        preparedOrders.remove(orderId);
     }
 }

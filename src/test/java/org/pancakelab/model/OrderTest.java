@@ -52,4 +52,75 @@ public class OrderTest {
         assertNotEquals(order, null);
         assertNotEquals(order, "Some String");
     }
+    
+    @Test
+    void testSetStatus_ValidTransitions() {
+    	Order order = new Order(1,2);
+    	
+    	assertEquals(OrderStatus.INITIATED, order.getStatus());
+    	
+        // Test INITIATED -> COMPLETED
+        order.completed();
+        assertEquals(OrderStatus.COMPLETED, order.getStatus());
+
+        // Test COMPLETED -> PREPARED
+        order.prepared();
+        assertEquals(OrderStatus.PREPARED, order.getStatus());
+
+        // Test PREPARED -> DELIVERED
+        order.completed();
+        order.delivered();
+        assertEquals(OrderStatus.DELIVERED, order.getStatus());
+    }
+
+    @Test
+    void testSetStatus_InvalidTransitions() {
+    	Order order = new Order(1,2);
+    	
+        // Test INITIATED -> DELIVERED (Invalid)
+        order.delivered();
+        assertNotEquals(OrderStatus.DELIVERED, order.getStatus());
+
+        // Test INITIATED -> PREPARED (Invalid)
+        order.prepared();
+        assertNotEquals(OrderStatus.PREPARED, order.getStatus());
+        
+        // Test COMPLETED -> DELIVERED (Invalid)
+        order.completed();
+        order.delivered();
+        assertNotEquals(OrderStatus.DELIVERED, order.getStatus());
+    }
+    
+    @Test
+    void testIsInitiated() {
+    	Order order = new Order(1,2);
+
+        assertTrue(order.isInitated(), "Order should be in INITIATED status");
+        assertFalse(order.isCompleted());
+        assertFalse(order.isPrepared());
+        assertFalse(order.isDelivered());
+        
+        
+    	order.completed();
+    	
+        assertTrue(order.isCompleted(), "Order should be in COMPLETED status");
+        assertFalse(order.isInitated());
+        assertFalse(order.isPrepared());
+        assertFalse(order.isDelivered());
+        
+        order.prepared();
+    	
+        assertTrue(order.isPrepared(), "Order should be in PREPARED status");
+        assertFalse(order.isInitated());
+        assertFalse(order.isCompleted());
+        assertFalse(order.isDelivered());
+        
+        order.delivered();
+
+        assertTrue(order.isDelivered(), "Order should be in DELIVERED status");
+        assertFalse(order.isInitated());
+        assertFalse(order.isCompleted());
+        assertFalse(order.isPrepared());
+    }
+    
 }
