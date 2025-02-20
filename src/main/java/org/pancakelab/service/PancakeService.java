@@ -1,7 +1,5 @@
 package org.pancakelab.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -15,7 +13,6 @@ import org.pancakelab.model.DeliveryResult;
 import org.pancakelab.model.NullOrder;
 import org.pancakelab.model.Order;
 import org.pancakelab.model.pancakes.CustomPancake;
-import org.pancakelab.model.pancakes.Pancake;
 import org.pancakelab.model.pancakes.PancakeBuilder;
 import org.pancakelab.model.pancakes.PancakeRecipe;
 
@@ -73,7 +70,7 @@ public class PancakeService {
     	addPancakes(orderId, List.of(INGREDIENT_MILK_CHOCOLATE, INGREDIENT_HAZELNUTS), count);
     }
     
-    
+    // todo needs to be tested !!! private -> public
     public void addPancakes(UUID orderId, List<String> ingredients, int count) {
     	Order order = getOrder(orderId);
     	if (!order.isInitated()) {
@@ -198,7 +195,7 @@ public class PancakeService {
         }
 
         List<String> pancakesToDeliver = viewOrder(orderId);
-        OrderLog.logDeliverOrder(order, order.getPancakes().size());
+        OrderLog.logDeliverOrder(order, pancakesToDeliver.size());
 
         removeOrder(orderId);
         
