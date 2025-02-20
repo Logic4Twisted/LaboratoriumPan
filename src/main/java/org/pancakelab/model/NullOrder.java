@@ -1,5 +1,6 @@
 package org.pancakelab.model;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class NullOrder extends Order {
@@ -27,10 +28,48 @@ public class NullOrder extends Order {
     public int getRoom() {
         return 0; // Indicate an invalid room
     }
+    
+    @Override
+    public boolean isInitated() {
+    	return false;
+    }
+    
+    @Override
+    public boolean isCompleted() {
+    	return false;
+    }
+    
+    @Override
+    public boolean isPrepared() {
+    	return false;
+    }
+    
+    @Override
+    public boolean isDelivered() {
+    	return false;
+    }
+    
+    public void completed() {
+    	// do nothing
+    }
+    
+    public void prepared() {
+    	// do nothing
+    }
+    
+    public void delivered() {
+    	// do nothing
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        return this == o;
+    }
 
     @Override
-    public String toString() {
-        return "NullOrder{}";
+    public int hashCode() {
+        return 0;
     }
+
 }
 

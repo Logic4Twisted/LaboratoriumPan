@@ -76,7 +76,7 @@ public class Order {
     	return getStatus() == OrderStatus.DELIVERED;
     }
     
-    public OrderStatus getStatus() {
+    private OrderStatus getStatus() {
     	return status;
     }
 

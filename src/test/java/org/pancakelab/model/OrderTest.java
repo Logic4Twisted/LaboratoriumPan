@@ -57,20 +57,20 @@ public class OrderTest {
     void testSetStatus_ValidTransitions() {
     	Order order = new Order(1,2);
     	
-    	assertEquals(OrderStatus.INITIATED, order.getStatus());
+    	assertTrue(order.isInitated());
     	
         // Test INITIATED -> COMPLETED
         order.completed();
-        assertEquals(OrderStatus.COMPLETED, order.getStatus());
+        assertTrue(order.isCompleted());
 
         // Test COMPLETED -> PREPARED
         order.prepared();
-        assertEquals(OrderStatus.PREPARED, order.getStatus());
+        assertTrue(order.isPrepared());
 
         // Test PREPARED -> DELIVERED
         order.completed();
         order.delivered();
-        assertEquals(OrderStatus.DELIVERED, order.getStatus());
+        assertTrue(order.isDelivered());
     }
 
     @Test
@@ -79,16 +79,16 @@ public class OrderTest {
     	
         // Test INITIATED -> DELIVERED (Invalid)
         order.delivered();
-        assertNotEquals(OrderStatus.DELIVERED, order.getStatus());
+        assertFalse(order.isDelivered());
 
         // Test INITIATED -> PREPARED (Invalid)
         order.prepared();
-        assertNotEquals(OrderStatus.PREPARED, order.getStatus());
+        assertFalse(order.isPrepared());
         
         // Test COMPLETED -> DELIVERED (Invalid)
         order.completed();
         order.delivered();
-        assertNotEquals(OrderStatus.DELIVERED, order.getStatus());
+        assertFalse(order.isDelivered());
     }
     
     @Test
