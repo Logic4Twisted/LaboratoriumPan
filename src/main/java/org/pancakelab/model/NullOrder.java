@@ -1,17 +1,25 @@
 package org.pancakelab.model;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
+import org.pancakelab.model.pancakes.PancakeRecipe;
+
 public class NullOrder extends Order {
-    private static final NullOrder INSTANCE = new NullOrder();
+    private static NullOrder instance;
 
     private NullOrder() {
-        super(0, 0);
+        super(1, 1);
     }
 
     public static NullOrder getInstance() {
-        return INSTANCE;
+    	if (instance == null) {
+    		instance = new NullOrder();
+    	}
+        return instance;
     }
 
     @Override
@@ -60,6 +68,19 @@ public class NullOrder extends Order {
     public void delivered() {
     	// do nothing
     }
+    
+    public List<PancakeRecipe> getPancakes() {
+    	return new LinkedList<PancakeRecipe>();
+    }
+    
+    public void addPancake(PancakeRecipe pancake) {
+    	// do nothing
+    }
+    
+    public boolean removePancake(String description) {
+    	return false;
+    }
+
     
     @Override
     public boolean equals(Object o) {
