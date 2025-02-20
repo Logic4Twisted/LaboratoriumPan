@@ -36,17 +36,8 @@ public class PancakeService {
     
     public static final int MAX_PANCAKE_COUNT = 100;
     
-    private Order getOrder2 (UUID orderId) {
+    private Order getOrder (UUID orderId) {
     	return orders.getOrDefault(orderId, NullOrder.getInstance());
-    }
-    
-    private boolean orderExists(UUID orderId) {
-    	return !getOrder2(orderId).equals(NullOrder.getInstance());
-    }
-    
-    private boolean isOrderCompleted(UUID orderId) {
-    	Order order = getOrder2(orderId);
-    	return order.isCompleted() || order.isPrepared();
     }
 
     /**
@@ -63,35 +54,33 @@ public class PancakeService {
     
 
     public void addDarkChocolatePancake(UUID orderId, int count) {
-    	addCustomPancake(orderId, List.of(INGREDIENT_DARK_CHOCOLATE), count);
+    	addPancakes(orderId, List.of(INGREDIENT_DARK_CHOCOLATE), count);
     }
 
     public void addDarkChocolateWhippedCreamPancake(UUID orderId, int count) {
-    	addCustomPancake(orderId, List.of(INGREDIENT_DARK_CHOCOLATE, INGREDIENT_WHIPPED_CREAM), count);
+    	addPancakes(orderId, List.of(INGREDIENT_DARK_CHOCOLATE, INGREDIENT_WHIPPED_CREAM), count);
     }
 
     public void addDarkChocolateWhippedCreamHazelnutsPancake(UUID orderId, int count) {
-    	addCustomPancake(orderId, List.of(INGREDIENT_DARK_CHOCOLATE, INGREDIENT_WHIPPED_CREAM, INGREDIENT_HAZELNUTS), count);
+    	addPancakes(orderId, List.of(INGREDIENT_DARK_CHOCOLATE, INGREDIENT_WHIPPED_CREAM, INGREDIENT_HAZELNUTS), count);
     }
 
     public void addMilkChocolatePancake(UUID orderId, int count) {
-    	addCustomPancake(orderId, List.of(INGREDIENT_MILK_CHOCOLATE), count);
+    	addPancakes(orderId, List.of(INGREDIENT_MILK_CHOCOLATE), count);
     }
 
     public void addMilkChocolateHazelnutsPancake(UUID orderId, int count) {
-    	addCustomPancake(orderId, List.of(INGREDIENT_MILK_CHOCOLATE, INGREDIENT_HAZELNUTS), count);
+    	addPancakes(orderId, List.of(INGREDIENT_MILK_CHOCOLATE, INGREDIENT_HAZELNUTS), count);
     }
     
     
-    private void addCustomPancake(UUID orderId, List<String> ingredients, int count) {
-        if (!orderExists(orderId) || isOrderCompleted(orderId)) {
-            return;
-        }
-        
-        count = Math.min(count, MAX_PANCAKE_COUNT);
+    public void addPancakes(UUID orderId, List<String> ingredients, int count) {
+    	Order order = getOrder(orderId);
+    	if (!order.isInitated()) {
+    		return;
+    	}
 
-        List<CustomPancake> pancakesToAdd = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < Math.min(count, MAX_PANCAKE_COUNT); i++) {
         	PancakeBuilder builder = new PancakeBuilder();
                 
             for (String ingredient : getApprovedIngredients(ingredients)) {
@@ -99,64 +88,24 @@ public class PancakeService {
             }
             CustomPancake customPancake = builder.build();
             customPancake.setOrderId(orderId);
-            pancakesToAdd.add(customPancake);
+            order.addPancake(customPancake);
+            OrderLog.logAddPancake(order, customPancake.description(), order.getPancakes().size());
         }
-        addPancake(pancakesToAdd, orderId);
-    }
-    
-    /**
-     * Filters and returns only approved ingredients, converted to lowercase.
-     */
-    private List<String> getApprovedIngredients(List<String> ingredients) {
-        return ingredients.stream()
-                .map(String::toLowerCase)  
-                .filter(APPROVED_INGREDIENTS::contains) 
-                .toList();
-    }
-    
-    
-    /**
-     * Make sense to provide users with available ingredients
-     * @return List of ingredients
-     */
-    public List<String> getAvailableIngredients() {
-    	return new LinkedList<String>(APPROVED_INGREDIENTS);
-    }
-
-
-    /**
-     * Adds a collection of pancakes to a specified order.
-     * 
-     * This method associates each pancake in the given collection with the specified order,
-     * updates its order ID, and logs the addition. If the order does not exist or order
-     * already completed, no pancakes are added.
-     *
-     * @param pancakesToAdd The collection of {@link Pancake} objects to be added.
-     * @param orderId The UUID of the order to which the pancakes should be assigned.
-     */
-    private void addPancake(Collection<CustomPancake> pancakesToAdd, UUID orderId) {
-    	Order order = getOrder2(orderId);
-    	if(order.isCompleted()) {
-    		return;
-    	}
-    	for (CustomPancake pancake : pancakesToAdd) {
-    		pancake.setOrderId(orderId);
-    		order.addPancake(pancake);
-    		OrderLog.logAddPancake(order, pancake.description(), order.getPancakes().size());
-    	}
     }
 
     /**
      * Removes specified pancakes from an order. If the order is completed, no pancakes
-     * are removed
+     * are removed.
+     * 
+     * Assumption: pancakes can be removed only from orders in initial state
      *
      * @param description The description of the pancake type to remove.
      * @param orderId The ID of the order.
      * @param count The number of pancakes to remove.
      */
     public void removePancakes(String description, UUID orderId, int count) {
-    	Order order = getOrder2(orderId);
-    	if (order.isCompleted()) {
+    	Order order = getOrder(orderId);
+    	if (!order.isInitated()) {
 			return;
 		}
         int countRemoved = 0;
@@ -176,7 +125,7 @@ public class PancakeService {
      * @return A list of descriptions of pancakes in the order.
      */
 	public List<String> viewOrder(UUID orderId) {
-		return getOrder2(orderId)
+		return getOrder(orderId)
 				.getPancakes().stream()
 				.map(PancakeRecipe::description).toList();
 	}
@@ -189,7 +138,7 @@ public class PancakeService {
      * @param orderId The ID of the order to cancel.
      */
     public void cancelOrder(UUID orderId) {
-        Order order = getOrder2(orderId);
+        Order order = getOrder(orderId);
         removeOrder(orderId);
         OrderLog.logCancelOrder(order,order.getPancakes().size());
     }
@@ -200,7 +149,7 @@ public class PancakeService {
      * @param orderId The ID of the order to complete.
      */
     public void completeOrder(UUID orderId) {
-    	getOrder2(orderId).completed();
+    	getOrder(orderId).completed();
     }
 
     /**
@@ -221,7 +170,7 @@ public class PancakeService {
      * @param orderId The ID of the order to prepare.
      */
     public void prepareOrder(UUID orderId) {
-    	getOrder2(orderId).prepared();
+    	getOrder(orderId).prepared();
     }
 
     /**
@@ -243,7 +192,7 @@ public class PancakeService {
      * @return DeliveryResult
      */
     public DeliveryResult deliverOrder(UUID orderId) {
-    	Order order = getOrder2(orderId);
+    	Order order = getOrder(orderId);
         if (!order.isPrepared()) {
         	return new DeliveryResult(false, null, List.of());
         }
@@ -263,5 +212,23 @@ public class PancakeService {
      */
     private void removeOrder(UUID orderId) {
         orders.remove(orderId);
+    }
+    
+    /**
+     * Filters and returns only approved ingredients, converted to lowercase.
+     */
+    private List<String> getApprovedIngredients(List<String> ingredients) {
+        return ingredients.stream()
+                .map(String::toLowerCase)  
+                .filter(APPROVED_INGREDIENTS::contains) 
+                .toList();
+    }
+    
+    /**
+     * Make sense to provide users with available ingredients
+     * @return List of ingredients
+     */
+    public List<String> getAvailableIngredients() {
+    	return new LinkedList<String>(APPROVED_INGREDIENTS);
     }
 }
