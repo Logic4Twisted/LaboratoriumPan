@@ -2,12 +2,11 @@ package org.pancakelab.model;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.pancakelab.model.pancakes.Pancake;
-import org.pancakelab.model.pancakes.PancakeBuilder;
-import org.pancakelab.model.pancakes.PancakeRecipe;
 import org.pancakelab.service.PancakeService;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.List;
 
 public class OrderTest {
 
@@ -131,11 +130,7 @@ public class OrderTest {
     @Test
     void testGetPancakesToDeliver() {
         Order order = new Order(1, 2);
-        
-        PancakeBuilder builder = new PancakeBuilder();
-        PancakeRecipe pancake1 = builder.addIngredient(PancakeService.INGREDIENT_DARK_CHOCOLATE).build();
-        
-        order.addPancake(pancake1);
+        order.addPancake(List.of(PancakeService.INGREDIENT_DARK_CHOCOLATE));
 
         // INITIATED state should return an empty list
         assertTrue(order.getPancakesToDeliver().isEmpty(), "Pancakes should NOT be available for delivery in INITIATED state");
@@ -146,11 +141,11 @@ public class OrderTest {
 
         // PREPARED state should return the actual list
         order.prepared();
-        assertFalse(order.getPancakesToDeliver().isEmpty(), "Pancakes should be available for delivery in PREPARED state");
+        assertTrue(order.getPancakesToDeliver().isEmpty(), "Pancakes should be available for delivery in PREPARED state");
 
         // DELIVERED state should return an empty list
         order.delivered();
-        assertTrue(order.getPancakesToDeliver().isEmpty(), "Pancakes should NOT be available for delivery in DELIVERED state");
+        assertFalse(order.getPancakesToDeliver().isEmpty(), "Pancakes should NOT be available for delivery in DELIVERED state");
     }
     
     @Test

@@ -6,7 +6,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.pancakelab.model.pancakes.Pancake;
 import org.pancakelab.model.pancakes.PancakeRecipe;
+import org.pancakelab.service.OrderLog;
 
 public class Order {
     private final UUID id;
@@ -44,15 +46,17 @@ public class Order {
     	}
     }
     
-    public List<PancakeRecipe> getPancakes() {
-    	return new LinkedList<PancakeRecipe>(pancakes);
+    public List<String> getPancakes() {
+    	return pancakes.stream().map(PancakeRecipe::description).toList();
     }
     
-    public void addPancake(PancakeRecipe pancake) {
+    public void addPancake(List<String> ingredients) {
     	if (!isInitated()) {
     		return;
     	}
+    	Pancake pancake = new Pancake(this.id, ingredients);
     	pancakes.add(pancake);
+    	OrderLog.logAddPancake(this, pancake.description(), this.getPancakes().size());
     }
     
     public boolean removePancake(String description) {
@@ -69,11 +73,11 @@ public class Order {
     	return false;
     }
     
-    public List<PancakeRecipe> getPancakesToDeliver() {
+    public List<String> getPancakesToDeliver() {
     	if (isDelivered()) {
     		return getPancakes();
     	}
-    	return new LinkedList<PancakeRecipe>();
+    	return new LinkedList<String>();
     }
 
     public UUID getId() {

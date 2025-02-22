@@ -14,9 +14,6 @@ import java.util.stream.Collectors;
 import org.pancakelab.model.DeliveryResult;
 import org.pancakelab.model.NullOrder;
 import org.pancakelab.model.Order;
-import org.pancakelab.model.pancakes.Pancake;
-import org.pancakelab.model.pancakes.PancakeBuilder;
-import org.pancakelab.model.pancakes.PancakeRecipe;
 
 public class PancakeService {
 	private Map<UUID, Order> orders = new HashMap<UUID, Order>();
@@ -89,15 +86,7 @@ public class PancakeService {
     	
     	Order order = getOrder(orderId);
         for (int i = 0; i < count; i++) {
-        	PancakeBuilder builder = new PancakeBuilder();
-                
-            for (String ingredient : ingredients) {
-            	builder.addIngredient(ingredient);            
-            }
-            Pancake customPancake = builder.build();
-            customPancake.setOrderId(orderId);
-            order.addPancake(customPancake);
-            OrderLog.logAddPancake(order, customPancake.description(), order.getPancakes().size());
+            order.addPancake(ingredients);
         }
     }
 
@@ -130,9 +119,7 @@ public class PancakeService {
      * @return A list of descriptions of pancakes in the order.
      */
 	public List<String> viewOrder(UUID orderId) {
-		return getOrder(orderId)
-				.getPancakes().stream()
-				.map(PancakeRecipe::description).toList();
+		return getOrder(orderId).getPancakes();
 	}
 
     /**
@@ -200,8 +187,7 @@ public class PancakeService {
     	Order order = getOrder(orderId);
     	order.delivered();
 
-        List<String> pancakesToDeliver = order.getPancakesToDeliver().stream()
-        		.map(PancakeRecipe::description).toList();
+        List<String> pancakesToDeliver = order.getPancakesToDeliver();
         OrderLog.logDeliverOrder(order, order.getPancakes().size());
         
         return new DeliveryResult(order.isDelivered(), order.getId(), pancakesToDeliver);

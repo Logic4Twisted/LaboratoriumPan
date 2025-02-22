@@ -69,8 +69,8 @@ public class NullOrder extends Order {
     	// do nothing
     }
     
-    public List<PancakeRecipe> getPancakes() {
-    	return new LinkedList<PancakeRecipe>();
+    public List<String> getPancakes() {
+    	return new LinkedList<String>();
     }
     
     public void addPancake(PancakeRecipe pancake) {

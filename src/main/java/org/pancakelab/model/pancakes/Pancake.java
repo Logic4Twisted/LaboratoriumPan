@@ -14,6 +14,11 @@ public class Pancake implements PancakeRecipe {
 		this.orderId = orderID;
 	}
 	
+	public Pancake(UUID orderId, List<String> ingredients) {
+		this.orderId = orderId;
+		this.ingredients = new LinkedList<String>(ingredients);
+	}
+	
 	public Pancake() {
 		this.ingredients = new LinkedList<String>();
 	}
@@ -27,7 +32,6 @@ public class Pancake implements PancakeRecipe {
 	@Override
 	public void setOrderId(UUID orderId) {
 		this.orderId = orderId;
-		
 	}
 
 	@Override
