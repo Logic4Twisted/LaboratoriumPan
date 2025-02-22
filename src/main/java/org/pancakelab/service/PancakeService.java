@@ -138,7 +138,7 @@ public class PancakeService {
      */
     public void cancelOrder(UUID orderId) {
         Order order = getOrder(orderId);
-        removeOrder(order);
+        orders.remove(order.getId());
         OrderLog.logCancelOrder(order,order.getPancakes().size());
     }
 
@@ -199,15 +199,6 @@ public class PancakeService {
         OrderLog.logDeliverOrder(order, order.getPancakes().size());
         
         return new DeliveryResult(order.isDelivered(), order.getId(), pancakesToDeliver);
-    }
-    
-    /**
-     * Remove order helper method
-     * 
-     * @param Order to remove
-     */
-    private void removeOrder(Order order) {
-        orders.remove(order.getId());
     }
     
     /**
