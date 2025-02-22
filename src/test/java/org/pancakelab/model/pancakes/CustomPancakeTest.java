@@ -7,8 +7,8 @@ import java.util.*;
 
 class CustomPancakeTest {
 
-    private CustomPancake pancake1;
-    private CustomPancake pancake2;
+    private Pancake pancake1;
+    private Pancake pancake2;
     private UUID orderId1;
     private UUID orderId2;
 
@@ -16,8 +16,8 @@ class CustomPancakeTest {
     void setUp() {
         orderId1 = UUID.randomUUID();
         orderId2 = UUID.randomUUID();
-        pancake1 = new CustomPancake(orderId1);
-        pancake2 = new CustomPancake(orderId2);
+        pancake1 = new Pancake(orderId1);
+        pancake2 = new Pancake(orderId2);
     }
 
     @Test
@@ -27,7 +27,7 @@ class CustomPancakeTest {
 
     @Test
     void testConstructor_Default() {
-        CustomPancake pancake = new CustomPancake();
+        Pancake pancake = new Pancake();
         assertNull(pancake.getOrderId(), "Default constructor should set orderId to null");
         assertTrue(pancake.ingredients().isEmpty(), "Default constructor should initialize an empty ingredients list");
     }

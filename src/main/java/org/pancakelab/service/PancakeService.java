@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import org.pancakelab.model.DeliveryResult;
 import org.pancakelab.model.NullOrder;
 import org.pancakelab.model.Order;
-import org.pancakelab.model.pancakes.CustomPancake;
+import org.pancakelab.model.pancakes.Pancake;
 import org.pancakelab.model.pancakes.PancakeBuilder;
 import org.pancakelab.model.pancakes.PancakeRecipe;
 
@@ -94,7 +94,7 @@ public class PancakeService {
             for (String ingredient : ingredients) {
             	builder.addIngredient(ingredient);            
             }
-            CustomPancake customPancake = builder.build();
+            Pancake customPancake = builder.build();
             customPancake.setOrderId(orderId);
             order.addPancake(customPancake);
             OrderLog.logAddPancake(order, customPancake.description(), order.getPancakes().size());
@@ -117,7 +117,7 @@ public class PancakeService {
         for (int i = 0; i < count; i++) {
         	if (order.removePancake(description)) {
         		countRemoved++;
-        	};
+        	}
         }
 
         OrderLog.logRemovePancakes(order, description, countRemoved, order.getPancakes().size());

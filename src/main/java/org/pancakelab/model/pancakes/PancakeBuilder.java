@@ -1,9 +1,9 @@
 package org.pancakelab.model.pancakes;
 
 public class PancakeBuilder {
-	CustomPancake pancake;
+	Pancake pancake;
 	public PancakeBuilder() {
-        pancake = new CustomPancake();
+        pancake = new Pancake();
     }
 
     public PancakeBuilder addIngredient(String ingredient) {
@@ -11,7 +11,7 @@ public class PancakeBuilder {
     	return this;
     }
 
-    public CustomPancake build() {
+    public Pancake build() {
         return pancake;
     }
 }
