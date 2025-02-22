@@ -2,6 +2,11 @@ package org.pancakelab.model;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.pancakelab.model.pancakes.Pancake;
+import org.pancakelab.model.pancakes.PancakeBuilder;
+import org.pancakelab.model.pancakes.PancakeRecipe;
+import org.pancakelab.service.PancakeService;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class OrderTest {
@@ -121,6 +126,45 @@ public class OrderTest {
         assertFalse(order.isInitated());
         assertFalse(order.isCompleted());
         assertFalse(order.isPrepared());
+    }
+    
+    @Test
+    void testGetPancakesToDeliver() {
+        Order order = new Order(1, 2);
+        
+        PancakeBuilder builder = new PancakeBuilder();
+        PancakeRecipe pancake1 = builder.addIngredient(PancakeService.INGREDIENT_DARK_CHOCOLATE).build();
+        
+        order.addPancake(pancake1);
+
+        // INITIATED state should return an empty list
+        assertTrue(order.getPancakesToDeliver().isEmpty(), "Pancakes should NOT be available for delivery in INITIATED state");
+
+        // COMPLETED state should return an empty list
+        order.completed();
+        assertTrue(order.getPancakesToDeliver().isEmpty(), "Pancakes should NOT be available for delivery in COMPLETED state");
+
+        // PREPARED state should return the actual list
+        order.prepared();
+        assertFalse(order.getPancakesToDeliver().isEmpty(), "Pancakes should be available for delivery in PREPARED state");
+
+        // DELIVERED state should return an empty list
+        order.delivered();
+        assertTrue(order.getPancakesToDeliver().isEmpty(), "Pancakes should NOT be available for delivery in DELIVERED state");
+    }
+    
+    @Test
+    void testEquals_DifferentOrdersSameBuildingRoom() {
+        Order order1 = new Order(5, 10);
+        Order order2 = new Order(5, 10); // Different UUID
+
+        assertNotEquals(order1, order2, "Orders with the same building and room but different IDs should not be equal");
+    }
+    
+    @Test
+    void testEquals_Null() {
+        Order order = new Order(1, 1);
+        assertFalse(order.equals(null), "An order should not be equal to null");
     }
     
 }

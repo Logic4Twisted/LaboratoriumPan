@@ -76,5 +76,78 @@ class OrderManagerTest {
         List<PancakeRecipe> originalList = order.getPancakes();
         assertEquals(1, originalList.size(), "Modifications to the returned list should not affect the original");
     }
+    
+    @Test
+    void testCannotAddPancakesAfterCompletion() {
+        Order order = new Order(1, 2);
+
+        // Add pancakes while order is INITIATED
+        order.addPancake(pancake1);
+        assertEquals(1, order.getPancakes().size(), "Pancake should be added in INITIATED state");
+
+        // Complete the order
+        order.completed();
+        assertTrue(order.isCompleted(), "Order should be in COMPLETED state");
+
+        // Try adding another pancake (should not be added)
+        order.addPancake(pancake2);
+        assertEquals(1, order.getPancakes().size(), "No additional pancakes should be added after COMPLETED state");
+    }
+    
+    @Test
+    void testCannotRemovePancakesAfterCompletion() {
+        Order order = new Order(1, 2);
+
+        // Add pancake while order is INITIATED
+        order.addPancake(pancake1);
+        assertEquals(1, order.getPancakes().size(), "Pancake should be added in INITIATED state");
+
+        // Complete the order
+        order.completed();
+        assertTrue(order.isCompleted(), "Order should be in COMPLETED state");
+
+        // Attempt to remove pancake (should not be removed)
+        boolean removed = order.removePancake(pancake1.description());
+        assertFalse(removed, "Pancake should not be removed after order completion");
+        assertEquals(1, order.getPancakes().size(), "Pancake list should remain unchanged after order completion");
+    }
+    
+    @Test
+    void testCannotModifyPancakesAfterPreparationOrDelivery() {
+        Order order = new Order(1, 2);
+
+        // Add a pancake while order is INITIATED
+        order.addPancake(pancake1);
+        assertEquals(1, order.getPancakes().size(), "Pancake should be added in INITIATED state");
+
+        // Move to COMPLETED state
+        order.completed();
+        assertTrue(order.isCompleted(), "Order should be in COMPLETED state");
+
+        // Move to PREPARED state
+        order.prepared();
+        assertTrue(order.isPrepared(), "Order should be in PREPARED state");
+
+        // Try removing a pancake (should not be removed)
+        boolean removed = order.removePancake(pancake1.description());
+        assertFalse(removed, "Pancake should not be removed in PREPARED state");
+        assertEquals(1, order.getPancakes().size(), "Pancake list should remain unchanged in PREPARED state");
+
+        // Move to DELIVERED state
+        order.delivered();
+        assertTrue(order.isDelivered(), "Order should be in DELIVERED state");
+
+        // Try adding a pancake (should not be added)
+        order.addPancake(pancake2);
+        assertEquals(1, order.getPancakes().size(), "No additional pancakes should be added in DELIVERED state");
+
+        // Try removing a pancake (should not be removed)
+        removed = order.removePancake("Banana Pancake");
+        assertFalse(removed, "Pancake should not be removed in DELIVERED state");
+        assertEquals(1, order.getPancakes().size(), "Pancake list should remain unchanged in DELIVERED state");
+    }
+
+    
+    
 }
 
