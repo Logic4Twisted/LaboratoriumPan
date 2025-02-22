@@ -6,43 +6,26 @@ import java.util.List;
 import java.util.UUID;
 
 public class Pancake implements PancakeRecipe {
-	UUID orderId;
 	List<String> ingredients;
 	
-	public Pancake(UUID orderID) {
-		this();
-		this.orderId = orderID;
-	}
-	
-	public Pancake(UUID orderId, List<String> ingredients) {
-		this.orderId = orderId;
+	public Pancake(List<String> ingredients) {
 		this.ingredients = new LinkedList<String>(ingredients);
 	}
 	
 	public Pancake() {
 		this.ingredients = new LinkedList<String>();
 	}
-	
 
 	@Override
-	public UUID getOrderId() {
-		return orderId;
-	}
-
-	@Override
-	public void setOrderId(UUID orderId) {
-		this.orderId = orderId;
-	}
-
-	@Override
-	public List<String> ingredients() {
-		return ingredients;
+	public List<String> getIngredients() {
+		return List.copyOf(ingredients);
 	}
 	
 	public void addIngredient(String ingredient) {
 		this.ingredients.add(ingredient);
 	}
 	
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
@@ -51,8 +34,18 @@ public class Pancake implements PancakeRecipe {
 			return false;
 		}
 		Pancake other = (Pancake) obj;
-		Collections.sort(other.ingredients());
+		List<String> otherIngredients = new LinkedList<String>(other.getIngredients());
+		Collections.sort(otherIngredients);
 		Collections.sort(this.ingredients);
-		return this.ingredients.equals(other.ingredients());
+		return this.ingredients.equals(otherIngredients);
+	}
+	
+	@Override
+	public int hashCode() {
+		int hashCode = 0;
+		for (String ingredient: ingredients) {
+			hashCode += ingredient.hashCode();
+		}
+		return hashCode;
 	}
 }

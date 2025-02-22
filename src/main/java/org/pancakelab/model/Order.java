@@ -36,7 +36,7 @@ public class Order {
         }
     }
     
-    private void setStatus(OrderStatus nextStatus) {
+    private void changeStatus(OrderStatus nextStatus) {
     	if (status == OrderStatus.INITIATED && nextStatus == OrderStatus.COMPLETED) {
     		this.status = nextStatus;
     	} else if (status == OrderStatus.COMPLETED && nextStatus == OrderStatus.PREPARED) {
@@ -46,15 +46,11 @@ public class Order {
     	}
     }
     
-    public List<String> getPancakes() {
-    	return pancakes.stream().map(PancakeRecipe::description).toList();
-    }
-    
     public void addPancake(List<String> ingredients) {
     	if (!isInitated()) {
     		return;
     	}
-    	Pancake pancake = new Pancake(this.id, ingredients);
+    	Pancake pancake = new Pancake(ingredients);
     	pancakes.add(pancake);
     	OrderLog.logAddPancake(this, pancake.description(), this.getPancakes().size());
     }
@@ -71,6 +67,10 @@ public class Order {
     		return true;
     	}
     	return false;
+    }
+    
+    public List<String> getPancakes() {
+    	return pancakes.stream().map(PancakeRecipe::description).toList();
     }
     
     public List<String> getPancakesToDeliver() {
@@ -93,15 +93,15 @@ public class Order {
     }
     
     public void completed() {
-    	setStatus(OrderStatus.COMPLETED);
+    	changeStatus(OrderStatus.COMPLETED);
     }
     
     public void prepared() {
-    	setStatus(OrderStatus.PREPARED);
+    	changeStatus(OrderStatus.PREPARED);
     }
     
     public void delivered() {
-    	setStatus(OrderStatus.DELIVERED);
+    	changeStatus(OrderStatus.DELIVERED);
     }
     
     public boolean isInitated() {

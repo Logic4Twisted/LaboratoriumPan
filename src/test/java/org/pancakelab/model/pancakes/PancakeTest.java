@@ -1,75 +1,77 @@
 package org.pancakelab.model.pancakes;
 
-import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.pancakelab.service.PancakeService;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.*;
 
 class PancakeTest {
 
     private Pancake pancake1;
     private Pancake pancake2;
-    private UUID orderId1;
-    private UUID orderId2;
+    private Pancake pancake3;
 
     @BeforeEach
     void setUp() {
-        orderId1 = UUID.randomUUID();
-        orderId2 = UUID.randomUUID();
-        pancake1 = new Pancake(orderId1);
-        pancake2 = new Pancake(orderId2);
+        pancake1 = new Pancake(List.of(PancakeService.INGREDIENT_DARK_CHOCOLATE, PancakeService.INGREDIENT_WHIPPED_CREAM));
+        pancake2 = new Pancake(List.of(PancakeService.INGREDIENT_MILK_CHOCOLATE, PancakeService.INGREDIENT_HAZELNUTS));
+        pancake3 = new Pancake(List.of(PancakeService.INGREDIENT_WHIPPED_CREAM, PancakeService.INGREDIENT_DARK_CHOCOLATE));
     }
 
     @Test
-    void testConstructor_WithOrderId() {
-        assertEquals(orderId1, pancake1.getOrderId(), "Order ID should be set by constructor");
+    void testConstructor_WithIngredients() {
+        List<String> expected = List.of(PancakeService.INGREDIENT_DARK_CHOCOLATE, PancakeService.INGREDIENT_WHIPPED_CREAM);
+        Pancake pancake = new Pancake(expected);
+        
+        assertEquals(expected, pancake.getIngredients(), "Ingredients should match the provided list");
     }
 
     @Test
     void testConstructor_Default() {
         Pancake pancake = new Pancake();
-        assertNull(pancake.getOrderId(), "Default constructor should set orderId to null");
-        assertTrue(pancake.ingredients().isEmpty(), "Default constructor should initialize an empty ingredients list");
+        assertTrue(pancake.getIngredients().isEmpty(), "Default constructor should initialize an empty ingredient list");
     }
 
     @Test
-    void testSetOrderId() {
-        UUID newOrderId = UUID.randomUUID();
-        pancake1.setOrderId(newOrderId);
-        assertEquals(newOrderId, pancake1.getOrderId(), "Order ID should be updated");
+    void testGetIngredients_ReturnsDefensiveCopy() {
+        List<String> ingredients = pancake1.getIngredients();
+        assertThrows(UnsupportedOperationException.class, () -> ingredients.add(PancakeService.INGREDIENT_HAZELNUTS), 
+            "Modifying returned list should throw an exception");
     }
 
     @Test
     void testAddIngredient() {
-        pancake1.addIngredient("Flour");
-        pancake1.addIngredient("Milk");
-
-        List<String> expectedIngredients = List.of("Flour", "Milk");
-        assertEquals(expectedIngredients, pancake1.ingredients(), "Ingredients list should match added ingredients");
+        Pancake pancake = new Pancake();
+        pancake.addIngredient("Sugar");
+        assertEquals(List.of("Sugar"), pancake.getIngredients(), "Ingredient should be added to the list");
     }
 
     @Test
     void testEquals_SameIngredients_DifferentOrder() {
-        pancake1.addIngredient("Flour");
-        pancake1.addIngredient("Milk");
-
-        pancake2.addIngredient("Milk");
-        pancake2.addIngredient("Flour");
-
-        assertTrue(pancake1.equals(pancake2), "Pancakes with the same ingredients in different order should be equal");
+        assertTrue(pancake1.equals(pancake3), "Pancakes with the same ingredients in different order should be equal");
     }
 
     @Test
     void testEquals_DifferentIngredients() {
-        pancake1.addIngredient("Flour");
-        pancake2.addIngredient("Eggs");
-
         assertFalse(pancake1.equals(pancake2), "Pancakes with different ingredients should not be equal");
     }
 
     @Test
-    void testEquals_DifferentObjectTypes() {
-        assertFalse(pancake1.equals(new Object()), "Pancake should not be equal to an unrelated object");
+    void testEquals_Null() {
+        assertFalse(pancake1.equals(null), "Pancake should not be equal to null");
+    }
+
+    @Test
+    void testEquals_DifferentObjectType() {
+        assertFalse(pancake1.equals("Some String"), "Pancake should not be equal to an unrelated object");
     }
 
     @Test
@@ -78,7 +80,23 @@ class PancakeTest {
     }
 
     @Test
-    void testEquals_Null() {
-        assertFalse(pancake1.equals(null), "Pancake should not be equal to null");
+    void testHashCode_SameIngredients() {
+        assertEquals(pancake1.hashCode(), pancake3.hashCode(), "Hash codes should be equal for same ingredients");
     }
+
+    @Test
+    void testHashCode_DifferentIngredients() {
+        assertNotEquals(pancake1.hashCode(), pancake2.hashCode(), "Hash codes should differ for different ingredients");
+    }
+
+    @Test
+    void testGetIngredients_IsImmutable() {
+        List<String> ingredients = pancake1.getIngredients();
+        assertThrows(UnsupportedOperationException.class, () -> ingredients.add("Eggs"), 
+            "Returned list should be immutable");
+    }
+    
+    private String description(List<String> ingredients) {
+   	 return "Delicious pancake with %s!".formatted(String.join(", ", ingredients));
+   }
 }

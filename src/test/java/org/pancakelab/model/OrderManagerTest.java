@@ -56,7 +56,7 @@ class OrderManagerTest {
     void testRemovePancake_NonExisting() {
         order.addPancake(darkChocolateRecepie);
 
-        PancakeRecipe nonExisting = new Pancake(UUID.randomUUID(), List.of(PancakeService.INGREDIENT_HAZELNUTS, PancakeService.INGREDIENT_WHIPPED_CREAM));
+        PancakeRecipe nonExisting = new Pancake(List.of(PancakeService.INGREDIENT_HAZELNUTS, PancakeService.INGREDIENT_WHIPPED_CREAM));
         order.removePancake(nonExisting.description());
 
         List<String> recipes = order.getPancakes();

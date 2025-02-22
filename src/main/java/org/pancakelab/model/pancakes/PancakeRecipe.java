@@ -6,10 +6,8 @@ import java.util.UUID;
 public interface PancakeRecipe {
     default String description()
     {
-        return "Delicious pancake with %s!".formatted(String.join(", ", ingredients()));
+        return "Delicious pancake with %s!".formatted(String.join(", ", getIngredients()));
     }
 
-    UUID getOrderId();
-    void setOrderId(UUID orderId);
-    List<String> ingredients();
+    List<String> getIngredients();
 }
