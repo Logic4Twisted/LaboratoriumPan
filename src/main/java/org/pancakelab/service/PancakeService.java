@@ -44,10 +44,8 @@ public class PancakeService {
      */
     public UUID createOrder(int building, int room) {
         Order order = new Order(building, room);
-        synchronized (orders) {
-        	orders.put(order.getId(), order);
-        	return order.getId();
-		}
+        orders.put(order.getId(), order);
+        return order.getId();
     }
     
 
@@ -141,9 +139,7 @@ public class PancakeService {
      */
     public void cancelOrder(UUID orderId) {
         Order order = getOrder(orderId);
-        synchronized (orders) {
-        	orders.remove(order.getId());
-		}
+        orders.remove(order.getId());
         OrderLog.logCancelOrder(order,order.getPancakes().size());
     }
 
