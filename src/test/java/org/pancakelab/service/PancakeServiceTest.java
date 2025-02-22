@@ -152,6 +152,18 @@ public class PancakeServiceTest {
     }
     
     @Test
+    public void GivenOrder_WhenRemovingNull_ThenDontRemoveAndDontThrowException() {
+    	UUID orderId = pancakeService.createOrder(10, 20);
+    	pancakeService.addDarkChocolatePancake(orderId, 1);
+    	
+    	// exercise
+    	pancakeService.removePancakes(null, orderId, 1);
+    	
+    	// verify
+    	assertEquals(List.of(pancakeDescrption(List.of(PancakeService.INGREDIENT_DARK_CHOCOLATE))), pancakeService.viewOrder(orderId));
+    }
+    
+    @Test
     public void GivenNonExistentOrder_WhenAddingPancakes_ThenNoPancakesAdded_Test() {
         // setup
         UUID invalidOrderId = UUID.randomUUID();
