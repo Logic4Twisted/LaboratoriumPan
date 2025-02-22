@@ -1,10 +1,12 @@
 package org.pancakelab.service;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -73,19 +75,23 @@ public class PancakeService {
     
     /**
      * Adds a specified number of pancakes to an order
-     * Assumption: Pancakes can only be added if not completed
+     * Assumption: Pancakes can only be added if order not completed
+     * Assumption: Pancake without ingredients is possible
      *
      * @param orderId   The ID of the order to add pancakes to.
      * @param ingredients List of requested ingredients.
      * @param count The number of pancakes to add (capped at {@code MAX_PANCAKE_COUNT}).
      */
     public void addPancakes(UUID orderId, List<String> ingredients, int count) {
+    	// basic validation
+    	ingredients = getApprovedIngredients(ingredients);
+    	count = Math.min(count, MAX_PANCAKE_COUNT);
+    	
     	Order order = getOrder(orderId);
-
-        for (int i = 0; i < Math.min(count, MAX_PANCAKE_COUNT); i++) {
+        for (int i = 0; i < count; i++) {
         	PancakeBuilder builder = new PancakeBuilder();
                 
-            for (String ingredient : getApprovedIngredients(ingredients)) {
+            for (String ingredient : ingredients) {
             	builder.addIngredient(ingredient);            
             }
             CustomPancake customPancake = builder.build();
@@ -205,7 +211,9 @@ public class PancakeService {
      * Filters and returns only approved ingredients, converted to lowercase.
      */
     private List<String> getApprovedIngredients(List<String> ingredients) {
-        return ingredients.stream()
+        return  Optional.ofNullable(ingredients)
+        	    .orElse(Collections.emptyList())
+        	    .stream()
                 .map(String::toLowerCase)  
                 .filter(APPROVED_INGREDIENTS::contains) 
                 .toList();

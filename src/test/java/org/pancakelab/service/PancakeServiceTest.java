@@ -565,6 +565,112 @@ public class PancakeServiceTest {
         assertFalse(newAvailableIngredients.contains("strawberries"), "New ingredient was incorrectly added!");
     }
     
+    @Test
+    void testAddPancakes_SuccessfulAddition() {
+        UUID orderId = pancakeService.createOrder(10, 20);
+        List<String> ingredients = List.of(PancakeService.INGREDIENT_DARK_CHOCOLATE, PancakeService.INGREDIENT_WHIPPED_CREAM);
+
+        // Add 3 pancakes
+        pancakeService.addPancakes(orderId, ingredients, 3);
+
+        // Fetch order and check the pancakes count
+        List<String> viewOrder = pancakeService.viewOrder(orderId);
+        assertEquals(3, viewOrder.size(), "Three pancakes should be added");
+        assertEquals(pancakeDescrption(ingredients), viewOrder.get(0));
+        assertEquals(pancakeDescrption(ingredients), viewOrder.get(1));
+        assertEquals(pancakeDescrption(ingredients), viewOrder.get(2));
+    }
+
+    
+    @Test
+    void testAddPancakes_RespectsMaxPancakeCount() {
+    	UUID orderId = pancakeService.createOrder(10, 20);
+        List<String> ingredients = List.of(PancakeService.INGREDIENT_DARK_CHOCOLATE, PancakeService.INGREDIENT_WHIPPED_CREAM);
+
+        // Try adding more than MAX_PANCAKE_COUNT
+        pancakeService.addPancakes(orderId, ingredients, 102);
+
+        // Fetch order and check pancake count
+        List<String> viewOrder = pancakeService.viewOrder(orderId);
+        assertNotNull(viewOrder, "Order should exist");
+        assertEquals(100, viewOrder.size(), "Should not exceed max allowed pancakes");
+    }
+
+    @Test
+    void testAddPancakes_EmptyIngredientList() {
+        UUID orderId = pancakeService.createOrder(10, 20);
+        List<String> ingredients = List.of();
+
+        // Try adding with empty ingredients
+        pancakeService.addPancakes(orderId, ingredients, 2);
+
+        // Fetch order and check pancakes count
+        List<String> viewOrder = pancakeService.viewOrder(orderId);
+        assertEquals(2, viewOrder.size());
+        assertEquals(pancakeDescrption(ingredients), viewOrder.get(0));
+        assertEquals(pancakeDescrption(ingredients), viewOrder.get(1));
+    }
+
+    
+    @Test
+    void testAddPancakes_NullIngredients() {
+    	UUID orderId = pancakeService.createOrder(10, 20);
+         
+        // Call with null ingredients
+        pancakeService.addPancakes(orderId, null, 2);
+
+        // Fetch order and check pancakes count
+        List<String> viewOrder = pancakeService.viewOrder(orderId);
+        assertNotNull(viewOrder, "Order should exist");
+        assertEquals(2, viewOrder.size(), "No pancakes should be added with null ingredient list");
+    }
+
+    
+    @Test
+    void testAddPancakes_NegativeCount() {
+    	UUID orderId = pancakeService.createOrder(10, 20);
+        List<String> ingredients = List.of(PancakeService.INGREDIENT_MILK_CHOCOLATE);
+
+        // Try adding with negative count
+        pancakeService.addPancakes(orderId, ingredients, -2);
+
+        // Fetch order and check pancakes count
+        List<String> orderView = pancakeService.viewOrder(orderId);
+        assertNotNull(orderView, "Order should exist");
+        assertEquals(0, orderView.size(), "No pancakes should be added with negative count");
+    }
+
+    
+    @Test
+    void testAddPancakes_ZeroCount() {
+    	UUID orderId = pancakeService.createOrder(10, 20);
+    	List<String> ingredients = List.of(PancakeService.INGREDIENT_MILK_CHOCOLATE);
+
+        // Try adding with zero count
+        pancakeService.addPancakes(orderId, ingredients, 0);
+
+        // Fetch order and check pancakes count
+        List<String> orderView = pancakeService.viewOrder(orderId);
+        assertNotNull(orderView, "Order should exist");
+        assertEquals(0, orderView.size(), "No pancakes should be added with negative count");
+    }
+
+    @Test
+    void testAddPancakes_OrderNotFound() {
+        UUID invalidOrderId = UUID.randomUUID();
+        List<String> ingredients = List.of(PancakeService.INGREDIENT_MILK_CHOCOLATE);
+
+        // Call method with a non-existent order
+        pancakeService.addPancakes(invalidOrderId, ingredients, 2);
+
+        // Ensure no exception is thrown, and order remains non-existent
+        List<String> orderView = pancakeService.viewOrder(invalidOrderId);
+        assertEquals(0, orderView.size());
+    }
+    
+    private String pancakeDescrption(List<String> ingredients) {
+    	 return "Delicious pancake with %s!".formatted(String.join(", ", ingredients));
+    }
 
     private void addPancakes(UUID orderId) {
         pancakeService.addDarkChocolatePancake(orderId, 3);
