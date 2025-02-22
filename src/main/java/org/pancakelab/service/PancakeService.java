@@ -70,12 +70,17 @@ public class PancakeService {
     	addPancakes(orderId, List.of(INGREDIENT_MILK_CHOCOLATE, INGREDIENT_HAZELNUTS), count);
     }
     
-    // todo needs to be tested !!! private -> public
+    
+    /**
+     * Adds a specified number of pancakes to an order
+     * Assumption: Pancakes can only be added if not completed
+     *
+     * @param orderId   The ID of the order to add pancakes to.
+     * @param ingredients List of requested ingredients.
+     * @param count The number of pancakes to add (capped at {@code MAX_PANCAKE_COUNT}).
+     */
     public void addPancakes(UUID orderId, List<String> ingredients, int count) {
     	Order order = getOrder(orderId);
-    	if (!order.isInitated()) {
-    		return;
-    	}
 
         for (int i = 0; i < Math.min(count, MAX_PANCAKE_COUNT); i++) {
         	PancakeBuilder builder = new PancakeBuilder();
@@ -102,9 +107,6 @@ public class PancakeService {
      */
     public void removePancakes(String description, UUID orderId, int count) {
     	Order order = getOrder(orderId);
-    	if (!order.isInitated()) {
-			return;
-		}
         int countRemoved = 0;
         for (int i = 0; i < count; i++) {
         	if (order.removePancake(description)) {
@@ -136,7 +138,7 @@ public class PancakeService {
      */
     public void cancelOrder(UUID orderId) {
         Order order = getOrder(orderId);
-        removeOrder(orderId);
+        removeOrder(order);
         OrderLog.logCancelOrder(order,order.getPancakes().size());
     }
 
@@ -190,25 +192,25 @@ public class PancakeService {
      */
     public DeliveryResult deliverOrder(UUID orderId) {
     	Order order = getOrder(orderId);
-        if (!order.isPrepared()) {
-        	return new DeliveryResult(false, null, List.of());
+
+        List<String> pancakesToDeliver = order.getPancakesToDeliver().stream()
+        		.map(PancakeRecipe::description).toList();
+        OrderLog.logDeliverOrder(order, order.getPancakes().size());
+
+        if (order.isPrepared()) {
+        	removeOrder(order);
         }
-
-        List<String> pancakesToDeliver = viewOrder(orderId);
-        OrderLog.logDeliverOrder(order, pancakesToDeliver.size());
-
-        removeOrder(orderId);
         
-        return new DeliveryResult(true, order.getId(), pancakesToDeliver);
+        return new DeliveryResult(order.isPrepared(), order.getId(), pancakesToDeliver);
     }
     
     /**
      * Remove order helper method
      * 
-     * @param orderId The ID of the order to remove
+     * @param Order to remove
      */
-    private void removeOrder(UUID orderId) {
-        orders.remove(orderId);
+    private void removeOrder(Order order) {
+        orders.remove(order.getId());
     }
     
     /**

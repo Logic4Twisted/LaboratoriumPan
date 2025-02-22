@@ -49,10 +49,16 @@ public class Order {
     }
     
     public void addPancake(PancakeRecipe pancake) {
+    	if (!isInitated()) {
+    		return;
+    	}
     	pancakes.add(pancake);
     }
     
     public boolean removePancake(String description) {
+    	if (!isInitated()) {
+    		return false;
+    	}
     	Optional<PancakeRecipe> pancake = pancakes.stream()
     		.filter(p -> p.description().equals(description))
     		.findFirst();
@@ -61,6 +67,13 @@ public class Order {
     		return true;
     	}
     	return false;
+    }
+    
+    public List<PancakeRecipe> getPancakesToDeliver() {
+    	if (isPrepared()) {
+    		return getPancakes();
+    	}
+    	return new LinkedList<PancakeRecipe>();
     }
 
     public UUID getId() {
