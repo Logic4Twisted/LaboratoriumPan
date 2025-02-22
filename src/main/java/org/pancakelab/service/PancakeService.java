@@ -192,16 +192,13 @@ public class PancakeService {
      */
     public DeliveryResult deliverOrder(UUID orderId) {
     	Order order = getOrder(orderId);
+    	order.delivered();
 
         List<String> pancakesToDeliver = order.getPancakesToDeliver().stream()
         		.map(PancakeRecipe::description).toList();
         OrderLog.logDeliverOrder(order, order.getPancakes().size());
-
-        if (order.isPrepared()) {
-        	removeOrder(order);
-        }
         
-        return new DeliveryResult(order.isPrepared(), order.getId(), pancakesToDeliver);
+        return new DeliveryResult(order.isDelivered(), order.getId(), pancakesToDeliver);
     }
     
     /**

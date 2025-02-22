@@ -245,9 +245,7 @@ public class PancakeServiceTest {
         DeliveryResult deliveredOrder = pancakeService.deliverOrder(orderId);
 
         // verify
-        List<String> ordersPancakes = pancakeService.viewOrder(orderId);
-
-        assertEquals(List.of(), ordersPancakes);
+        assertTrue(deliveredOrder.isSuccess());
         assertEquals(orderId, deliveredOrder.getOrderId());
         assertEquals(pancakesToDeliver, deliveredOrder.getPancakesToDeliver());
 
@@ -343,12 +341,7 @@ public class PancakeServiceTest {
         assertFalse(completedOrders.contains(orderId));
 
         Set<UUID> preparedOrders = pancakeService.listPreparedOrders();
-        assertFalse(preparedOrders.contains(orderId));
-
-        List<String> ordersPancakes = pancakeService.viewOrder(orderId);
-
-        assertEquals(List.of(), ordersPancakes);
-       
+        assertFalse(preparedOrders.contains(orderId));       
     }
     
     @Test
@@ -368,10 +361,6 @@ public class PancakeServiceTest {
 
         Set<UUID> preparedOrders = pancakeService.listPreparedOrders();
         assertFalse(preparedOrders.contains(orderId));
-
-        List<String> ordersPancakes = pancakeService.viewOrder(orderId);
-
-        assertEquals(List.of(), ordersPancakes);
        
     }
     
@@ -392,10 +381,6 @@ public class PancakeServiceTest {
 
         Set<UUID> preparedOrders = pancakeService.listPreparedOrders();
         assertFalse(preparedOrders.contains(orderId));
-
-        List<String> ordersPancakes = pancakeService.viewOrder(orderId);
-
-        assertEquals(List.of(), ordersPancakes);
     }
     
     
@@ -416,10 +401,6 @@ public class PancakeServiceTest {
 
         Set<UUID> preparedOrders = pancakeService.listPreparedOrders();
         assertFalse(preparedOrders.contains(orderId));
-
-        List<String> ordersPancakes = pancakeService.viewOrder(orderId);
-
-        assertEquals(List.of(), ordersPancakes);
        
     }
     
@@ -443,10 +424,6 @@ public class PancakeServiceTest {
 
         Set<UUID> preparedOrders = pancakeService.listPreparedOrders();
         assertFalse(preparedOrders.contains(orderId));
-
-        List<String> ordersPancakes = pancakeService.viewOrder(orderId);
-
-        assertEquals(List.of(), ordersPancakes);
     }
     
     @Test
@@ -503,7 +480,7 @@ public class PancakeServiceTest {
 
         // verify
         assertTrue(firstDelivery.isSuccess());
-        assertFalse(secondDelivery.isSuccess());
+        assertTrue(secondDelivery.isSuccess());
     }
     
     @Test
@@ -546,7 +523,7 @@ public class PancakeServiceTest {
         // verify
         assertTrue(deliveredOrder.isSuccess());
         assertEquals(orderId, deliveredOrder.getOrderId());
-        assertTrue(pancakeService.viewOrder(orderId).isEmpty());
+        assertEquals(pancakeService.viewOrder(orderId), deliveredOrder.getPancakesToDeliver());
     }
     
     

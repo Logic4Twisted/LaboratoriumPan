@@ -70,7 +70,7 @@ public class Order {
     }
     
     public List<PancakeRecipe> getPancakesToDeliver() {
-    	if (isPrepared()) {
+    	if (isDelivered()) {
     		return getPancakes();
     	}
     	return new LinkedList<PancakeRecipe>();
