@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.*;
 
-class CustomPancakeTest {
+class PancakeTest {
 
     private Pancake pancake1;
     private Pancake pancake2;
