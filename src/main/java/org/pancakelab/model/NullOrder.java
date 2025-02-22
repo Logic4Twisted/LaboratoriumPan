@@ -2,8 +2,6 @@ package org.pancakelab.model;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.pancakelab.model.pancakes.PancakeRecipe;

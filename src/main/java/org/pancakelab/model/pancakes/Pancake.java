@@ -3,7 +3,6 @@ package org.pancakelab.model.pancakes;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 
 public class Pancake implements PancakeRecipe {
 	List<String> ingredients;

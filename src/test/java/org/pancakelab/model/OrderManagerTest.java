@@ -5,12 +5,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.pancakelab.model.pancakes.Pancake;
-import org.pancakelab.model.pancakes.PancakeBuilder;
 import org.pancakelab.model.pancakes.PancakeRecipe;
 import org.pancakelab.service.PancakeService;
 
 import java.util.List;
-import java.util.UUID;
 
 class OrderManagerTest {
 
