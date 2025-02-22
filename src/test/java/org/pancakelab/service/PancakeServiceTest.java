@@ -492,7 +492,7 @@ public class PancakeServiceTest {
 
         // verify
         assertTrue(firstDelivery.isSuccess());
-        assertTrue(secondDelivery.isSuccess());
+        assertFalse(secondDelivery.isSuccess());
     }
     
     @Test
@@ -535,7 +535,7 @@ public class PancakeServiceTest {
         // verify
         assertTrue(deliveredOrder.isSuccess());
         assertEquals(orderId, deliveredOrder.getOrderId());
-        assertEquals(pancakeService.viewOrder(orderId), deliveredOrder.getPancakesToDeliver());
+        assertEquals(pancakeService.viewOrder(orderId), List.of());
     }
     
     

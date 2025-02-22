@@ -1,7 +1,6 @@
 package org.pancakelab.service;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.pancakelab.model.DeliveryResult;
@@ -16,7 +16,7 @@ import org.pancakelab.model.NullOrder;
 import org.pancakelab.model.Order;
 
 public class PancakeService {
-	private Map<UUID, Order> orders = new HashMap<UUID, Order>();
+	private Map<UUID, Order> orders = new ConcurrentHashMap<UUID, Order>();
     
     public static String INGREDIENT_DARK_CHOCOLATE = "dark chocolate";
     public static String INGREDIENT_MILK_CHOCOLATE = "milk chocolate";
@@ -44,8 +44,10 @@ public class PancakeService {
      */
     public UUID createOrder(int building, int room) {
         Order order = new Order(building, room);
-        orders.put(order.getId(), order);
-        return order.getId();
+        synchronized (orders) {
+        	orders.put(order.getId(), order);
+        	return order.getId();
+		}
     }
     
 
@@ -85,9 +87,11 @@ public class PancakeService {
     	count = Math.min(count, MAX_PANCAKE_COUNT);
     	
     	Order order = getOrder(orderId);
-        for (int i = 0; i < count; i++) {
-            order.addPancake(ingredients);
-        }
+    	synchronized(order) {
+    		for (int i = 0; i < count; i++) {
+                order.addPancake(ingredients);
+            }
+    	}
     }
 
     /**
@@ -102,12 +106,15 @@ public class PancakeService {
      */
     public void removePancakes(String description, UUID orderId, int count) {
     	Order order = getOrder(orderId);
-        int countRemoved = 0;
-        for (int i = 0; i < count; i++) {
-        	if (order.removePancake(description)) {
-        		countRemoved++;
-        	}
-        }
+    	
+    	int countRemoved = 0;
+    	synchronized(order) {
+    		for (int i = 0; i < count; i++) {
+            	if (order.removePancake(description)) {
+            		countRemoved++;
+            	}
+            }
+    	}
 
         OrderLog.logRemovePancakes(order, description, countRemoved, order.getPancakes().size());
     }
@@ -119,7 +126,10 @@ public class PancakeService {
      * @return A list of descriptions of pancakes in the order.
      */
 	public List<String> viewOrder(UUID orderId) {
-		return getOrder(orderId).getPancakes();
+		Order order = getOrder(orderId);
+		synchronized (order) {
+			return order.getPancakes();
+		}
 	}
 
     /**
@@ -131,7 +141,9 @@ public class PancakeService {
      */
     public void cancelOrder(UUID orderId) {
         Order order = getOrder(orderId);
-        orders.remove(order.getId());
+        synchronized (orders) {
+        	orders.remove(order.getId());
+		}
         OrderLog.logCancelOrder(order,order.getPancakes().size());
     }
 
@@ -141,7 +153,10 @@ public class PancakeService {
      * @param orderId The ID of the order to complete.
      */
     public void completeOrder(UUID orderId) {
-    	getOrder(orderId).completed();
+    	Order order = getOrder(orderId);
+    	synchronized (order) {
+			order.completed();
+		}
     }
 
     /**
@@ -150,10 +165,13 @@ public class PancakeService {
      * @return A set containing IDs of completed orders.
      */
     public Set<UUID> listCompletedOrders() {
-        return orders.values().stream()
-        		.filter(order -> order.isCompleted())
-        		.map(order -> order.getId())
-        		.collect(Collectors.toSet());
+    	synchronized (orders) {
+    		return orders.values().parallelStream()
+            		.filter(order -> order.isCompleted())
+            		.map(order -> order.getId())
+            		.collect(Collectors.toSet());
+		}
+        
     }
 
     /**
@@ -162,7 +180,10 @@ public class PancakeService {
      * @param orderId The ID of the order to prepare.
      */
     public void prepareOrder(UUID orderId) {
-    	getOrder(orderId).prepared();
+    	Order order = getOrder(orderId);
+    	synchronized (order) {
+			order.prepared();
+		}
     }
 
     /**
@@ -171,10 +192,13 @@ public class PancakeService {
      * @return A set containing IDs of prepared orders.
      */
     public Set<UUID> listPreparedOrders() {
-        return orders.values().stream()
-        		.filter(order -> order.isPrepared())
-        		.map(order -> order.getId())
-        		.collect(Collectors.toSet());
+    	synchronized (orders) {
+    		return orders.values().parallelStream()
+            		.filter(order -> order.isPrepared())
+            		.map(order -> order.getId())
+            		.collect(Collectors.toSet());
+		}
+        
     }
 
     /**
@@ -185,12 +209,17 @@ public class PancakeService {
      */
     public DeliveryResult deliverOrder(UUID orderId) {
     	Order order = getOrder(orderId);
-    	order.delivered();
+    	synchronized(order) {
+    		order.delivered();
+    		if (order.isDelivered()) {
+    			orders.remove(orderId);
+    		}
 
-        List<String> pancakesToDeliver = order.getPancakesToDeliver();
-        OrderLog.logDeliverOrder(order, order.getPancakes().size());
-        
-        return new DeliveryResult(order.isDelivered(), order.getId(), pancakesToDeliver);
+            List<String> pancakesToDeliver = order.getPancakesToDeliver();
+            OrderLog.logDeliverOrder(order, order.getPancakes().size());
+            
+            return new DeliveryResult(order.isDelivered(), order.getId(), pancakesToDeliver);
+    	}
     }
     
     /**
