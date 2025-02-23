@@ -4,13 +4,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
+import org.pancakelab.model.pancakes.OrderRepository;
 import org.pancakelab.model.pancakes.PancakeRecipe;
 
-public class NullOrder extends Order {
+public class NullOrder implements OrderInterface {
     private static NullOrder instance;
 
     private NullOrder() {
-        super(1, 1);
     }
 
     public static NullOrder getInstance() {
@@ -55,15 +55,16 @@ public class NullOrder extends Order {
     	return false;
     }
     
-    public void completed() {
+    @Override
+    public void completed(OrderRepository orderRepository) {
     	// do nothing
     }
     
-    public void prepared() {
+    public void prepared(OrderRepository orderRepository) {
     	// do nothing
     }
     
-    public void delivered() {
+    public void delivered(OrderRepository orderRepository) {
     	// do nothing
     }
     
@@ -89,6 +90,23 @@ public class NullOrder extends Order {
     public int hashCode() {
         return 0;
     }
+
+	@Override
+	public void addPancake(List<String> ingredients) {
+	}
+
+	@Override
+	public List<String> getPancakesToDeliver() {
+		return new LinkedList<String>();
+	}
+
+	@Override
+	public void cancel(OrderRepository orderRepository) {
+	}
+
+	@Override
+	public void saveTo(OrderRepository orderRepository) {
+	}
 
 }
 

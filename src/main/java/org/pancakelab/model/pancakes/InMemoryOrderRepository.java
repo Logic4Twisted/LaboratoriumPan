@@ -7,16 +7,17 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.pancakelab.model.Order;
+import org.pancakelab.model.OrderInterface;
 
 public class InMemoryOrderRepository implements OrderRepository {
 
-	private final Map<UUID, Order> orders = new ConcurrentHashMap<>();
+	private final Map<UUID, OrderInterface> orders = new ConcurrentHashMap<>();
 
-	public Optional<Order> findById(UUID orderId) {
+	public Optional<OrderInterface> findById(UUID orderId) {
 		return Optional.ofNullable(orders.get(orderId));
 	}
 
-	public void save(Order order) {
+	public void save(OrderInterface order) {
 		orders.put(order.getId(), order);
 	}
 
@@ -24,7 +25,7 @@ public class InMemoryOrderRepository implements OrderRepository {
 		orders.remove(orderId);
 	}
 
-	public Collection<Order> findAll() {
+	public Collection<OrderInterface> findAll() {
 		return orders.values();
 	}
 

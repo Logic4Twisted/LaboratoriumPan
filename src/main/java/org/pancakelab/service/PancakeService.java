@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.pancakelab.model.DeliveryResult;
 import org.pancakelab.model.NullOrder;
 import org.pancakelab.model.Order;
+import org.pancakelab.model.OrderInterface;
 import org.pancakelab.model.pancakes.OrderRepository;
 
 public class PancakeService {
@@ -19,7 +20,7 @@ public class PancakeService {
 		this.pancakeManager = pancakeManager;
 	}
     
-    private Order getOrder (UUID orderId) {
+    private OrderInterface getOrder (UUID orderId) {
     	return orderRepository.findById(orderId).orElse(NullOrder.getInstance());
     }
 
@@ -140,7 +141,7 @@ public class PancakeService {
      * @return DeliveryResult
      */
     public DeliveryResult deliverOrder(UUID orderId) {
-    	Order order = getOrder(orderId);
+    	OrderInterface order = getOrder(orderId);
     	order.delivered(orderRepository);
 
         return new DeliveryResult(order.isDelivered(), order.getId(),  order.getPancakesToDeliver());

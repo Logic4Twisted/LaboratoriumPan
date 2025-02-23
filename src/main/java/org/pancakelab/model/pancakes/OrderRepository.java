@@ -4,13 +4,13 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.pancakelab.model.Order;
+import org.pancakelab.model.OrderInterface;
 
 public interface OrderRepository {
 	
-	public Optional<Order> findById(UUID orderId);
-	public void save(Order order);
+	public Optional<OrderInterface> findById(UUID orderId);
+	public void save(OrderInterface order);
 	public void delete(UUID orderId);
-	public Collection<Order> findAll();
+	public Collection<OrderInterface> findAll();
 }
 

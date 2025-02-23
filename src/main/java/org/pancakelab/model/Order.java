@@ -12,7 +12,7 @@ import org.pancakelab.model.pancakes.Pancake;
 import org.pancakelab.model.pancakes.PancakeRecipe;
 import org.pancakelab.service.OrderLog;
 
-public class Order {
+public class Order implements OrderInterface {
     private final UUID id;
     private final int building;
     private final int room;

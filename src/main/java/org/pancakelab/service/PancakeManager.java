@@ -2,9 +2,9 @@ package org.pancakelab.service;
 
 import java.util.List;
 
-import org.pancakelab.model.Order;
+import org.pancakelab.model.OrderInterface;
 
 public interface PancakeManager {
-	public void addPancakes(Order order, List<String> ingredients, int count);
-	public void removePancakes(Order order, String description, int count);
+	public void addPancakes(OrderInterface order, List<String> ingredients, int count);
+	public void removePancakes(OrderInterface order, String description, int count);
 }
