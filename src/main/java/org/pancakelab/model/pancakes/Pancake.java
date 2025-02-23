@@ -12,7 +12,7 @@ public class Pancake implements PancakeRecipe {
 	
 	public Pancake(List<String> ingredients) {
 		if (ingredients != null) {
-			this.ingredients = new LinkedList<String>(ingredients);
+			this.ingredients = new LinkedList<String>(getApprovedIngredients(ingredients));
 		} else {
 			this.ingredients = new LinkedList<String>();
 		}

@@ -53,7 +53,7 @@ public class PancakeServiceTest {
     	UUID orderId = pancakeService.createOrder(10, 20);
 
         // exercise
-        addPancakes(orderId);
+        addSomePancakes(orderId);
 
         // verify
         List<String> ordersPancakes = pancakeService.viewOrder(orderId);
@@ -99,7 +99,7 @@ public class PancakeServiceTest {
     public void GivenPancakesExists_WhenRemovingPancakes_ThenCorrectNumberOfPancakesRemoved_Test() {
         // setup
     	UUID orderId = pancakeService.createOrder(10, 20);
-    	addPancakes(orderId);
+    	addSomePancakes(orderId);
     	
         // exercise
         pancakeService.removePancakes(DARK_CHOCOLATE_PANCAKE_DESCRIPTION, orderId, 2);
@@ -163,6 +163,18 @@ public class PancakeServiceTest {
     }
     
     @Test
+    public void GivenOrder_WhenAddingCustard_ThenDontAddPancake() {
+    	UUID orderId = pancakeService.createOrder(10, 20);
+    	
+    	
+    	// exercise
+    	pancakeService.addPancakes(orderId, List.of("custard"), 1);
+    	
+    	// verify
+    	assertEquals(List.of(pancakeDescrption(List.of())), pancakeService.viewOrder(orderId));
+    }
+    
+    @Test
     public void GivenNonExistentOrder_WhenAddingPancakes_ThenNoPancakesAdded_Test() {
         // setup
         UUID invalidOrderId = UUID.randomUUID();
@@ -197,7 +209,7 @@ public class PancakeServiceTest {
     public void GivenOrderCompleted_WhenDeliverignOrder_ThenOrderDelivery_Test() {
         // setup
     	UUID orderId = pancakeService.createOrder(10, 20);
-    	addPancakes(orderId);
+    	addSomePancakes(orderId);
     	pancakeService.completeOrder(orderId);
 
         // exercise
@@ -211,7 +223,7 @@ public class PancakeServiceTest {
     public void GivenOrderCompleted_WhenPreparingOrder_ThenOrderPrepared_Test() {
         // setup
     	UUID orderId = pancakeService.createOrder(10, 20);
-    	addPancakes(orderId);
+    	addSomePancakes(orderId);
     	pancakeService.completeOrder(orderId);
 
         // exercise
@@ -226,7 +238,7 @@ public class PancakeServiceTest {
     public void GivenOrderCompletedButNotPrepared_WhenDeliveringOrder_ThenOrderNotDelivered_Test() {
         // setup
     	UUID orderId = pancakeService.createOrder(10, 20);
-    	addPancakes(orderId);
+    	addSomePancakes(orderId);
     	pancakeService.completeOrder(orderId);
 
         // exercise
@@ -247,7 +259,7 @@ public class PancakeServiceTest {
     public void GivenOrderPrepared_WhenDeliveringOrder_ThenCorrectOrderReturnedAndOrderRemovedFromTheDatabase_Test() {
         // setup
     	UUID orderId = pancakeService.createOrder(10, 20);
-    	addPancakes(orderId);
+    	addSomePancakes(orderId);
     	List<String> pancakesToDeliver = new LinkedList<String> (pancakeService.viewOrder(orderId));
     	pancakeService.completeOrder(orderId);
     	pancakeService.prepareOrder(orderId);
@@ -259,7 +271,8 @@ public class PancakeServiceTest {
         assertTrue(deliveredOrder.isSuccess());
         assertEquals(orderId, deliveredOrder.getOrderId());
         assertEquals(pancakesToDeliver, deliveredOrder.getPancakesToDeliver());
-
+        
+        assertEquals(List.of(), pancakeService.viewOrder(orderId), "Order should be removed");
         // tear down
     }
 
@@ -267,7 +280,7 @@ public class PancakeServiceTest {
     public void GivenOrderExists_WhenCancellingOrder_ThenOrderAndPancakesRemoved_Test() {
         // setup
     	UUID orderId = pancakeService.createOrder(10, 20);
-        addPancakes(orderId);
+        addSomePancakes(orderId);
         
         // exercise
         pancakeService.cancelOrder(orderId);
@@ -290,7 +303,7 @@ public class PancakeServiceTest {
     public void GivenOrderCompleted_WhenCancellingOrder_ThenOrderAndPancakesRemoved_Test() {
         // setup
     	UUID orderId = pancakeService.createOrder(10, 20);
-        addPancakes(orderId);
+        addSomePancakes(orderId);
         pancakeService.completeOrder(orderId);
         
         // exercise
@@ -314,7 +327,7 @@ public class PancakeServiceTest {
     public void GivenOrderPrepared_WhenCancellingOrder_ThenOrderDoesNotExis_Test() {
         // setup
     	UUID orderId = pancakeService.createOrder(10, 20);
-        addPancakes(orderId);
+        addSomePancakes(orderId);
         pancakeService.completeOrder(orderId);
         pancakeService.prepareOrder(orderId);
         
@@ -339,7 +352,7 @@ public class PancakeServiceTest {
     public void GivenOrderDelivered_WhenCancellingOrder_ThenOrderDoesNotExist_Test() {
         // setup
     	UUID orderId = pancakeService.createOrder(10, 20);
-        addPancakes(orderId);
+        addSomePancakes(orderId);
         pancakeService.completeOrder(orderId);
         pancakeService.prepareOrder(orderId);
         pancakeService.deliverOrder(orderId);
@@ -359,7 +372,7 @@ public class PancakeServiceTest {
     public void GivenOrderCancelled_WhenCancellingOrder_ThenOrderDoesNotExist_Test() {
         // setup
     	UUID orderId = pancakeService.createOrder(10, 20);
-        addPancakes(orderId);
+        addSomePancakes(orderId);
         pancakeService.completeOrder(orderId);
         pancakeService.cancelOrder(orderId);
         
@@ -379,7 +392,7 @@ public class PancakeServiceTest {
     public void GivenOrderCancelled_WhenCompletingOrderAgain_ThenOrderDoesNotExist_Test() {
         // setup
     	UUID orderId = pancakeService.createOrder(10, 20);
-        addPancakes(orderId);
+        addSomePancakes(orderId);
         pancakeService.completeOrder(orderId);
         pancakeService.cancelOrder(orderId);
         
@@ -399,7 +412,7 @@ public class PancakeServiceTest {
     public void GivenOrderCancelled_WhenPreparingOrder_ThenOrderDoesNotExist_Test() {
         // setup
     	UUID orderId = pancakeService.createOrder(10, 20);
-        addPancakes(orderId);
+        addSomePancakes(orderId);
         pancakeService.completeOrder(orderId);
         pancakeService.cancelOrder(orderId);
         
@@ -419,7 +432,7 @@ public class PancakeServiceTest {
     public void GivenOrderCancelled_WhenDeliveringOrder_ThenOrderDoesNotExist_Test() {
         // setup
     	UUID orderId = pancakeService.createOrder(10, 20);
-        addPancakes(orderId);
+        addSomePancakes(orderId);
         pancakeService.completeOrder(orderId);
         pancakeService.prepareOrder(orderId);
         pancakeService.cancelOrder(orderId);
@@ -466,7 +479,7 @@ public class PancakeServiceTest {
     public void GivenOrderNotCompleted_WhenPreparingOrder_ThenOrderNotPrepared_Test() {
         // setup
     	UUID orderId = pancakeService.createOrder(10, 20);
-        addPancakes(orderId);
+        addSomePancakes(orderId);
 
         // exercise
         pancakeService.prepareOrder(orderId);
@@ -479,7 +492,7 @@ public class PancakeServiceTest {
     public void GivenOrderDelivered_WhenDeliveringAgain_ThenOrderNotFound_Test() {
         // setup
     	UUID orderId = pancakeService.createOrder(10, 20);
-        addPancakes(orderId);
+        addSomePancakes(orderId);
         pancakeService.completeOrder(orderId);
         pancakeService.prepareOrder(orderId);
 
@@ -524,7 +537,7 @@ public class PancakeServiceTest {
     public void GivenNewOrder_WhenProcessedThroughLifecycle_ThenSuccessfullyDelivered_Test() {
         // setup
     	UUID orderId = pancakeService.createOrder(10, 20);
-        addPancakes(orderId);
+        addSomePancakes(orderId);
 
         // exercise
         pancakeService.completeOrder(orderId);
@@ -542,7 +555,7 @@ public class PancakeServiceTest {
     public void GivenNewOrder_WhenAppendingToDescription_ThenNotUpdated_Test() {
     	// setup
         UUID orderId = pancakeService.createOrder(10, 20);
-        addPancakes(orderId);
+        addSomePancakes(orderId);
         pancakeService.completeOrder(orderId);
         
         List<String> expected = new LinkedList<String>();
@@ -635,10 +648,9 @@ public class PancakeServiceTest {
     @Test
     void testAddPancakes_ZeroCount() {
     	UUID orderId = pancakeService.createOrder(10, 20);
-    	List<String> ingredients = List.of(Pancake.INGREDIENT_MILK_CHOCOLATE);
 
         // Try adding with zero count
-        pancakeService.addPancakes(orderId, ingredients, 0);
+        pancakeService.addPancakes(orderId, List.of(Pancake.INGREDIENT_MILK_CHOCOLATE), 0);
 
         // Fetch order and check pancakes count
         List<String> orderView = pancakeService.viewOrder(orderId);
@@ -663,7 +675,7 @@ public class PancakeServiceTest {
     	 return "Delicious pancake with %s!".formatted(String.join(", ", ingredients));
     }
 
-    private void addPancakes(UUID orderId) {
+    private void addSomePancakes(UUID orderId) {
     	pancakeService.addPancakes(orderId, List.of(Pancake.INGREDIENT_DARK_CHOCOLATE), 3);
     	pancakeService.addPancakes(orderId, List.of(Pancake.INGREDIENT_MILK_CHOCOLATE), 3);
     	pancakeService.addPancakes(orderId, List.of(Pancake.INGREDIENT_MILK_CHOCOLATE, Pancake.INGREDIENT_HAZELNUTS), 3);

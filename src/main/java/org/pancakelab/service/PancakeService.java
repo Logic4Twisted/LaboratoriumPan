@@ -39,8 +39,8 @@ public class PancakeService {
     
     /**
      * Adds a specified number of pancakes to an order
-     * Assumption: Pancakes can only be added if order not completed
-     * Assumption: Pancake without ingredients is possible
+     * Requirements: Pancakes can only be added if order not completed
+     * Requirements: Pancake without ingredients is possible
      *
      * @param orderId   The ID of the order to add pancakes to.
      * @param ingredients List of requested ingredients.
@@ -62,7 +62,7 @@ public class PancakeService {
      * Removes specified pancakes from an order. If the order is completed, no pancakes
      * are removed.
      * 
-     * Assumption: pancakes can be removed only from orders in initial state
+     * Requirements: pancakes can be removed only from orders in initial state?
      *
      * @param description The description of the pancake type to remove.
      * @param orderId The ID of the order.
@@ -99,7 +99,12 @@ public class PancakeService {
     /**
      * Cancels an order and removes all its pancakes.
      * 
-     * changed behaviour: if order does not exists it does not throw an exception 
+     * Requirements:
+     * Can we cancel order that is completed? 
+     * in Readme: "3.The Disciple can choose to complete or cancel the Order, if cancelled the Order is removed from the database."
+     * does this means it can only be cancelled before its completed? I chose to allow cancelling anytime before delivery
+     * 
+     * If the order does not exists it does not throw an exception 
      *
      * @param orderId The ID of the order to cancel.
      */
