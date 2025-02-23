@@ -9,10 +9,10 @@ public class ApprovedIngredients {
 	public static String INGREDIENT_WHIPPED_CREAM = "whipped cream";
 	
     private static final Set<String> INGREDIENTS = Set.of(
-        "dark chocolate",
-        "milk chocolate",
-        "whipped cream",
-        "hazelnuts"
+        INGREDIENT_DARK_CHOCOLATE,
+        INGREDIENT_MILK_CHOCOLATE,
+        INGREDIENT_HAZELNUTS,
+        INGREDIENT_WHIPPED_CREAM
     );
 
     public static boolean isApproved(String ingredient) {
