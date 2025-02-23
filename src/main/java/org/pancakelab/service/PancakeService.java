@@ -31,7 +31,7 @@ public class PancakeService {
      */
     public UUID createOrder(int building, int room) {
         Order order = new Order(building, room);
-        orderRepository.save(order);
+        order.saveTo(orderRepository);
         return order.getId();
     }
     
@@ -46,8 +46,7 @@ public class PancakeService {
      * @param count The number of pancakes to add (capped at {@code MAX_PANCAKE_COUNT}).
      */
     public void addPancakes(UUID orderId, List<String> ingredients, int count) {    	
-    	Order order = getOrder(orderId);
-    	pancakeManager.addPancakes(order, ingredients, count);
+    	pancakeManager.addPancakes(getOrder(orderId), ingredients, count);
     }
 
     /**
@@ -61,8 +60,7 @@ public class PancakeService {
      * @param count The number of pancakes to remove.
      */
     public void removePancakes(String description, UUID orderId, int count) {
-    	Order order = getOrder(orderId);
-    	pancakeManager.removePancakes(order, description, count);
+    	pancakeManager.removePancakes(getOrder(orderId), description, count);
     }
     
     /**
@@ -88,9 +86,7 @@ public class PancakeService {
      * @param orderId The ID of the order to cancel.
      */
     public void cancelOrder(UUID orderId) {
-        Order order = getOrder(orderId);
-        orderRepository.delete(orderId);
-        OrderLog.logCancelOrder(order,order.getPancakes().size());
+        getOrder(orderId).cancel(orderRepository);
     }
 
     /**
@@ -99,7 +95,7 @@ public class PancakeService {
      * @param orderId The ID of the order to complete.
      */
     public void completeOrder(UUID orderId) {
-    	getOrder(orderId).completed();
+    	getOrder(orderId).completed(orderRepository);
     }
 
     /**
@@ -121,7 +117,7 @@ public class PancakeService {
      * @param orderId The ID of the order to prepare.
      */
     public void prepareOrder(UUID orderId) {
-    	getOrder(orderId).prepared();
+    	getOrder(orderId).prepared(orderRepository);
     }
 
     /**
@@ -145,12 +141,8 @@ public class PancakeService {
      */
     public DeliveryResult deliverOrder(UUID orderId) {
     	Order order = getOrder(orderId);
-    	order.delivered();
-    	if (order.isDelivered()) {
-    		orderRepository.delete(orderId);
-    	}
+    	order.delivered(orderRepository);
 
-        OrderLog.logDeliverOrder(order, order.getPancakes().size());
         return new DeliveryResult(order.isDelivered(), order.getId(),  order.getPancakesToDeliver());
     }
 }

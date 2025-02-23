@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.pancakelab.model.pancakes.InMemoryOrderRepository;
+import org.pancakelab.model.pancakes.OrderRepository;
 import org.pancakelab.model.pancakes.Pancake;
 import org.pancakelab.model.pancakes.PancakeRecipe;
 
@@ -12,13 +14,14 @@ import java.util.List;
 class OrderManagerTest {
 
     private Order order;
-    private List<String> darkChocolateRecepie, milkChocolateRecepie;
+    private List<String> darkChocolateRecepie = List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE);
+    private List<String> milkChocolateRecepie = List.of(ApprovedIngredients.INGREDIENT_MILK_CHOCOLATE);
+    private OrderRepository orderRepository;
 
     @BeforeEach
     void setUp() {
         order = new Order(1,2);
-        darkChocolateRecepie = List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE);
-        milkChocolateRecepie = List.of(ApprovedIngredients.INGREDIENT_MILK_CHOCOLATE);
+        orderRepository = new InMemoryOrderRepository();
     }
 
     @Test
@@ -82,7 +85,7 @@ class OrderManagerTest {
         assertEquals(1, order.getPancakes().size(), "Pancake should be added in INITIATED state");
 
         // Complete the order
-        order.completed();
+        order.completed(orderRepository);
         assertTrue(order.isCompleted(), "Order should be in COMPLETED state");
 
         // Try adding another pancake (should not be added)
@@ -99,7 +102,7 @@ class OrderManagerTest {
         assertEquals(1, order.getPancakes().size(), "Pancake should be added in INITIATED state");
 
         // Complete the order
-        order.completed();
+        order.completed(orderRepository);
         assertTrue(order.isCompleted(), "Order should be in COMPLETED state");
 
         // Attempt to remove pancake (should not be removed)
@@ -117,11 +120,11 @@ class OrderManagerTest {
         assertEquals(1, order.getPancakes().size(), "Pancake should be added in INITIATED state");
 
         // Move to COMPLETED state
-        order.completed();
+        order.completed(orderRepository);
         assertTrue(order.isCompleted(), "Order should be in COMPLETED state");
 
         // Move to PREPARED state
-        order.prepared();
+        order.prepared(orderRepository);
         assertTrue(order.isPrepared(), "Order should be in PREPARED state");
 
         // Try removing a pancake (should not be removed)
@@ -130,7 +133,7 @@ class OrderManagerTest {
         assertEquals(1, order.getPancakes().size(), "Pancake list should remain unchanged in PREPARED state");
 
         // Move to DELIVERED state
-        order.delivered();
+        order.delivered(orderRepository);
         assertTrue(order.isDelivered(), "Order should be in DELIVERED state");
 
         // Try adding a pancake (should not be added)

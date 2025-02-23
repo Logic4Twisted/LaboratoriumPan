@@ -18,7 +18,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.pancakelab.model.ApprovedIngredients;
 import org.pancakelab.model.DeliveryResult;
 import org.pancakelab.model.pancakes.InMemoryOrderRepository;
-import org.pancakelab.model.pancakes.Pancake;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.pancakelab.model.pancakes.OrderRepository;
 import org.pancakelab.model.pancakes.Pancake;
 import org.pancakelab.model.pancakes.PancakeRecipe;
 import org.pancakelab.service.OrderLog;
@@ -130,16 +131,31 @@ public class Order {
         return room;
     }
     
-    public void completed() {
+    public void completed(OrderRepository orderRepository) {
     	changeStatus(OrderStatus.COMPLETED);
+    	orderRepository.save(this);
     }
     
-    public void prepared() {
+    public void prepared(OrderRepository orderRepository) {
     	changeStatus(OrderStatus.PREPARED);
+    	orderRepository.save(this);
     }
     
-    public void delivered() {
+    public void delivered(OrderRepository orderRepository) {
     	changeStatus(OrderStatus.DELIVERED);
+    	if (isDelivered()) {
+    		orderRepository.delete(getId());
+    		OrderLog.logDeliverOrder(this, getPancakes().size());
+    	}
+    }
+    
+    public void cancel(OrderRepository orderRepository) {
+    	orderRepository.delete(getId());
+    	OrderLog.logCancelOrder(this, getPancakes().size());
+    }
+    
+    public void saveTo(OrderRepository orderRepository) {
+    	orderRepository.save(this);
     }
     
     public boolean isInitated() {

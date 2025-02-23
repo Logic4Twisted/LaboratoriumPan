@@ -1,13 +1,23 @@
 package org.pancakelab.model;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.pancakelab.model.pancakes.InMemoryOrderRepository;
+import org.pancakelab.model.pancakes.OrderRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
 public class OrderTest {
+	
+	OrderRepository orderRepository;
+	
+	@BeforeEach
+	void setUp() {
+		orderRepository = new InMemoryOrderRepository();
+	}
 
     @Test
     public void GivenValidBuildingAndRoom_WhenCreatingOrder_ThenOrderIsCreatedSuccessfully() {
@@ -63,16 +73,16 @@ public class OrderTest {
     	assertTrue(order.isInitated());
     	
         // Test INITIATED -> COMPLETED
-        order.completed();
+        order.completed(orderRepository);
         assertTrue(order.isCompleted());
 
         // Test COMPLETED -> PREPARED
-        order.prepared();
+        order.prepared(orderRepository);
         assertTrue(order.isPrepared());
 
         // Test PREPARED -> DELIVERED
-        order.completed();
-        order.delivered();
+        order.completed(orderRepository);
+        order.delivered(orderRepository);
         assertTrue(order.isDelivered());
     }
 
@@ -81,16 +91,16 @@ public class OrderTest {
     	Order order = new Order(1,2);
     	
         // Test INITIATED -> DELIVERED (Invalid)
-        order.delivered();
+        order.delivered(orderRepository);
         assertFalse(order.isDelivered());
 
         // Test INITIATED -> PREPARED (Invalid)
-        order.prepared();
+        order.prepared(orderRepository);
         assertFalse(order.isPrepared());
         
         // Test COMPLETED -> DELIVERED (Invalid)
-        order.completed();
-        order.delivered();
+        order.completed(orderRepository);
+        order.delivered(orderRepository);
         assertFalse(order.isDelivered());
     }
     
@@ -104,21 +114,21 @@ public class OrderTest {
         assertFalse(order.isDelivered());
         
         
-    	order.completed();
+    	order.completed(orderRepository);
     	
         assertTrue(order.isCompleted(), "Order should be in COMPLETED status");
         assertFalse(order.isInitated());
         assertFalse(order.isPrepared());
         assertFalse(order.isDelivered());
         
-        order.prepared();
+        order.prepared(orderRepository);
     	
         assertTrue(order.isPrepared(), "Order should be in PREPARED status");
         assertFalse(order.isInitated());
         assertFalse(order.isCompleted());
         assertFalse(order.isDelivered());
         
-        order.delivered();
+        order.delivered(orderRepository);
 
         assertTrue(order.isDelivered(), "Order should be in DELIVERED status");
         assertFalse(order.isInitated());
@@ -135,15 +145,15 @@ public class OrderTest {
         assertTrue(order.getPancakesToDeliver().isEmpty(), "Pancakes should NOT be available for delivery in INITIATED state");
 
         // COMPLETED state should return an empty list
-        order.completed();
+        order.completed(orderRepository);
         assertTrue(order.getPancakesToDeliver().isEmpty(), "Pancakes should NOT be available for delivery in COMPLETED state");
 
         // PREPARED state should return the actual list
-        order.prepared();
+        order.prepared(orderRepository);
         assertTrue(order.getPancakesToDeliver().isEmpty(), "Pancakes should be available for delivery in PREPARED state");
 
         // DELIVERED state should return an empty list
-        order.delivered();
+        order.delivered(orderRepository);
         assertFalse(order.getPancakesToDeliver().isEmpty(), "Pancakes should NOT be available for delivery in DELIVERED state");
     }
     
