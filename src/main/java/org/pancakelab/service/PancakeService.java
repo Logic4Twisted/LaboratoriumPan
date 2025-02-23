@@ -50,11 +50,9 @@ public class PancakeService {
     	count = Math.min(count, MAX_PANCAKE_COUNT);
     	
     	Order order = getOrder(orderId);
-    	synchronized(order) {
-    		for (int i = 0; i < count; i++) {
-                order.addPancake(ingredients);
-            }
-    	}
+    	for (int i = 0; i < count; i++) {
+    		order.addPancake(ingredients);
+        }
     }
 
     /**
@@ -71,13 +69,11 @@ public class PancakeService {
     	Order order = getOrder(orderId);
     	
     	int countRemoved = 0;
-    	synchronized(order) {
-    		for (int i = 0; i < count; i++) {
-            	if (order.removePancake(description)) {
-            		countRemoved++;
-            	}
+    	for (int i = 0; i < count; i++) {
+            if (order.removePancake(description)) {
+            	countRemoved++;
             }
-    	}
+        }
 
         OrderLog.logRemovePancakes(order, description, countRemoved, order.getPancakes().size());
     }
@@ -89,10 +85,7 @@ public class PancakeService {
      * @return A list of descriptions of pancakes in the order.
      */
 	public List<String> viewOrder(UUID orderId) {
-		Order order = getOrder(orderId);
-		synchronized (order) {
-			return order.getPancakes();
-		}
+		return getOrder(orderId).getPancakes();
 	}
 
     /**
@@ -119,10 +112,7 @@ public class PancakeService {
      * @param orderId The ID of the order to complete.
      */
     public void completeOrder(UUID orderId) {
-    	Order order = getOrder(orderId);
-    	synchronized (order) {
-			order.completed();
-		}
+    	getOrder(orderId).completed();
     }
 
     /**
@@ -144,10 +134,7 @@ public class PancakeService {
      * @param orderId The ID of the order to prepare.
      */
     public void prepareOrder(UUID orderId) {
-    	Order order = getOrder(orderId);
-    	synchronized (order) {
-			order.prepared();
-		}
+    	getOrder(orderId).prepared();
     }
 
     /**
@@ -171,16 +158,12 @@ public class PancakeService {
      */
     public DeliveryResult deliverOrder(UUID orderId) {
     	Order order = getOrder(orderId);
-    	synchronized(order) {
-    		order.delivered();
-    		if (order.isDelivered()) {
-    			orderRepository.delete(orderId);
-    		}
-
-            List<String> pancakesToDeliver = order.getPancakesToDeliver();
-            OrderLog.logDeliverOrder(order, order.getPancakes().size());
-            
-            return new DeliveryResult(order.isDelivered(), order.getId(), pancakesToDeliver);
+    	order.delivered();
+    	if (order.isDelivered()) {
+    		orderRepository.delete(orderId);
     	}
+
+        OrderLog.logDeliverOrder(order, order.getPancakes().size());
+        return new DeliveryResult(order.isDelivered(), order.getId(),  order.getPancakesToDeliver());
     }
 }

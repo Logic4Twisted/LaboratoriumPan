@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.pancakelab.model.pancakes.Pancake;
 import org.pancakelab.model.pancakes.PancakeRecipe;
@@ -17,7 +18,9 @@ public class Order {
     private OrderStatus status;
     
     private List<PancakeRecipe> pancakes;
-
+    
+    private final ReentrantLock lock = new ReentrantLock();
+    
     public Order(int building, int room) {
     	validateBuildingAndRoom(building, room);
         this.id = UUID.randomUUID();
@@ -36,48 +39,82 @@ public class Order {
         }
     }
     
+    private void lock() {
+    	lock.lock();
+    }
+    
+    private void unlock() {
+    	lock.unlock();
+    }
+    
     private void changeStatus(OrderStatus nextStatus) {
-    	if (status == OrderStatus.INITIATED && nextStatus == OrderStatus.COMPLETED) {
-    		this.status = nextStatus;
-    	} else if (status == OrderStatus.COMPLETED && nextStatus == OrderStatus.PREPARED) {
-    		this.status = nextStatus;
-    	} else if (status == OrderStatus.PREPARED && nextStatus == OrderStatus.DELIVERED) {
-    		this.status = nextStatus;
+    	lock();
+    	try {
+    		if (status == OrderStatus.INITIATED && nextStatus == OrderStatus.COMPLETED) {
+        		this.status = nextStatus;
+        	} else if (status == OrderStatus.COMPLETED && nextStatus == OrderStatus.PREPARED) {
+        		this.status = nextStatus;
+        	} else if (status == OrderStatus.PREPARED && nextStatus == OrderStatus.DELIVERED) {
+        		this.status = nextStatus;
+        	}
+    	} finally {
+    		unlock();
     	}
+    	
     }
     
     public void addPancake(List<String> ingredients) {
-    	if (!isInitated()) {
-    		return;
+    	lock();
+    	try {
+	    	if (!isInitated()) {
+	    		return;
+	    	}
+	    	Pancake pancake = new Pancake(ingredients);
+	    	pancakes.add(pancake);
+	    	OrderLog.logAddPancake(this, pancake.description(), this.getPancakes().size());
+    	} finally {
+    		unlock();
     	}
-    	Pancake pancake = new Pancake(ingredients);
-    	pancakes.add(pancake);
-    	OrderLog.logAddPancake(this, pancake.description(), this.getPancakes().size());
     }
     
     public boolean removePancake(String description) {
-    	if (!isInitated()) {
-    		return false;
+    	lock();
+    	try {
+	    	if (!isInitated()) {
+	    		return false;
+	    	}
+	    	Optional<PancakeRecipe> pancake = pancakes.stream()
+	    		.filter(p -> p.description().equals(description))
+	    		.findFirst();
+	    	if (pancake.isPresent()) {
+	    		pancakes.remove(pancake.get());
+	    		return true;
+	    	}
+	    	return false;
+    	} finally {
+    		unlock();
     	}
-    	Optional<PancakeRecipe> pancake = pancakes.stream()
-    		.filter(p -> p.description().equals(description))
-    		.findFirst();
-    	if (pancake.isPresent()) {
-    		pancakes.remove(pancake.get());
-    		return true;
-    	}
-    	return false;
     }
     
     public List<String> getPancakes() {
-    	return pancakes.stream().map(PancakeRecipe::description).toList();
+    	lock();
+    	try {
+    		return pancakes.stream().map(PancakeRecipe::description).toList();
+    	} finally {
+    		unlock();
+    	}
     }
     
     public List<String> getPancakesToDeliver() {
-    	if (isDelivered()) {
-    		return getPancakes();
+    	lock();
+    	try {
+        	if (isDelivered()) {
+        		return getPancakes();
+        	}
+        	return new LinkedList<String>();
+    	} finally {
+    		unlock();
     	}
-    	return new LinkedList<String>();
     }
 
     public UUID getId() {
