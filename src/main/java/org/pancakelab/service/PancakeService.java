@@ -18,18 +18,6 @@ import org.pancakelab.model.Order;
 public class PancakeService {
 	private Map<UUID, Order> orders = new ConcurrentHashMap<UUID, Order>();
     
-    public static String INGREDIENT_DARK_CHOCOLATE = "dark chocolate";
-    public static String INGREDIENT_MILK_CHOCOLATE = "milk chocolate";
-    public static String INGREDIENT_WHIPPED_CREAM = "whipped cream";
-    public static String INGREDIENT_HAZELNUTS = "hazelnuts";
-    
-    private static final Set<String> APPROVED_INGREDIENTS = new HashSet<>(Set.of(
-    	INGREDIENT_DARK_CHOCOLATE, 
-    	INGREDIENT_MILK_CHOCOLATE, 
-    	INGREDIENT_WHIPPED_CREAM, 
-    	INGREDIENT_HAZELNUTS
-    ));
-    
     public static final int MAX_PANCAKE_COUNT = 100;
     
     private Order getOrder (UUID orderId) {
@@ -48,27 +36,6 @@ public class PancakeService {
         return order.getId();
     }
     
-
-    public void addDarkChocolatePancake(UUID orderId, int count) {
-    	addPancakes(orderId, List.of(INGREDIENT_DARK_CHOCOLATE), count);
-    }
-
-    public void addDarkChocolateWhippedCreamPancake(UUID orderId, int count) {
-    	addPancakes(orderId, List.of(INGREDIENT_DARK_CHOCOLATE, INGREDIENT_WHIPPED_CREAM), count);
-    }
-
-    public void addDarkChocolateWhippedCreamHazelnutsPancake(UUID orderId, int count) {
-    	addPancakes(orderId, List.of(INGREDIENT_DARK_CHOCOLATE, INGREDIENT_WHIPPED_CREAM, INGREDIENT_HAZELNUTS), count);
-    }
-
-    public void addMilkChocolatePancake(UUID orderId, int count) {
-    	addPancakes(orderId, List.of(INGREDIENT_MILK_CHOCOLATE), count);
-    }
-
-    public void addMilkChocolateHazelnutsPancake(UUID orderId, int count) {
-    	addPancakes(orderId, List.of(INGREDIENT_MILK_CHOCOLATE, INGREDIENT_HAZELNUTS), count);
-    }
-    
     
     /**
      * Adds a specified number of pancakes to an order
@@ -81,7 +48,6 @@ public class PancakeService {
      */
     public void addPancakes(UUID orderId, List<String> ingredients, int count) {
     	// basic validation
-    	ingredients = getApprovedIngredients(ingredients);
     	count = Math.min(count, MAX_PANCAKE_COUNT);
     	
     	Order order = getOrder(orderId);
@@ -161,12 +127,10 @@ public class PancakeService {
      * @return A set containing IDs of completed orders.
      */
     public Set<UUID> listCompletedOrders() {
-    	synchronized (orders) {
-    		return orders.values().parallelStream()
-            		.filter(order -> order.isCompleted())
-            		.map(order -> order.getId())
-            		.collect(Collectors.toSet());
-		}
+    	return orders.values().parallelStream()
+    			.filter(order -> order.isCompleted())
+    			.map(order -> order.getId())
+    			.collect(Collectors.toSet());
         
     }
 
@@ -187,15 +151,13 @@ public class PancakeService {
      *
      * @return A set containing IDs of prepared orders.
      */
-    public Set<UUID> listPreparedOrders() {
-    	synchronized (orders) {
-    		return orders.values().parallelStream()
-            		.filter(order -> order.isPrepared())
-            		.map(order -> order.getId())
-            		.collect(Collectors.toSet());
-		}
-        
-    }
+	public Set<UUID> listPreparedOrders() {
+		return orders.values().parallelStream()
+				.filter(order -> order.isPrepared())
+				.map(order -> order.getId())
+				.collect(Collectors.toSet());
+
+	}
 
     /**
      * Delivers an order and removes it from the system.
@@ -216,25 +178,5 @@ public class PancakeService {
             
             return new DeliveryResult(order.isDelivered(), order.getId(), pancakesToDeliver);
     	}
-    }
-    
-    /**
-     * Filters and returns only approved ingredients, converted to lowercase.
-     */
-    private List<String> getApprovedIngredients(List<String> ingredients) {
-        return  Optional.ofNullable(ingredients)
-        	    .orElse(Collections.emptyList())
-        	    .stream()
-                .map(String::toLowerCase)  
-                .filter(APPROVED_INGREDIENTS::contains) 
-                .toList();
-    }
-    
-    /**
-     * Make sense to provide users with available ingredients
-     * @return List of ingredients
-     */
-    public List<String> getAvailableIngredients() {
-    	return new LinkedList<String>(APPROVED_INGREDIENTS);
     }
 }

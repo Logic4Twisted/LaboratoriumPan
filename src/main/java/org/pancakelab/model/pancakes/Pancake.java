@@ -1,14 +1,21 @@
 package org.pancakelab.model.pancakes;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 public class Pancake implements PancakeRecipe {
 	List<String> ingredients;
 	
 	public Pancake(List<String> ingredients) {
-		this.ingredients = new LinkedList<String>(ingredients);
+		if (ingredients != null) {
+			this.ingredients = new LinkedList<String>(ingredients);
+		} else {
+			this.ingredients = new LinkedList<String>();
+		}
 	}
 	
 	public Pancake() {
@@ -21,7 +28,7 @@ public class Pancake implements PancakeRecipe {
 	}
 	
 	public void addIngredient(String ingredient) {
-		this.ingredients.add(ingredient);
+		this.ingredients.addAll(getApprovedIngredients(List.of(ingredient)));
 	}
 	
 	@Override
@@ -47,4 +54,36 @@ public class Pancake implements PancakeRecipe {
 		}
 		return hashCode;
 	}
+	
+	public static String INGREDIENT_DARK_CHOCOLATE = "dark chocolate";
+    public static String INGREDIENT_MILK_CHOCOLATE = "milk chocolate";
+    public static String INGREDIENT_WHIPPED_CREAM = "whipped cream";
+    public static String INGREDIENT_HAZELNUTS = "hazelnuts";
+    
+    private static final Set<String> APPROVED_INGREDIENTS = new HashSet<>(Set.of(
+    	INGREDIENT_DARK_CHOCOLATE, 
+    	INGREDIENT_MILK_CHOCOLATE, 
+    	INGREDIENT_WHIPPED_CREAM, 
+    	INGREDIENT_HAZELNUTS
+    ));
+    
+    /**
+     * Filters and returns only approved ingredients, converted to lowercase.
+     */
+    private List<String> getApprovedIngredients(List<String> ingredients) {
+        return  Optional.ofNullable(ingredients)
+        	    .orElse(Collections.emptyList())
+        	    .stream()
+                .map(String::toLowerCase)  
+                .filter(APPROVED_INGREDIENTS::contains) 
+                .toList();
+    }
+    
+    /**
+     * Make sense to provide users with available ingredients
+     * @return List of ingredients
+     */
+    public List<String> getAvailableIngredients() {
+    	return new LinkedList<String>(APPROVED_INGREDIENTS);
+    }
 }

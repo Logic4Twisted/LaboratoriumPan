@@ -2,7 +2,7 @@ package org.pancakelab.model;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.pancakelab.service.PancakeService;
+import org.pancakelab.model.pancakes.Pancake;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -130,7 +130,7 @@ public class OrderTest {
     @Test
     void testGetPancakesToDeliver() {
         Order order = new Order(1, 2);
-        order.addPancake(List.of(PancakeService.INGREDIENT_DARK_CHOCOLATE));
+        order.addPancake(List.of(Pancake.INGREDIENT_DARK_CHOCOLATE));
 
         // INITIATED state should return an empty list
         assertTrue(order.getPancakesToDeliver().isEmpty(), "Pancakes should NOT be available for delivery in INITIATED state");
