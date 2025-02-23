@@ -3,6 +3,7 @@ package org.pancakelab.service;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.pancakelab.model.pancakes.InMemoryOrderRepository;
 import org.pancakelab.model.pancakes.Pancake;
 
 import java.util.*;
@@ -16,7 +17,7 @@ class PancakeServiceConcurrentTest {
 
     @BeforeEach
     void setUp() {
-        pancakeService = new PancakeService();
+        pancakeService = new PancakeService(new InMemoryOrderRepository());
     }
 
     @Test

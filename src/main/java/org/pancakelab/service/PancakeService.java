@@ -1,27 +1,26 @@
 package org.pancakelab.service;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.pancakelab.model.DeliveryResult;
 import org.pancakelab.model.NullOrder;
 import org.pancakelab.model.Order;
+import org.pancakelab.model.pancakes.OrderRepository;
 
 public class PancakeService {
-	private Map<UUID, Order> orders = new ConcurrentHashMap<UUID, Order>();
+	private OrderRepository orderRepository;
     
     public static final int MAX_PANCAKE_COUNT = 100;
     
+    public PancakeService(OrderRepository orderRepository) {
+		this.orderRepository = orderRepository;
+	}
+    
     private Order getOrder (UUID orderId) {
-    	return orders.getOrDefault(orderId, NullOrder.getInstance());
+    	return orderRepository.findById(orderId).orElse(NullOrder.getInstance());
     }
 
     /**
@@ -32,7 +31,7 @@ public class PancakeService {
      */
     public UUID createOrder(int building, int room) {
         Order order = new Order(building, room);
-        orders.put(order.getId(), order);
+        orderRepository.save(order);
         return order.getId();
     }
     
@@ -110,7 +109,7 @@ public class PancakeService {
      */
     public void cancelOrder(UUID orderId) {
         Order order = getOrder(orderId);
-        orders.remove(order.getId());
+        orderRepository.delete(orderId);
         OrderLog.logCancelOrder(order,order.getPancakes().size());
     }
 
@@ -132,7 +131,7 @@ public class PancakeService {
      * @return A set containing IDs of completed orders.
      */
     public Set<UUID> listCompletedOrders() {
-    	return orders.values().parallelStream()
+    	return orderRepository.findAll().parallelStream()
     			.filter(order -> order.isCompleted())
     			.map(order -> order.getId())
     			.collect(Collectors.toSet());
@@ -157,7 +156,7 @@ public class PancakeService {
      * @return A set containing IDs of prepared orders.
      */
 	public Set<UUID> listPreparedOrders() {
-		return orders.values().parallelStream()
+		return orderRepository.findAll().parallelStream()
 				.filter(order -> order.isPrepared())
 				.map(order -> order.getId())
 				.collect(Collectors.toSet());
@@ -175,7 +174,7 @@ public class PancakeService {
     	synchronized(order) {
     		order.delivered();
     		if (order.isDelivered()) {
-    			orders.remove(orderId);
+    			orderRepository.delete(orderId);
     		}
 
             List<String> pancakesToDeliver = order.getPancakesToDeliver();
