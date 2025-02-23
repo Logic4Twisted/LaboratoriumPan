@@ -12,8 +12,8 @@ import org.pancakelab.model.OrderInterface;
 import org.pancakelab.model.pancakes.OrderRepository;
 
 public class PancakeService {
-	private OrderRepository orderRepository;
-	private PancakeManager pancakeManager;
+	private final OrderRepository orderRepository;
+	private final PancakeManager pancakeManager;
     
     public PancakeService(OrderRepository orderRepository, PancakeManager pancakeManager) {
 		this.orderRepository = orderRepository;
