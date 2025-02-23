@@ -7,28 +7,31 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.pancakelab.model.ApprovedIngredients;
+import org.pancakelab.model.Ingredient;
+
 public class Pancake implements PancakeRecipe {
-	List<String> ingredients;
+	List<Ingredient> ingredients;
 	
 	public Pancake(List<String> ingredients) {
 		if (ingredients != null) {
-			this.ingredients = new LinkedList<String>(getApprovedIngredients(ingredients));
+			this.ingredients = new LinkedList<Ingredient>(convertToIngredients(getApprovedIngredients(ingredients)));
 		} else {
-			this.ingredients = new LinkedList<String>();
+			this.ingredients = new LinkedList<Ingredient>();
 		}
 	}
 	
 	public Pancake() {
-		this.ingredients = new LinkedList<String>();
+		this.ingredients = new LinkedList<Ingredient>();
 	}
 
 	@Override
 	public List<String> getIngredients() {
-		return List.copyOf(ingredients);
+		return ingredients.stream().map(i -> i.getName()).toList();
 	}
 	
 	public void addIngredient(String ingredient) {
-		this.ingredients.addAll(getApprovedIngredients(List.of(ingredient)));
+		this.ingredients.addAll(convertToIngredients(getApprovedIngredients(List.of(ingredient))));
 	}
 	
 	@Override
@@ -40,32 +43,18 @@ public class Pancake implements PancakeRecipe {
 			return false;
 		}
 		Pancake other = (Pancake) obj;
-		List<String> otherIngredients = new LinkedList<String>(other.getIngredients());
-		Collections.sort(otherIngredients);
-		Collections.sort(this.ingredients);
-		return this.ingredients.equals(otherIngredients);
+		return this.getIngredients().stream().sorted().toList()
+	            .equals(other.getIngredients().stream().sorted().toList());
 	}
 	
 	@Override
 	public int hashCode() {
 		int hashCode = 0;
-		for (String ingredient: ingredients) {
+		for (Ingredient ingredient: ingredients) {
 			hashCode += ingredient.hashCode();
 		}
 		return hashCode;
 	}
-	
-	public static String INGREDIENT_DARK_CHOCOLATE = "dark chocolate";
-    public static String INGREDIENT_MILK_CHOCOLATE = "milk chocolate";
-    public static String INGREDIENT_WHIPPED_CREAM = "whipped cream";
-    public static String INGREDIENT_HAZELNUTS = "hazelnuts";
-    
-    private static final Set<String> APPROVED_INGREDIENTS = new HashSet<>(Set.of(
-    	INGREDIENT_DARK_CHOCOLATE, 
-    	INGREDIENT_MILK_CHOCOLATE, 
-    	INGREDIENT_WHIPPED_CREAM, 
-    	INGREDIENT_HAZELNUTS
-    ));
     
     /**
      * Filters and returns only approved ingredients, converted to lowercase.
@@ -75,7 +64,7 @@ public class Pancake implements PancakeRecipe {
         	    .orElse(Collections.emptyList())
         	    .stream()
                 .map(String::toLowerCase)  
-                .filter(APPROVED_INGREDIENTS::contains) 
+                .filter(ApprovedIngredients.getAll()::contains) 
                 .toList();
     }
     
@@ -84,6 +73,12 @@ public class Pancake implements PancakeRecipe {
      * @return List of ingredients
      */
     public List<String> getAvailableIngredients() {
-    	return new LinkedList<String>(APPROVED_INGREDIENTS);
+    	return new LinkedList<String>(ApprovedIngredients.getAll());
+    }
+    
+    private List<Ingredient> convertToIngredients(List<String> ingredientNames) {
+        return ingredientNames.stream()
+                .map(Ingredient::new)
+                .toList();
     }
 }

@@ -3,8 +3,8 @@ package org.pancakelab.service;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.pancakelab.model.ApprovedIngredients;
 import org.pancakelab.model.pancakes.InMemoryOrderRepository;
-import org.pancakelab.model.pancakes.Pancake;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -17,7 +17,7 @@ class PancakeServiceConcurrentTest {
 
     @BeforeEach
     void setUp() {
-        pancakeService = new PancakeService(new InMemoryOrderRepository());
+        pancakeService = new PancakeService(new InMemoryOrderRepository(), new PancakeManager());
     }
 
     @Test
@@ -42,7 +42,7 @@ class PancakeServiceConcurrentTest {
         UUID orderId = pancakeService.createOrder(1, 101);
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
 
-        Runnable task = () -> pancakeService.addPancakes(orderId, List.of(Pancake.INGREDIENT_DARK_CHOCOLATE), 5);
+        Runnable task = () -> pancakeService.addPancakes(orderId, List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE), 5);
 
         IntStream.range(0, THREAD_COUNT).forEach(i -> executor.submit(task));
         executor.shutdown();
@@ -55,10 +55,10 @@ class PancakeServiceConcurrentTest {
     @Test
     void testConcurrentPancakeRemoval() throws InterruptedException {
         UUID orderId = pancakeService.createOrder(1, 101);
-        pancakeService.addPancakes(orderId, List.of(Pancake.INGREDIENT_DARK_CHOCOLATE), 100); // Pre-fill pancakes
+        pancakeService.addPancakes(orderId, List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE), 100); // Pre-fill pancakes
 
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
-        Runnable task = () -> pancakeService.removePancakes(description(List.of(Pancake.INGREDIENT_DARK_CHOCOLATE)), orderId, 2);
+        Runnable task = () -> pancakeService.removePancakes(description(List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE)), orderId, 2);
 
         IntStream.range(0, THREAD_COUNT).forEach(i -> executor.submit(task));
         executor.shutdown();
@@ -74,8 +74,8 @@ class PancakeServiceConcurrentTest {
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
 
         Runnable task = () -> {
-        	pancakeService.addPancakes(orderId, List.of(Pancake.INGREDIENT_DARK_CHOCOLATE) , 5);
-        	pancakeService.removePancakes(description(List.of(Pancake.INGREDIENT_DARK_CHOCOLATE)), orderId, 4);
+        	pancakeService.addPancakes(orderId, List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE) , 5);
+        	pancakeService.removePancakes(description(List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE)), orderId, 4);
         };
 
         IntStream.range(0, THREAD_COUNT).forEach(i -> executor.submit(task));
@@ -92,7 +92,7 @@ class PancakeServiceConcurrentTest {
         for (int i = 0; i < THREAD_COUNT; i++) {
         	UUID orderId = pancakeService.createOrder(1, 101);
             orderIds.add(orderId);
-            pancakeService.addPancakes(orderId, List.of(Pancake.INGREDIENT_DARK_CHOCOLATE),  1);
+            pancakeService.addPancakes(orderId, List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE),  1);
         }
 
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);

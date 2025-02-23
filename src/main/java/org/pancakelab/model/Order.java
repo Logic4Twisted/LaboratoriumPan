@@ -71,7 +71,7 @@ public class Order {
 	    	}
 	    	Pancake pancake = new Pancake(ingredients);
 	    	pancakes.add(pancake);
-	    	OrderLog.logAddPancake(this, pancake.description(), this.getPancakes().size());
+	    	OrderLog.logAddPancake(this, pancake.description(), getPancakes().size());
     	} finally {
     		unlock();
     	}
@@ -88,6 +88,7 @@ public class Order {
 	    		.findFirst();
 	    	if (pancake.isPresent()) {
 	    		pancakes.remove(pancake.get());
+	    		OrderLog.logRemovePancakes(this, description, 1, getPancakes().size());
 	    		return true;
 	    	}
 	    	return false;

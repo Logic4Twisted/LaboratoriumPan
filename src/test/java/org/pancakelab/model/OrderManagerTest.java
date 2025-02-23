@@ -17,8 +17,8 @@ class OrderManagerTest {
     @BeforeEach
     void setUp() {
         order = new Order(1,2);
-        darkChocolateRecepie = List.of(Pancake.INGREDIENT_DARK_CHOCOLATE);
-        milkChocolateRecepie = List.of(Pancake.INGREDIENT_MILK_CHOCOLATE);
+        darkChocolateRecepie = List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE);
+        milkChocolateRecepie = List.of(ApprovedIngredients.INGREDIENT_MILK_CHOCOLATE);
     }
 
     @Test
@@ -53,7 +53,7 @@ class OrderManagerTest {
     void testRemovePancake_NonExisting() {
         order.addPancake(darkChocolateRecepie);
 
-        PancakeRecipe nonExisting = new Pancake(List.of(Pancake.INGREDIENT_HAZELNUTS, Pancake.INGREDIENT_WHIPPED_CREAM));
+        PancakeRecipe nonExisting = new Pancake(List.of(ApprovedIngredients.INGREDIENT_HAZELNUTS, ApprovedIngredients.INGREDIENT_WHIPPED_CREAM));
         order.removePancake(nonExisting.description());
 
         List<String> recipes = order.getPancakes();

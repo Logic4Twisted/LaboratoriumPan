@@ -3,6 +3,7 @@ package org.pancakelab.model.pancakes;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.pancakelab.model.ApprovedIngredients;
 import org.pancakelab.service.PancakeService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -21,14 +22,14 @@ class PancakeTest {
 
     @BeforeEach
     void setUp() {
-        pancake1 = new Pancake(List.of(Pancake.INGREDIENT_DARK_CHOCOLATE, Pancake.INGREDIENT_WHIPPED_CREAM));
-        pancake2 = new Pancake(List.of(Pancake.INGREDIENT_MILK_CHOCOLATE, Pancake.INGREDIENT_HAZELNUTS));
-        pancake3 = new Pancake(List.of(Pancake.INGREDIENT_WHIPPED_CREAM, Pancake.INGREDIENT_DARK_CHOCOLATE));
+        pancake1 = new Pancake(List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE, ApprovedIngredients.INGREDIENT_WHIPPED_CREAM));
+        pancake2 = new Pancake(List.of(ApprovedIngredients.INGREDIENT_MILK_CHOCOLATE, ApprovedIngredients.INGREDIENT_HAZELNUTS));
+        pancake3 = new Pancake(List.of(ApprovedIngredients.INGREDIENT_WHIPPED_CREAM, ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE));
     }
 
     @Test
     void testConstructor_WithIngredients() {
-        List<String> expected = List.of(Pancake.INGREDIENT_DARK_CHOCOLATE, Pancake.INGREDIENT_WHIPPED_CREAM);
+        List<String> expected = List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE, ApprovedIngredients.INGREDIENT_WHIPPED_CREAM);
         Pancake pancake = new Pancake(expected);
         
         assertEquals(expected, pancake.getIngredients(), "Ingredients should match the provided list");
@@ -43,7 +44,7 @@ class PancakeTest {
     @Test
     void testGetIngredients_ReturnsDefensiveCopy() {
         List<String> ingredients = pancake1.getIngredients();
-        assertThrows(UnsupportedOperationException.class, () -> ingredients.add(Pancake.INGREDIENT_HAZELNUTS), 
+        assertThrows(UnsupportedOperationException.class, () -> ingredients.add(ApprovedIngredients.INGREDIENT_HAZELNUTS), 
             "Modifying returned list should throw an exception");
     }
 

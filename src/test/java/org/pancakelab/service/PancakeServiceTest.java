@@ -15,6 +15,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.pancakelab.model.ApprovedIngredients;
 import org.pancakelab.model.DeliveryResult;
 import org.pancakelab.model.pancakes.InMemoryOrderRepository;
 import org.pancakelab.model.pancakes.Pancake;
@@ -32,7 +33,7 @@ public class PancakeServiceTest {
     
     @BeforeEach
     void setUp() {
-    	pancakeService = new PancakeService(new InMemoryOrderRepository());
+    	pancakeService = new PancakeService(new InMemoryOrderRepository(), new PancakeManager());
     }
     
     @Test
@@ -78,11 +79,11 @@ public class PancakeServiceTest {
     	UUID orderId = pancakeService.createOrder(10, 20);
 
         // exercise
-    	pancakeService.addPancakes(orderId, List.of(Pancake.INGREDIENT_DARK_CHOCOLATE), 1);
-    	pancakeService.addPancakes(orderId, List.of(Pancake.INGREDIENT_DARK_CHOCOLATE, Pancake.INGREDIENT_WHIPPED_CREAM), 1);
-    	pancakeService.addPancakes(orderId, List.of(Pancake.INGREDIENT_DARK_CHOCOLATE, Pancake.INGREDIENT_WHIPPED_CREAM, Pancake.INGREDIENT_HAZELNUTS), 1);
-    	pancakeService.addPancakes(orderId, List.of(Pancake.INGREDIENT_MILK_CHOCOLATE), 1);
-    	pancakeService.addPancakes(orderId, List.of(Pancake.INGREDIENT_MILK_CHOCOLATE, Pancake.INGREDIENT_HAZELNUTS), 1);
+    	pancakeService.addPancakes(orderId, List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE), 1);
+    	pancakeService.addPancakes(orderId, List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE, ApprovedIngredients.INGREDIENT_WHIPPED_CREAM), 1);
+    	pancakeService.addPancakes(orderId, List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE, ApprovedIngredients.INGREDIENT_WHIPPED_CREAM, ApprovedIngredients.INGREDIENT_HAZELNUTS), 1);
+    	pancakeService.addPancakes(orderId, List.of(ApprovedIngredients.INGREDIENT_MILK_CHOCOLATE), 1);
+    	pancakeService.addPancakes(orderId, List.of(ApprovedIngredients.INGREDIENT_MILK_CHOCOLATE, ApprovedIngredients.INGREDIENT_HAZELNUTS), 1);
 
         // verify
         List<String> ordersPancakes = pancakeService.viewOrder(orderId);
@@ -121,7 +122,7 @@ public class PancakeServiceTest {
     public void GivenPancakesExist_WhenRemovePancakesFromDifferentOrder_ThenCorrectNumberOfPancakes_Test() {
         // setup
     	UUID orderId = pancakeService.createOrder(10, 20);
-    	pancakeService.addPancakes(orderId, List.of(Pancake.INGREDIENT_DARK_CHOCOLATE), 1);
+    	pancakeService.addPancakes(orderId, List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE), 1);
     	
     	// exercise
     	pancakeService.removePancakes(DARK_CHOCOLATE_PANCAKE_DESCRIPTION, UUID.randomUUID(), 1);
@@ -136,7 +137,7 @@ public class PancakeServiceTest {
     public void GivenPancakesExists_WhenRemovingNotAddedPancakes_ThenCorrectNumberOfPancakesRemoved_Test() {
         // setup
     	UUID orderId = pancakeService.createOrder(10, 20);
-    	pancakeService.addPancakes(orderId, List.of(Pancake.INGREDIENT_DARK_CHOCOLATE), 3);
+    	pancakeService.addPancakes(orderId, List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE), 3);
     	
         // exercise
         pancakeService.removePancakes(MILK_CHOCOLATE_PANCAKE_DESCRIPTION, orderId, 3);
@@ -154,13 +155,13 @@ public class PancakeServiceTest {
     @Test
     public void GivenOrder_WhenRemovingNull_ThenDontRemoveAndDontThrowException() {
     	UUID orderId = pancakeService.createOrder(10, 20);
-    	pancakeService.addPancakes(orderId, List.of(Pancake.INGREDIENT_DARK_CHOCOLATE), 1);
+    	pancakeService.addPancakes(orderId, List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE), 1);
     	
     	// exercise
     	pancakeService.removePancakes(null, orderId, 1);
     	
     	// verify
-    	assertEquals(List.of(pancakeDescrption(List.of(Pancake.INGREDIENT_DARK_CHOCOLATE))), pancakeService.viewOrder(orderId));
+    	assertEquals(List.of(pancakeDescrption(List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE))), pancakeService.viewOrder(orderId));
     }
     
     @Test
@@ -181,7 +182,7 @@ public class PancakeServiceTest {
         UUID invalidOrderId = UUID.randomUUID();
 
         // exercise
-        pancakeService.addPancakes(invalidOrderId, List.of(Pancake.INGREDIENT_DARK_CHOCOLATE), 1);
+        pancakeService.addPancakes(invalidOrderId, List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE), 1);
         
         // verify
         assertTrue(pancakeService.viewOrder(invalidOrderId).isEmpty());
@@ -524,10 +525,10 @@ public class PancakeServiceTest {
         int largeCount = 10_000;
         
         // exercise
-        pancakeService.addPancakes(orderId, List.of(Pancake.INGREDIENT_DARK_CHOCOLATE), largeCount);
+        pancakeService.addPancakes(orderId, List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE), largeCount);
         
         // verify
-        assertEquals(PancakeService.MAX_PANCAKE_COUNT, pancakeService.viewOrder(orderId).size());
+        assertEquals(PancakeManager.MAX_PANCAKE_COUNT, pancakeService.viewOrder(orderId).size());
 
         // remove half and check again
         pancakeService.removePancakes(DARK_CHOCOLATE_PANCAKE_DESCRIPTION, orderId, largeCount / 2);
@@ -573,7 +574,7 @@ public class PancakeServiceTest {
     @Test
     void testAddPancakes_SuccessfulAddition() {
         UUID orderId = pancakeService.createOrder(10, 20);
-        List<String> ingredients = List.of(Pancake.INGREDIENT_DARK_CHOCOLATE, Pancake.INGREDIENT_WHIPPED_CREAM);
+        List<String> ingredients = List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE, ApprovedIngredients.INGREDIENT_WHIPPED_CREAM);
 
         // Add 3 pancakes
         pancakeService.addPancakes(orderId, ingredients, 3);
@@ -590,7 +591,7 @@ public class PancakeServiceTest {
     @Test
     void testAddPancakes_RespectsMaxPancakeCount() {
     	UUID orderId = pancakeService.createOrder(10, 20);
-        List<String> ingredients = List.of(Pancake.INGREDIENT_DARK_CHOCOLATE, Pancake.INGREDIENT_WHIPPED_CREAM);
+        List<String> ingredients = List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE, ApprovedIngredients.INGREDIENT_WHIPPED_CREAM);
 
         // Try adding more than MAX_PANCAKE_COUNT
         pancakeService.addPancakes(orderId, ingredients, 102);
@@ -634,7 +635,7 @@ public class PancakeServiceTest {
     @Test
     void testAddPancakes_NegativeCount() {
     	UUID orderId = pancakeService.createOrder(10, 20);
-        List<String> ingredients = List.of(Pancake.INGREDIENT_MILK_CHOCOLATE);
+        List<String> ingredients = List.of(ApprovedIngredients.INGREDIENT_MILK_CHOCOLATE);
 
         // Try adding with negative count
         pancakeService.addPancakes(orderId, ingredients, -2);
@@ -651,7 +652,7 @@ public class PancakeServiceTest {
     	UUID orderId = pancakeService.createOrder(10, 20);
 
         // Try adding with zero count
-        pancakeService.addPancakes(orderId, List.of(Pancake.INGREDIENT_MILK_CHOCOLATE), 0);
+        pancakeService.addPancakes(orderId, List.of(ApprovedIngredients.INGREDIENT_MILK_CHOCOLATE), 0);
 
         // Fetch order and check pancakes count
         List<String> orderView = pancakeService.viewOrder(orderId);
@@ -662,7 +663,7 @@ public class PancakeServiceTest {
     @Test
     void testAddPancakes_OrderNotFound() {
         UUID invalidOrderId = UUID.randomUUID();
-        List<String> ingredients = List.of(Pancake.INGREDIENT_MILK_CHOCOLATE);
+        List<String> ingredients = List.of(ApprovedIngredients.INGREDIENT_MILK_CHOCOLATE);
 
         // Call method with a non-existent order
         pancakeService.addPancakes(invalidOrderId, ingredients, 2);
@@ -677,8 +678,8 @@ public class PancakeServiceTest {
     }
 
     private void addSomePancakes(UUID orderId) {
-    	pancakeService.addPancakes(orderId, List.of(Pancake.INGREDIENT_DARK_CHOCOLATE), 3);
-    	pancakeService.addPancakes(orderId, List.of(Pancake.INGREDIENT_MILK_CHOCOLATE), 3);
-    	pancakeService.addPancakes(orderId, List.of(Pancake.INGREDIENT_MILK_CHOCOLATE, Pancake.INGREDIENT_HAZELNUTS), 3);
+    	pancakeService.addPancakes(orderId, List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE), 3);
+    	pancakeService.addPancakes(orderId, List.of(ApprovedIngredients.INGREDIENT_MILK_CHOCOLATE), 3);
+    	pancakeService.addPancakes(orderId, List.of(ApprovedIngredients.INGREDIENT_MILK_CHOCOLATE, ApprovedIngredients.INGREDIENT_HAZELNUTS), 3);
     }
 }

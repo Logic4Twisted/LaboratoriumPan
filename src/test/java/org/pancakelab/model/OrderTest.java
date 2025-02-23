@@ -130,7 +130,7 @@ public class OrderTest {
     @Test
     void testGetPancakesToDeliver() {
         Order order = new Order(1, 2);
-        order.addPancake(List.of(Pancake.INGREDIENT_DARK_CHOCOLATE));
+        order.addPancake(List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE));
 
         // INITIATED state should return an empty list
         assertTrue(order.getPancakesToDeliver().isEmpty(), "Pancakes should NOT be available for delivery in INITIATED state");

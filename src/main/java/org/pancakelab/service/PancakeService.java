@@ -12,11 +12,11 @@ import org.pancakelab.model.pancakes.OrderRepository;
 
 public class PancakeService {
 	private OrderRepository orderRepository;
+	private PancakeManager pancakeManager;
     
-    public static final int MAX_PANCAKE_COUNT = 100;
-    
-    public PancakeService(OrderRepository orderRepository) {
+    public PancakeService(OrderRepository orderRepository, PancakeManager pancakeManager) {
 		this.orderRepository = orderRepository;
+		this.pancakeManager = pancakeManager;
 	}
     
     private Order getOrder (UUID orderId) {
@@ -45,14 +45,9 @@ public class PancakeService {
      * @param ingredients List of requested ingredients.
      * @param count The number of pancakes to add (capped at {@code MAX_PANCAKE_COUNT}).
      */
-    public void addPancakes(UUID orderId, List<String> ingredients, int count) {
-    	// basic validation
-    	count = Math.min(count, MAX_PANCAKE_COUNT);
-    	
+    public void addPancakes(UUID orderId, List<String> ingredients, int count) {    	
     	Order order = getOrder(orderId);
-    	for (int i = 0; i < count; i++) {
-    		order.addPancake(ingredients);
-        }
+    	pancakeManager.addPancakes(order, ingredients, count);
     }
 
     /**
@@ -67,15 +62,7 @@ public class PancakeService {
      */
     public void removePancakes(String description, UUID orderId, int count) {
     	Order order = getOrder(orderId);
-    	
-    	int countRemoved = 0;
-    	for (int i = 0; i < count; i++) {
-            if (order.removePancake(description)) {
-            	countRemoved++;
-            }
-        }
-
-        OrderLog.logRemovePancakes(order, description, countRemoved, order.getPancakes().size());
+    	pancakeManager.removePancakes(order, description, count);
     }
     
     /**
