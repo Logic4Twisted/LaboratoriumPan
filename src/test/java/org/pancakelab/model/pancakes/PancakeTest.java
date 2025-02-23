@@ -4,7 +4,6 @@ package org.pancakelab.model.pancakes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.pancakelab.model.ApprovedIngredients;
-import org.pancakelab.service.PancakeService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

@@ -33,7 +33,7 @@ public class PancakeServiceTest {
     
     @BeforeEach
     void setUp() {
-    	pancakeService = new PancakeService(new InMemoryOrderRepository(), new PancakeManager());
+    	pancakeService = new PancakeService(new InMemoryOrderRepository(), new PancakeManagerImpl());
     }
     
     @Test
@@ -528,7 +528,7 @@ public class PancakeServiceTest {
         pancakeService.addPancakes(orderId, List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE), largeCount);
         
         // verify
-        assertEquals(PancakeManager.MAX_PANCAKE_COUNT, pancakeService.viewOrder(orderId).size());
+        assertEquals(PancakeManagerImpl.MAX_PANCAKE_COUNT, pancakeService.viewOrder(orderId).size());
 
         // remove half and check again
         pancakeService.removePancakes(DARK_CHOCOLATE_PANCAKE_DESCRIPTION, orderId, largeCount / 2);
