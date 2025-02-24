@@ -106,7 +106,7 @@ public class PancakeService {
      * @return A set containing IDs of completed orders.
      */
     public Set<UUID> listCompletedOrders() {
-    	return orderRepository.findAll().parallelStream()
+    	return orderRepository.findAll().stream()
     			.filter(order -> order.isCompleted())
     			.map(order -> order.getId())
     			.collect(Collectors.toSet());
@@ -128,7 +128,7 @@ public class PancakeService {
      * @return A set containing IDs of prepared orders.
      */
 	public Set<UUID> listPreparedOrders() {
-		return orderRepository.findAll().parallelStream()
+		return orderRepository.findAll().stream()
 				.filter(order -> order.isPrepared())
 				.map(order -> order.getId())
 				.collect(Collectors.toSet());
