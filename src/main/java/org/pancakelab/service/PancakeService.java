@@ -47,8 +47,10 @@ public class PancakeService {
      * @param ingredients List of requested ingredients.
      * @param count The number of pancakes to add (capped at {@code MAX_PANCAKE_COUNT}).
      */
-    public void addPancakes(UUID orderId, List<String> ingredients, int count) {    	
-    	pancakeManager.addPancakes(getOrder(orderId), ingredients, count);
+    public void addPancakes(UUID orderId, List<String> ingredients, int count) {
+    	OrderInterface order = getOrder(orderId);
+    	pancakeManager.addPancakes(order, ingredients, count);
+    	order.saveTo(orderRepository);
     }
 
     /**
@@ -62,7 +64,9 @@ public class PancakeService {
      * @param count The number of pancakes to remove.
      */
     public void removePancakes(String description, UUID orderId, int count) {
-    	pancakeManager.removePancakes(getOrder(orderId), description, count);
+    	OrderInterface order = getOrder(orderId);
+    	pancakeManager.removePancakes(order, description, count);
+    	order.saveTo(orderRepository);
     }
     
     /**
@@ -88,7 +92,9 @@ public class PancakeService {
      * @param orderId The ID of the order to cancel.
      */
     public void cancelOrder(UUID orderId) {
-        getOrder(orderId).cancel(orderRepository);
+    	OrderInterface order = getOrder(orderId);
+        order.cancel();
+        order.delete(orderRepository);
     }
 
     /**
@@ -97,7 +103,9 @@ public class PancakeService {
      * @param orderId The ID of the order to complete.
      */
     public void completeOrder(UUID orderId) {
-    	getOrder(orderId).completed(orderRepository);
+    	OrderInterface order = getOrder(orderId);
+    	order.completed();
+    	order.saveTo(orderRepository);
     }
 
     /**
@@ -119,7 +127,9 @@ public class PancakeService {
      * @param orderId The ID of the order to prepare.
      */
     public void prepareOrder(UUID orderId) {
-    	getOrder(orderId).prepared(orderRepository);
+    	OrderInterface order = getOrder(orderId);
+    	order.prepared();
+    	order.saveTo(orderRepository);
     }
 
     /**
@@ -143,7 +153,10 @@ public class PancakeService {
      */
     public DeliveryResult deliverOrder(UUID orderId) {
     	OrderInterface order = getOrder(orderId);
-    	order.delivered(orderRepository);
+    	order.delivered();
+    	if (order.isDelivered()) {
+    		order.delete(orderRepository);
+    	}
 
         return new DeliveryResult(order.isDelivered(), order.getId(),  order.getPancakesToDeliver());
     }

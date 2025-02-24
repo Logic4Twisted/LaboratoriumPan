@@ -20,15 +20,17 @@ public interface OrderInterface {
 
     List<String> getPancakesToDeliver();
 
-    void completed(OrderRepository orderRepository);
+    void completed();
 
-    void prepared(OrderRepository orderRepository);
+    void prepared();
 
-    void delivered(OrderRepository orderRepository);
+    void delivered();
 
-    void cancel(OrderRepository orderRepository);
+    void cancel();
 
     void saveTo(OrderRepository orderRepository);
+    
+    void delete(OrderRepository orderRepository);
 
     boolean isInitated();
 

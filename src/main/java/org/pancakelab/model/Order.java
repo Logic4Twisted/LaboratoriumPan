@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.pancakelab.model.pancakes.OrderRepository;
@@ -47,46 +48,33 @@ public class Order implements OrderInterface {
         }
     }
     
-    private void lock() {
-    	lock.lock();
-    }
-    
-    private void unlock() {
-    	lock.unlock();
-    }
-    
     private void changeStatus(OrderStatus nextStatus) {
-    	lock();
+    	lock.lock();
     	try {
     		if (STATUS_TRANSITIONS.getOrDefault(status, null) == nextStatus) {
     			status = nextStatus;
     		}
     	} finally {
-    		unlock();
+    		lock.unlock();
     	}
-    	
     }
     
     public void addPancake(List<String> ingredients) {
-    	lock();
+    	if (!isInitated()) return;
+    	lock.lock();
     	try {
-	    	if (!isInitated()) {
-	    		return;
-	    	}
 	    	Pancake pancake = new Pancake(ingredients);
 	    	pancakes.add(pancake);
 	    	OrderLog.logAddPancake(this, pancake.description(), getPancakes().size());
     	} finally {
-    		unlock();
+    		lock.unlock();
     	}
     }
     
     public boolean removePancake(String description) {
-    	lock();
+    	if (!isInitated()) return false;
+    	lock.lock();
     	try {
-	    	if (!isInitated()) {
-	    		return false;
-	    	}
 	    	Optional<PancakeRecipe> pancake = pancakes.stream()
 	    		.filter(p -> p.description().equals(description))
 	    		.findFirst();
@@ -97,28 +85,28 @@ public class Order implements OrderInterface {
 	    	}
 	    	return false;
     	} finally {
-    		unlock();
+    		lock.unlock();
     	}
     }
     
     public List<String> getPancakes() {
-    	lock();
+    	lock.lock();
     	try {
     		return pancakes.stream().map(PancakeRecipe::description).toList();
     	} finally {
-    		unlock();
+    		lock.unlock();
     	}
     }
     
     public List<String> getPancakesToDeliver() {
-    	lock();
+    	lock.lock();
     	try {
         	if (isDelivered()) {
         		return getPancakes();
         	}
         	return new LinkedList<String>();
     	} finally {
-    		unlock();
+    		lock.unlock();
     	}
     }
 
@@ -134,51 +122,70 @@ public class Order implements OrderInterface {
         return room;
     }
     
-    public void completed(OrderRepository orderRepository) {
+    public void completed() {
     	changeStatus(OrderStatus.COMPLETED);
-    	orderRepository.save(this);
     }
     
-    public void prepared(OrderRepository orderRepository) {
+    public void prepared() {
     	changeStatus(OrderStatus.PREPARED);
-    	orderRepository.save(this);
     }
     
-    public void delivered(OrderRepository orderRepository) {
+    public void delivered() {
     	changeStatus(OrderStatus.DELIVERED);
-    	if (isDelivered()) {
-    		orderRepository.delete(getId());
+    	if (!isDelivered()) return;
+    	lock.lock();
+    	try {
     		OrderLog.logDeliverOrder(this, getPancakes().size());
+    	} finally {
+    		lock.unlock();
     	}
     }
     
-    public void cancel(OrderRepository orderRepository) {
-    	orderRepository.delete(getId());
+    public void cancel() {
     	OrderLog.logCancelOrder(this, getPancakes().size());
     }
     
     public void saveTo(OrderRepository orderRepository) {
-    	orderRepository.save(this);
+    	lock.lock();
+    	try {
+    		orderRepository.save(this);
+    	} finally {
+    		lock.unlock();
+    	}
+    }
+    
+    public void delete(OrderRepository orderRepository) {
+    	lock.lock();
+    	try {
+    		orderRepository.delete(id);
+    	} finally {
+    		lock.unlock();
+    	}
     }
     
     public boolean isInitated() {
-    	return getStatus() == OrderStatus.INITIATED;
+    	return checkIfStatus(OrderStatus.INITIATED);
     }
     
     public boolean isCompleted() {
-    	return getStatus() == OrderStatus.COMPLETED;
+    	return checkIfStatus(OrderStatus.COMPLETED);
     }
     
     public boolean isPrepared() {
-    	return getStatus() == OrderStatus.PREPARED;
+    	return checkIfStatus(OrderStatus.PREPARED);
     }
     
     public boolean isDelivered() {
-    	return getStatus() == OrderStatus.DELIVERED;
+    	return checkIfStatus(OrderStatus.DELIVERED);
     }
     
-    private OrderStatus getStatus() {
-    	return status;
+    private boolean checkIfStatus(OrderStatus qStatus) {
+    	lock.lock();
+    	try {
+    		return status == qStatus;
+    	} finally {
+			lock.unlock();
+		}
     }
 
     @Override

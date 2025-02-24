@@ -56,15 +56,15 @@ public class NullOrder implements OrderInterface {
     }
     
     @Override
-    public void completed(OrderRepository orderRepository) {
+    public void completed() {
     	// do nothing
     }
     
-    public void prepared(OrderRepository orderRepository) {
+    public void prepared() {
     	// do nothing
     }
     
-    public void delivered(OrderRepository orderRepository) {
+    public void delivered() {
     	// do nothing
     }
     
@@ -101,11 +101,15 @@ public class NullOrder implements OrderInterface {
 	}
 
 	@Override
-	public void cancel(OrderRepository orderRepository) {
+	public void cancel() {
 	}
 
 	@Override
 	public void saveTo(OrderRepository orderRepository) {
+	}
+
+	@Override
+	public void delete(OrderRepository orderRepository) {
 	}
 
 }
