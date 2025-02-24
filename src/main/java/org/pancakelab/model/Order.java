@@ -1,13 +1,13 @@
 package org.pancakelab.model;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.pancakelab.model.pancakes.OrderRepository;
 import org.pancakelab.model.pancakes.Pancake;
@@ -22,7 +22,7 @@ public class Order implements OrderInterface {
     
     private List<PancakeRecipe> pancakes;
     
-    private final ReentrantLock lock = new ReentrantLock();
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     
     public Order(int building, int room) {
     	validateBuildingAndRoom(building, room);
@@ -49,64 +49,65 @@ public class Order implements OrderInterface {
     }
     
     private void changeStatus(OrderStatus nextStatus) {
-    	lock.lock();
+    	lock.writeLock().lock();
     	try {
     		if (STATUS_TRANSITIONS.getOrDefault(status, null) == nextStatus) {
     			status = nextStatus;
     		}
     	} finally {
-    		lock.unlock();
+    		lock.writeLock().unlock();
     	}
     }
     
     public void addPancake(List<String> ingredients) {
     	if (!isInitated()) return;
-    	lock.lock();
+    	lock.writeLock().lock();
     	try {
 	    	Pancake pancake = new Pancake(ingredients);
 	    	pancakes.add(pancake);
 	    	OrderLog.logAddPancake(this, pancake.description(), getPancakes().size());
     	} finally {
-    		lock.unlock();
+    		lock.writeLock().unlock();
     	}
     }
     
     public boolean removePancake(String description) {
     	if (!isInitated()) return false;
-    	lock.lock();
+    	
+    	lock.writeLock().lock();
     	try {
-	    	Optional<PancakeRecipe> pancake = pancakes.stream()
-	    		.filter(p -> p.description().equals(description))
-	    		.findFirst();
-	    	if (pancake.isPresent()) {
-	    		pancakes.remove(pancake.get());
-	    		OrderLog.logRemovePancakes(this, description, 1, getPancakes().size());
-	    		return true;
-	    	}
-	    	return false;
+    		for (Iterator<PancakeRecipe> iterator = pancakes.iterator(); iterator.hasNext(); ) {
+	            PancakeRecipe pancake = iterator.next();
+	            if (pancake.description().equals(description)) {
+	                iterator.remove();
+	                OrderLog.logRemovePancakes(this, description, 1, getPancakes().size());
+	                return true;
+	            }
+	        }
+	        return false; // ❌ No pancake found with this description
     	} finally {
-    		lock.unlock();
+    		lock.writeLock().unlock();
     	}
     }
     
     public List<String> getPancakes() {
-    	lock.lock();
+    	lock.readLock().lock();
     	try {
     		return pancakes.stream().map(PancakeRecipe::description).toList();
     	} finally {
-    		lock.unlock();
+    		lock.readLock().unlock();
     	}
     }
     
     public List<String> getPancakesToDeliver() {
-    	lock.lock();
+    	lock.readLock().lock();
     	try {
         	if (isDelivered()) {
         		return getPancakes();
         	}
         	return new LinkedList<String>();
     	} finally {
-    		lock.unlock();
+    		lock.readLock().unlock();
     	}
     }
 
@@ -132,12 +133,8 @@ public class Order implements OrderInterface {
     
     public void delivered() {
     	changeStatus(OrderStatus.DELIVERED);
-    	if (!isDelivered()) return;
-    	lock.lock();
-    	try {
+    	if (isDelivered()) {
     		OrderLog.logDeliverOrder(this, getPancakes().size());
-    	} finally {
-    		lock.unlock();
     	}
     }
     
@@ -146,20 +143,20 @@ public class Order implements OrderInterface {
     }
     
     public void saveTo(OrderRepository orderRepository) {
-    	lock.lock();
+    	lock.readLock().lock();
     	try {
     		orderRepository.save(this);
     	} finally {
-    		lock.unlock();
+    		lock.readLock().unlock();
     	}
     }
     
     public void delete(OrderRepository orderRepository) {
-    	lock.lock();
+    	lock.readLock().lock();
     	try {
     		orderRepository.delete(id);
     	} finally {
-    		lock.unlock();
+    		lock.readLock().unlock();
     	}
     }
     
@@ -180,11 +177,11 @@ public class Order implements OrderInterface {
     }
     
     private boolean checkIfStatus(OrderStatus qStatus) {
-    	lock.lock();
+    	lock.readLock().lock();
     	try {
     		return status == qStatus;
     	} finally {
-			lock.unlock();
+			lock.readLock().unlock();
 		}
     }
 
