@@ -17,7 +17,7 @@ class PancakeServiceConcurrentTest {
 
     @BeforeEach
     void setUp() {
-        pancakeService = new PancakeService(new InMemoryOrderRepository(), new PancakeManagerImpl());
+        pancakeService = new PancakeService(new InMemoryOrderRepository(), new PancakeManagerImpl(), new OrderFactoryImp());
     }
 
     @Test

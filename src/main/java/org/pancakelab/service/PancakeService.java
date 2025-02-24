@@ -7,17 +7,18 @@ import java.util.stream.Collectors;
 
 import org.pancakelab.model.DeliveryResult;
 import org.pancakelab.model.NullOrder;
-import org.pancakelab.model.Order;
 import org.pancakelab.model.OrderInterface;
 import org.pancakelab.model.pancakes.OrderRepository;
 
 public class PancakeService {
 	private final OrderRepository orderRepository;
 	private final PancakeManager pancakeManager;
+	private final OrderFactory orderFactory;
     
-    public PancakeService(OrderRepository orderRepository, PancakeManager pancakeManager) {
+    public PancakeService(OrderRepository orderRepository, PancakeManager pancakeManager, OrderFactory orderFactory) {
 		this.orderRepository = orderRepository;
 		this.pancakeManager = pancakeManager;
+		this.orderFactory = orderFactory;
 	}
     
     private OrderInterface getOrder (UUID orderId) {
@@ -31,7 +32,7 @@ public class PancakeService {
      * @return UUID of order that was created
      */
     public UUID createOrder(int building, int room) {
-        Order order = new Order(building, room);
+        OrderInterface order = orderFactory.createOrder(building, room);
         order.saveTo(orderRepository);
         return order.getId();
     }
