@@ -40,6 +40,7 @@ public class PancakeService {
     
     /**
      * Adds a specified number of pancakes to an order
+     * 
      * Requirements: Pancakes can only be added if order not completed
      * Requirements: Pancake without ingredients is possible
      *
@@ -57,7 +58,8 @@ public class PancakeService {
      * Removes specified pancakes from an order. If the order is completed, no pancakes
      * are removed.
      * 
-     * Requirements: pancakes can be removed only from orders in initial state?
+     * Requirements: pancakes can be removed only from orders in initial state? (yes)
+     * Note: This description is kind of weird
      *
      * @param description The description of the pancake type to remove.
      * @param orderId The ID of the order.
