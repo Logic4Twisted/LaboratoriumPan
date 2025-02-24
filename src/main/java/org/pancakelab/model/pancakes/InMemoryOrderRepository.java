@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.pancakelab.model.Order;
 import org.pancakelab.model.OrderInterface;
 
 public class InMemoryOrderRepository implements OrderRepository {

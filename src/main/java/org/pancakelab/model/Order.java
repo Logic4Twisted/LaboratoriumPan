@@ -2,6 +2,7 @@ package org.pancakelab.model;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,6 +32,12 @@ public class Order implements OrderInterface {
         pancakes = new LinkedList<PancakeRecipe>();
     }
     
+    private static final Map<OrderStatus, OrderStatus> STATUS_TRANSITIONS = Map.of(
+            OrderStatus.INITIATED, OrderStatus.COMPLETED,
+            OrderStatus.COMPLETED, OrderStatus.PREPARED,
+            OrderStatus.PREPARED, OrderStatus.DELIVERED
+    );
+    
     private void validateBuildingAndRoom(int building, int room) {
         if (building <= 0) {
             throw new IllegalArgumentException("Building number must be greater than zero.");
@@ -51,13 +58,9 @@ public class Order implements OrderInterface {
     private void changeStatus(OrderStatus nextStatus) {
     	lock();
     	try {
-    		if (status == OrderStatus.INITIATED && nextStatus == OrderStatus.COMPLETED) {
-        		this.status = nextStatus;
-        	} else if (status == OrderStatus.COMPLETED && nextStatus == OrderStatus.PREPARED) {
-        		this.status = nextStatus;
-        	} else if (status == OrderStatus.PREPARED && nextStatus == OrderStatus.DELIVERED) {
-        		this.status = nextStatus;
-        	}
+    		if (STATUS_TRANSITIONS.getOrDefault(status, null) == nextStatus) {
+    			status = nextStatus;
+    		}
     	} finally {
     		unlock();
     	}
