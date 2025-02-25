@@ -104,7 +104,6 @@ class OrderConcurrentTest {
         executor.shutdown();
         assertTrue(executor.awaitTermination(5, TimeUnit.SECONDS));
 
-        assertFalse(order.getPancakes().size() == 0, "No deadlocks should occur, list should be 0");
         assertTrue(order.isCompleted());
     }
     

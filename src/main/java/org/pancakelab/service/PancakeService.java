@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 import org.pancakelab.model.DeliveryResult;
 import org.pancakelab.model.NullOrder;
 import org.pancakelab.model.OrderInterface;
+import org.pancakelab.model.PancakeOperationResult;
+import org.pancakelab.model.ViewOrderResult;
 import org.pancakelab.model.pancakes.OrderRepository;
 
 public class PancakeService {
@@ -31,10 +33,10 @@ public class PancakeService {
      * @param room
      * @return UUID of order that was created
      */
-    public UUID createOrder(int building, int room) {
+    public PancakeOperationResult createOrder(int building, int room) {
         OrderInterface order = orderFactory.createOrder(building, room);
         order.updateRepository(orderRepository);
-        return order.getId();
+        return new PancakeOperationResult(true, order.getId());
     }
     
     
@@ -47,11 +49,13 @@ public class PancakeService {
      * @param orderId   The ID of the order to add pancakes to.
      * @param ingredients List of requested ingredients.
      * @param count The number of pancakes to add (capped at {@code MAX_PANCAKE_COUNT}).
+     * @return PancakeOperationResult
      */
-    public void addPancakes(UUID orderId, List<String> ingredients, int count) {
+    public PancakeOperationResult addPancakes(UUID orderId, List<String> ingredients, int count) {
     	OrderInterface order = getOrder(orderId);
     	pancakeManager.addPancakes(order, ingredients, count);
     	order.updateRepository(orderRepository);
+    	return new PancakeOperationResult(true, order.getId());
     }
 
     /**
@@ -64,21 +68,24 @@ public class PancakeService {
      * @param description The description of the pancake type to remove.
      * @param orderId The ID of the order.
      * @param count The number of pancakes to remove.
+     * @return PancakeOperationResult
      */
-    public void removePancakes(String description, UUID orderId, int count) {
+    public PancakeOperationResult removePancakes(String description, UUID orderId, int count) {
     	OrderInterface order = getOrder(orderId);
     	pancakeManager.removePancakes(order, description, count);
     	order.updateRepository(orderRepository);
+    	return new PancakeOperationResult(true, order.getId());
     }
     
     /**
      * Retrieves a list of pancake descriptions in an order.
      *
      * @param orderId The ID of the order.
-     * @return A list of descriptions of pancakes in the order.
+     * @return ViewOrderResult
      */
-	public List<String> viewOrder(UUID orderId) {
-		return getOrder(orderId).getPancakes();
+	public ViewOrderResult viewOrder(UUID orderId) {
+		OrderInterface order = getOrder(orderId);
+		return new ViewOrderResult(true, orderId, order.getPancakes());
 	}
 
     /**
@@ -92,22 +99,26 @@ public class PancakeService {
      * If the order does not exists it does not throw an exception 
      *
      * @param orderId The ID of the order to cancel.
+     * @return PancakeOperationResult 
      */
-    public void cancelOrder(UUID orderId) {
+    public PancakeOperationResult cancelOrder(UUID orderId) {
     	OrderInterface order = getOrder(orderId);
         pancakeManager.cancel(order);
         order.updateRepository(orderRepository);
+        return new PancakeOperationResult(true, order.getId());
     }
 
     /**
      * Marks an order as completed.
      *
      * @param orderId The ID of the order to complete.
+     * @return PancakeOperationResult 
      */
-    public void completeOrder(UUID orderId) {
+    public PancakeOperationResult completeOrder(UUID orderId) {
     	OrderInterface order = getOrder(orderId);
     	pancakeManager.complete(order);
     	order.updateRepository(orderRepository);
+    	return new PancakeOperationResult(true, order.getId());
     }
 
     /**
@@ -127,11 +138,13 @@ public class PancakeService {
      * Marks an order as prepared.
      *
      * @param orderId The ID of the order to prepare.
+     * @return PancakeOperationResult
      */
-    public void prepareOrder(UUID orderId) {
+    public PancakeOperationResult prepareOrder(UUID orderId) {
     	OrderInterface order = getOrder(orderId);
     	pancakeManager.prepare(order);
     	order.updateRepository(orderRepository);
+    	return new PancakeOperationResult(true, order.getId());
     }
 
     /**
