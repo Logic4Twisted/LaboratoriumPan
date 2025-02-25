@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.pancakelab.model.ApprovedIngredients;
 import org.pancakelab.model.DeliveryResult;
 import org.pancakelab.model.NullOrder;
 import org.pancakelab.model.OrderInterface;
@@ -58,6 +59,15 @@ public class PancakeService {
         if (orderId == null) {
             return new PancakeOperationResult(false, orderId, "Order ID cannot be null.");
         }
+        if (ingredients == null || ingredients.isEmpty()) {
+        	return new PancakeOperationResult(false, orderId, "Ingredient list is null or empty.");
+        }
+        for (String ingredient : ingredients) {
+        	if (ingredient == null || !ApprovedIngredients.isApproved(ingredient)) {
+        		return new PancakeOperationResult(false, orderId, "Ingredient invalid value.");
+        	}
+        }
+
 
         OrderInterface order = getOrder(orderId);
         if (order instanceof NullOrder) {
@@ -120,7 +130,8 @@ public class PancakeService {
      * Requirements:
      * Can we cancel order that is completed? 
      * in Readme: "3.The Disciple can choose to complete or cancel the Order, if cancelled the Order is removed from the database."
-     * does this means it can only be cancelled before its completed? I chose to allow cancelling anytime before delivery
+     * does this means it can only be cancelled before its completed? 
+     * I chose to allow cancelling anytime before delivery
      * 
      * If the order does not exists it does not throw an exception 
      *

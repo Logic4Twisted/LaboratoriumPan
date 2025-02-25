@@ -23,7 +23,7 @@ import org.pancakelab.model.pancakes.InMemoryOrderRepository;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class PancakeServiceTest {
+public class PancakeServiceIT {
     private PancakeService pancakeService;
     
     private final static String DARK_CHOCOLATE_PANCAKE_DESCRIPTION           				= "Delicious pancake with dark chocolate!";
@@ -183,7 +183,7 @@ public class PancakeServiceTest {
     	// verify
     	ViewOrderResult result = pancakeService.viewOrder(orderId);
     	List<String> pancakes = result.getPancakes();
-    	assertEquals(List.of(pancakeDescrption(List.of())), pancakes);
+    	assertEquals(List.of(), pancakes);
     }
     
     @Test
@@ -647,9 +647,7 @@ public class PancakeServiceTest {
         ViewOrderResult result = pancakeService.viewOrder(orderId);
         List<String> viewOrder = result.getPancakes();
         
-        assertEquals(2, viewOrder.size());
-        assertEquals(pancakeDescrption(ingredients), viewOrder.get(0));
-        assertEquals(pancakeDescrption(ingredients), viewOrder.get(1));
+        assertEquals(0, viewOrder.size());
     }
 
     
@@ -658,14 +656,16 @@ public class PancakeServiceTest {
     	UUID orderId = createOrder(10, 20);
          
         // Call with null ingredients
-        pancakeService.addPancakes(orderId, null, 2);
+        PancakeOperationResult pancakeOperationResult = pancakeService.addPancakes(orderId, null, 2);
 
         // Fetch order and check pancakes count
         ViewOrderResult result = pancakeService.viewOrder(orderId);
         List<String> viewOrder = result.getPancakes();
         
+        assertFalse(pancakeOperationResult.isSuccess());
+        
         assertNotNull(viewOrder, "Order should exist");
-        assertEquals(2, viewOrder.size(), "No pancakes should be added with null ingredient list");
+        assertEquals(0, viewOrder.size(), "No pancakes should be added with null ingredient list");
     }
 
     

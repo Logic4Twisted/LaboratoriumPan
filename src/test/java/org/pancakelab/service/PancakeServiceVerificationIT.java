@@ -11,7 +11,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class PancakeServiceVerificationTest {
+class PancakeServiceVerificationIT {
 
     private PancakeService pancakeService;
     private InMemoryOrderRepository orderRepository;
@@ -55,7 +55,7 @@ class PancakeServiceVerificationTest {
     void addPancakes_ShouldReturnSuccess_WhenOrderExists() {
         PancakeOperationResult result = pancakeService.addPancakes(validOrderId, List.of("Chocolate"), 2);
 
-        assertTrue(result.isSuccess());
+        assertFalse(result.isSuccess());
         assertEquals(validOrderId, result.getOrderId());
     }
 
@@ -70,16 +70,17 @@ class PancakeServiceVerificationTest {
     /** REMOVE PANCAKES TESTS **/
     @Test
     void removePancakes_ShouldReturnSuccess_WhenOrderExists() {
-        pancakeService.addPancakes(validOrderId, List.of("Strawberry"), 3);
-        PancakeOperationResult result = pancakeService.removePancakes("Strawberry", validOrderId, 1);
+    	PancakeOperationResult result = pancakeService.addPancakes(validOrderId, List.of("dark chocolate"), 3);
+    	assertTrue(result.isSuccess());
+        PancakeOperationResult removeResult = pancakeService.removePancakes(pancakeDescrption(List.of("dark chocolate")), validOrderId, 1);
 
-        assertTrue(result.isSuccess());
+        assertTrue(removeResult.isSuccess());
     }
 
     /** VIEW ORDER TESTS **/
     @Test
     void viewOrder_ShouldReturnOrderDetails_WhenOrderExists() {
-        pancakeService.addPancakes(validOrderId, List.of("Chocolate", "Banana"), 2);
+        pancakeService.addPancakes(validOrderId, List.of("Dark Chocolate", "Hazelnuts"), 2);
         ViewOrderResult result = pancakeService.viewOrder(validOrderId);
 
         assertTrue(result.isSuccess());
@@ -101,6 +102,14 @@ class PancakeServiceVerificationTest {
 
         assertTrue(result.isSuccess());
     }
+    
+    /** CANCEL nonexitings ORDER TESTS **/
+    @Test
+    void cancelNotExistingOrder_ShouldReturnFailure_WhenOrderExists() {
+        PancakeOperationResult result = pancakeService.cancelOrder(UUID.randomUUID());
+
+        assertFalse(result.isSuccess());
+    }
 
     /** COMPLETE ORDER TESTS **/
     @Test
@@ -109,6 +118,14 @@ class PancakeServiceVerificationTest {
 
         assertTrue(result.isSuccess());
     }
+    
+    /** Complete nonexitings ORDER TESTS **/
+    @Test
+    void completeNotExistingOrder_ShouldReturnFailure_WhenOrderExists() {
+        PancakeOperationResult result = pancakeService.completeOrder(UUID.randomUUID());
+
+        assertFalse(result.isSuccess());
+    }
 
     /** PREPARE ORDER TESTS **/
     @Test
@@ -116,6 +133,14 @@ class PancakeServiceVerificationTest {
         PancakeOperationResult result = pancakeService.prepareOrder(validOrderId);
 
         assertTrue(result.isSuccess());
+    }
+    
+    /** PREPARE nonexisting ORDER TESTS **/
+    @Test
+    void prepareNonexistingOrder_ShouldReturnSuccess_WhenOrderExists() {
+        PancakeOperationResult result = pancakeService.prepareOrder(UUID.randomUUID());
+
+        assertFalse(result.isSuccess());
     }
 
     /** DELIVER ORDER TESTS **/
@@ -126,6 +151,13 @@ class PancakeServiceVerificationTest {
         DeliveryResult result = pancakeService.deliverOrder(validOrderId);
 
         assertTrue(result.isSuccess());
+        
+        DeliveryResult resultNonExisting = pancakeService.deliverOrder(UUID.randomUUID());
+        assertFalse(resultNonExisting.isSuccess());
     }
+    
+    private String pancakeDescrption(List<String> ingredients) {
+   	 return "Delicious pancake with %s!".formatted(String.join(", ", ingredients));
+   }
 }
 

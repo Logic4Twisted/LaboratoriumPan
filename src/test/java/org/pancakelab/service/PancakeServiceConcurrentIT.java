@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.IntStream;
 
-class PancakeServiceConcurrentTest {
+class PancakeServiceConcurrentIT {
 
     private PancakeService pancakeService;
     private static final int THREAD_COUNT = 40;
