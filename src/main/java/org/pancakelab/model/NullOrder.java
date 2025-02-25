@@ -56,15 +56,15 @@ public class NullOrder implements OrderInterface {
     }
     
     @Override
-    public void completed() {
+    public void complete() {
     	// do nothing
     }
     
-    public void prepared() {
+    public void prepare() {
     	// do nothing
     }
     
-    public void delivered() {
+    public void deliver() {
     	// do nothing
     }
     

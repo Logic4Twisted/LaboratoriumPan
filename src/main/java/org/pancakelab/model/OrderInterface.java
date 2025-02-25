@@ -20,11 +20,11 @@ public interface OrderInterface {
 
     List<String> getPancakesToDeliver();
 
-    void completed();
+    void complete();
 
-    void prepared();
+    void prepare();
 
-    void delivered();
+    void deliver();
 
     void cancel();
 

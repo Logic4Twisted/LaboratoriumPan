@@ -85,7 +85,7 @@ class OrderManagerTest {
         assertEquals(1, order.getPancakes().size(), "Pancake should be added in INITIATED state");
 
         // Complete the order
-        order.completed();
+        order.complete();
         assertTrue(order.isCompleted(), "Order should be in COMPLETED state");
 
         // Try adding another pancake (should not be added)
@@ -102,7 +102,7 @@ class OrderManagerTest {
         assertEquals(1, order.getPancakes().size(), "Pancake should be added in INITIATED state");
 
         // Complete the order
-        order.completed();
+        order.complete();
         assertTrue(order.isCompleted(), "Order should be in COMPLETED state");
 
         // Attempt to remove pancake (should not be removed)
@@ -120,11 +120,11 @@ class OrderManagerTest {
         assertEquals(1, order.getPancakes().size(), "Pancake should be added in INITIATED state");
 
         // Move to COMPLETED state
-        order.completed();
+        order.complete();
         assertTrue(order.isCompleted(), "Order should be in COMPLETED state");
 
         // Move to PREPARED state
-        order.prepared();
+        order.prepare();
         assertTrue(order.isPrepared(), "Order should be in PREPARED state");
 
         // Try removing a pancake (should not be removed)
@@ -133,7 +133,7 @@ class OrderManagerTest {
         assertEquals(1, order.getPancakes().size(), "Pancake list should remain unchanged in PREPARED state");
 
         // Move to DELIVERED state
-        order.delivered();
+        order.deliver();
         assertTrue(order.isDelivered(), "Order should be in DELIVERED state");
 
         // Try adding a pancake (should not be added)

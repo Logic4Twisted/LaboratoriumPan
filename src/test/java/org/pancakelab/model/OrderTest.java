@@ -73,16 +73,16 @@ public class OrderTest {
     	assertTrue(order.isInitated());
     	
         // Test INITIATED -> COMPLETED
-        order.completed();
+        order.complete();
         assertTrue(order.isCompleted());
 
         // Test COMPLETED -> PREPARED
-        order.prepared();
+        order.prepare();
         assertTrue(order.isPrepared());
 
         // Test PREPARED -> DELIVERED
-        order.completed();
-        order.delivered();
+        order.complete();
+        order.deliver();
         assertTrue(order.isDelivered());
     }
 
@@ -91,16 +91,16 @@ public class OrderTest {
     	Order order = new Order(1,2);
     	
         // Test INITIATED -> DELIVERED (Invalid)
-        order.delivered();
+        order.deliver();
         assertFalse(order.isDelivered());
 
         // Test INITIATED -> PREPARED (Invalid)
-        order.prepared();
+        order.prepare();
         assertFalse(order.isPrepared());
         
         // Test COMPLETED -> DELIVERED (Invalid)
-        order.completed();
-        order.delivered();
+        order.complete();
+        order.deliver();
         assertFalse(order.isDelivered());
     }
     
@@ -114,21 +114,21 @@ public class OrderTest {
         assertFalse(order.isDelivered());
         
         
-    	order.completed();
+    	order.complete();
     	
         assertTrue(order.isCompleted(), "Order should be in COMPLETED status");
         assertFalse(order.isInitated());
         assertFalse(order.isPrepared());
         assertFalse(order.isDelivered());
         
-        order.prepared();
+        order.prepare();
     	
         assertTrue(order.isPrepared(), "Order should be in PREPARED status");
         assertFalse(order.isInitated());
         assertFalse(order.isCompleted());
         assertFalse(order.isDelivered());
         
-        order.delivered();
+        order.deliver();
 
         assertTrue(order.isDelivered(), "Order should be in DELIVERED status");
         assertFalse(order.isInitated());
@@ -145,15 +145,15 @@ public class OrderTest {
         assertTrue(order.getPancakesToDeliver().isEmpty(), "Pancakes should NOT be available for delivery in INITIATED state");
 
         // COMPLETED state should return an empty list
-        order.completed();
+        order.complete();
         assertTrue(order.getPancakesToDeliver().isEmpty(), "Pancakes should NOT be available for delivery in COMPLETED state");
 
         // PREPARED state should return the actual list
-        order.prepared();
+        order.prepare();
         assertTrue(order.getPancakesToDeliver().isEmpty(), "Pancakes should be available for delivery in PREPARED state");
 
         // DELIVERED state should return an empty list
-        order.delivered();
+        order.deliver();
         assertFalse(order.getPancakesToDeliver().isEmpty(), "Pancakes should NOT be available for delivery in DELIVERED state");
     }
     

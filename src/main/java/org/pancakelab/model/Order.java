@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -123,15 +122,15 @@ public class Order implements OrderInterface {
         return room;
     }
     
-    public void completed() {
+    public void complete() {
     	changeStatus(OrderStatus.COMPLETED);
     }
     
-    public void prepared() {
+    public void prepare() {
     	changeStatus(OrderStatus.PREPARED);
     }
     
-    public void delivered() {
+    public void deliver() {
     	changeStatus(OrderStatus.DELIVERED);
     	if (isDelivered()) {
     		OrderLog.logDeliverOrder(this, getPancakes().size());

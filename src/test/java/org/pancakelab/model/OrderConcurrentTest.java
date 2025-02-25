@@ -72,9 +72,9 @@ class OrderConcurrentTest {
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
 
         Runnable task = () -> {
-            order.completed();
-            order.prepared();
-            order.delivered();
+            order.complete();
+            order.prepare();
+            order.deliver();
         };
 
         IntStream.range(0, THREAD_COUNT).forEach(i -> executor.submit(task));
@@ -91,8 +91,8 @@ class OrderConcurrentTest {
 
         Runnable addTask = () -> order.addPancake(SAMPLE_INGREDIENTS);
         Runnable removeTask = () -> order.removePancake(pancakeDescrption(SAMPLE_INGREDIENTS));
-        Runnable deliverTask = () -> order.delivered();
-        Runnable statusTask = () -> order.completed();
+        Runnable deliverTask = () -> order.deliver();
+        Runnable statusTask = () -> order.complete();
 
         IntStream.range(0, THREAD_COUNT).forEach(i -> {
             executor.submit(addTask);

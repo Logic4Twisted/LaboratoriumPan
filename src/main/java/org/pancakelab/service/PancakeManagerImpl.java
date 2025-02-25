@@ -25,4 +25,25 @@ public class PancakeManagerImpl implements PancakeManager {
             order.removePancake(description);
     	}
     }
+    
+    public void cancel(OrderInterface order) {
+    	order.cancel();
+    }
+
+	@Override
+	public void complete(OrderInterface order) {
+		order.complete();
+	}
+
+	@Override
+	public void deliver(OrderInterface order) {
+		order.deliver();
+	}
+
+	@Override
+	public void prepare(OrderInterface order) {
+		order.prepare();
+	}
+	
+	
 }

@@ -95,7 +95,7 @@ public class PancakeService {
      */
     public void cancelOrder(UUID orderId) {
     	OrderInterface order = getOrder(orderId);
-        order.cancel();
+        pancakeManager.cancel(order);
         order.delete(orderRepository);
     }
 
@@ -106,7 +106,7 @@ public class PancakeService {
      */
     public void completeOrder(UUID orderId) {
     	OrderInterface order = getOrder(orderId);
-    	order.completed();
+    	pancakeManager.complete(order);
     	order.saveTo(orderRepository);
     }
 
@@ -130,7 +130,7 @@ public class PancakeService {
      */
     public void prepareOrder(UUID orderId) {
     	OrderInterface order = getOrder(orderId);
-    	order.prepared();
+    	pancakeManager.prepare(order);
     	order.saveTo(orderRepository);
     }
 
@@ -155,7 +155,7 @@ public class PancakeService {
      */
     public DeliveryResult deliverOrder(UUID orderId) {
     	OrderInterface order = getOrder(orderId);
-    	order.delivered();
+    	pancakeManager.deliver(order);
     	if (order.isDelivered()) {
     		order.delete(orderRepository);
     	}
