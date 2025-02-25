@@ -5,15 +5,16 @@ import java.util.UUID;
 
 public class ViewOrderResult {
 
-	public ViewOrderResult(boolean success, UUID orderId, List<String> pancakes) {
-		super();
+	public ViewOrderResult(boolean success, UUID orderId, List<String> pancakes, String message) {
 		this.success = success;
 		this.pancakes = pancakes;
 		this.orderId = orderId;
+		this.message = message;
 	}
 	private final boolean success;
     private final List<String> pancakes;
     private final UUID orderId;
+    private final String message;
     
     public boolean isSuccess() {
 		return success;
@@ -23,5 +24,8 @@ public class ViewOrderResult {
 	}
 	public UUID getOrderId() {
 		return orderId;
+	}
+	public String getMessage() {
+		return message;
 	}
 }

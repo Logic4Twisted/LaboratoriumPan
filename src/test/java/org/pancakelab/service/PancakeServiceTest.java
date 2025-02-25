@@ -198,6 +198,7 @@ public class PancakeServiceTest {
         ViewOrderResult result = pancakeService.viewOrder(invalidOrderId);
         List<String> ordersPancakes = result.getPancakes();
         assertTrue(ordersPancakes.isEmpty());
+        assertFalse(result.isSuccess());
     }
     
 
@@ -475,11 +476,13 @@ public class PancakeServiceTest {
         UUID invalidOrderId = UUID.randomUUID();
 
         // exercise
-        pancakeService.cancelOrder(invalidOrderId);
+        PancakeOperationResult result = pancakeService.cancelOrder(invalidOrderId);
 
         // verify (no exception should be thrown, no changes to the system)
         assertFalse(pancakeService.listCompletedOrders().contains(invalidOrderId));
         assertFalse(pancakeService.listPreparedOrders().contains(invalidOrderId));
+        assertFalse(result.isSuccess());
+        assertEquals("Order not found.", result.getMessage());
     }
     
     @Test
@@ -711,6 +714,7 @@ public class PancakeServiceTest {
         List<String> orderView = result.getPancakes();
         
         assertEquals(0, orderView.size());
+        assertFalse(result.isSuccess());
     }
     
     private String pancakeDescrption(List<String> ingredients) {

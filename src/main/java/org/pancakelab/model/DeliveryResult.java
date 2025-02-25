@@ -7,11 +7,20 @@ public class DeliveryResult {
     private final boolean success;
     private final UUID orderId;
     private final List<String> pancakesToDeliver;
+    private String message;
 
-    public DeliveryResult(boolean success, UUID orderId, List<String> pancakesToDeliver) {
+    public DeliveryResult(boolean success, UUID orderId, List<String> pancakesToDeliver, String message) {
         this.success = success;
         this.orderId = orderId;
         this.pancakesToDeliver = pancakesToDeliver;
+        this.message = message;
+    }
+    
+    public DeliveryResult(boolean success, UUID orderId, String message) {
+        this.success = success;
+        this.orderId = orderId;
+        this.pancakesToDeliver = List.of();
+        this.message = message;
     }
 
     public boolean isSuccess() {
@@ -34,4 +43,8 @@ public class DeliveryResult {
                 ", pancakesToDeliver=" + pancakesToDeliver +
                 '}';
     }
+
+	public String getMessage() {
+		return message;
+	}
 }

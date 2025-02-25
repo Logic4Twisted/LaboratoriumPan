@@ -34,6 +34,9 @@ public class PancakeService {
      * @return UUID of order that was created
      */
     public PancakeOperationResult createOrder(int building, int room) {
+    	if (building <= 0 || room <= 0) {
+            return new PancakeOperationResult(false, null, "Invalid building or room number.");
+        }
         OrderInterface order = orderFactory.createOrder(building, room);
         order.updateRepository(orderRepository);
         return new PancakeOperationResult(true, order.getId());
@@ -52,7 +55,15 @@ public class PancakeService {
      * @return PancakeOperationResult
      */
     public PancakeOperationResult addPancakes(UUID orderId, List<String> ingredients, int count) {
-    	OrderInterface order = getOrder(orderId);
+        if (orderId == null) {
+            return new PancakeOperationResult(false, orderId, "Order ID cannot be null.");
+        }
+
+        OrderInterface order = getOrder(orderId);
+        if (order instanceof NullOrder) {
+            return new PancakeOperationResult(false, orderId, "Order not found.");
+        }
+        
     	pancakeManager.addPancakes(order, ingredients, count);
     	order.updateRepository(orderRepository);
     	return new PancakeOperationResult(true, order.getId());
@@ -71,7 +82,15 @@ public class PancakeService {
      * @return PancakeOperationResult
      */
     public PancakeOperationResult removePancakes(String description, UUID orderId, int count) {
-    	OrderInterface order = getOrder(orderId);
+        if (orderId == null) {
+            return new PancakeOperationResult(false, orderId, "Order ID cannot be null.");
+        }
+
+        OrderInterface order = getOrder(orderId);
+        if (order instanceof NullOrder) {
+            return new PancakeOperationResult(false, orderId, "Order not found.");
+        }
+        
     	pancakeManager.removePancakes(order, description, count);
     	order.updateRepository(orderRepository);
     	return new PancakeOperationResult(true, order.getId());
@@ -84,8 +103,15 @@ public class PancakeService {
      * @return ViewOrderResult
      */
 	public ViewOrderResult viewOrder(UUID orderId) {
-		OrderInterface order = getOrder(orderId);
-		return new ViewOrderResult(true, orderId, order.getPancakes());
+        if (orderId == null) {
+            return new ViewOrderResult(false, orderId, List.of(), "Order ID cannot be null.");
+        }
+
+        OrderInterface order = getOrder(orderId);
+        if (order instanceof NullOrder) {
+            return new ViewOrderResult(false, orderId, List.of(), "Order not found.");
+        }
+		return new ViewOrderResult(true, orderId, order.getPancakes(), "");
 	}
 
     /**
@@ -102,7 +128,15 @@ public class PancakeService {
      * @return PancakeOperationResult 
      */
     public PancakeOperationResult cancelOrder(UUID orderId) {
-    	OrderInterface order = getOrder(orderId);
+        if (orderId == null) {
+            return new PancakeOperationResult(false, orderId, "Order ID cannot be null.");
+        }
+
+        OrderInterface order = getOrder(orderId);
+        if (order instanceof NullOrder) {
+            return new PancakeOperationResult(false, orderId, "Order not found.");
+        }
+        
         pancakeManager.cancel(order);
         order.updateRepository(orderRepository);
         return new PancakeOperationResult(true, order.getId());
@@ -115,7 +149,14 @@ public class PancakeService {
      * @return PancakeOperationResult 
      */
     public PancakeOperationResult completeOrder(UUID orderId) {
-    	OrderInterface order = getOrder(orderId);
+        if (orderId == null) {
+            return new PancakeOperationResult(false, orderId, "Order ID cannot be null.");
+        }
+
+        OrderInterface order = getOrder(orderId);
+        if (order instanceof NullOrder) {
+            return new PancakeOperationResult(false, orderId, "Order not found.");
+        }
     	pancakeManager.complete(order);
     	order.updateRepository(orderRepository);
     	return new PancakeOperationResult(true, order.getId());
@@ -141,7 +182,14 @@ public class PancakeService {
      * @return PancakeOperationResult
      */
     public PancakeOperationResult prepareOrder(UUID orderId) {
-    	OrderInterface order = getOrder(orderId);
+        if (orderId == null) {
+            return new PancakeOperationResult(false, orderId, "Order ID cannot be null.");
+        }
+
+        OrderInterface order = getOrder(orderId);
+        if (order instanceof NullOrder) {
+            return new PancakeOperationResult(false, orderId, "Order not found.");
+        }
     	pancakeManager.prepare(order);
     	order.updateRepository(orderRepository);
     	return new PancakeOperationResult(true, order.getId());
@@ -167,10 +215,17 @@ public class PancakeService {
      * @return DeliveryResult
      */
     public DeliveryResult deliverOrder(UUID orderId) {
-    	OrderInterface order = getOrder(orderId);
+        if (orderId == null) {
+            return new DeliveryResult(false, orderId, "Order ID cannot be null.");
+        }
+
+        OrderInterface order = getOrder(orderId);
+        if (order instanceof NullOrder) {
+            return new DeliveryResult(false, orderId, "Order not found.");
+        }
     	pancakeManager.deliver(order);
     	order.updateRepository(orderRepository);
 
-        return new DeliveryResult(order.isDelivered(), order.getId(),  order.getPancakesToDeliver());
+        return new DeliveryResult(order.isDelivered(), order.getId(),  order.getPancakesToDeliver(), "");
     }
 }

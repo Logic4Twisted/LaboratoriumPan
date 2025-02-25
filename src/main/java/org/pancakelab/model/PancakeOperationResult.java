@@ -16,7 +16,6 @@ public class PancakeOperationResult {
     public PancakeOperationResult(boolean success, UUID orderId) {
         this(success, orderId, "");
     }
-    
 
     public boolean isSuccess() {
         return success;
