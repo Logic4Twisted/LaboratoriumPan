@@ -28,9 +28,7 @@ public interface OrderInterface {
 
     void cancel();
 
-    void saveTo(OrderRepository orderRepository);
-    
-    void delete(OrderRepository orderRepository);
+    void updateRepository(OrderRepository orderRepository);
 
     boolean isInitated();
 

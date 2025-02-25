@@ -50,6 +50,9 @@ public class Order implements OrderInterface {
     private void changeStatus(OrderStatus nextStatus) {
     	lock.writeLock().lock();
     	try {
+    		if (nextStatus == OrderStatus.CANCELLED) {
+    			status = nextStatus;
+    		}
     		if (STATUS_TRANSITIONS.getOrDefault(status, null) == nextStatus) {
     			status = nextStatus;
     		}
@@ -138,22 +141,18 @@ public class Order implements OrderInterface {
     }
     
     public void cancel() {
+    	changeStatus(OrderStatus.CANCELLED);
     	OrderLog.logCancelOrder(this, getPancakes().size());
     }
     
-    public void saveTo(OrderRepository orderRepository) {
+    public void updateRepository(OrderRepository orderRepository) {
     	lock.readLock().lock();
     	try {
-    		orderRepository.save(this);
-    	} finally {
-    		lock.readLock().unlock();
-    	}
-    }
-    
-    public void delete(OrderRepository orderRepository) {
-    	lock.readLock().lock();
-    	try {
-    		orderRepository.delete(id);
+    		if (status == OrderStatus.CANCELLED || status == OrderStatus.DELIVERED) {
+    			orderRepository.delete(id);
+    		} else {
+    			orderRepository.save(this);
+    		}
     	} finally {
     		lock.readLock().unlock();
     	}

@@ -1,5 +1,5 @@
 package org.pancakelab.model;
 
 public enum OrderStatus {
-	INITIATED, COMPLETED, PREPARED, DELIVERED 
+	INITIATED, COMPLETED, PREPARED, DELIVERED, CANCELLED 
 }

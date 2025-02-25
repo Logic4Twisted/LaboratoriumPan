@@ -105,12 +105,7 @@ public class NullOrder implements OrderInterface {
 	}
 
 	@Override
-	public void saveTo(OrderRepository orderRepository) {
+	public void updateRepository(OrderRepository orderRepository) {
 	}
-
-	@Override
-	public void delete(OrderRepository orderRepository) {
-	}
-
 }
 
