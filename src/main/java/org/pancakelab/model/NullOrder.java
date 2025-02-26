@@ -103,5 +103,10 @@ public class NullOrder implements OrderInterface {
 	@Override
 	public void updateRepository(OrderRepository orderRepository) {
 	}
+
+	@Override
+	public boolean isValid() {
+		return false;
+	}
 }
 

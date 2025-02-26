@@ -39,4 +39,6 @@ public interface OrderInterface {
     boolean isPrepared();
 
     boolean isDelivered();
+    
+    boolean isValid();
 }

@@ -200,4 +200,9 @@ public class Order implements OrderInterface {
     public int hashCode() {
         return Objects.hashCode(id);
     }
+
+	@Override
+	public boolean isValid() {
+		return true;
+	}
 }

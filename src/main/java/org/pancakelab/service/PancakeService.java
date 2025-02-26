@@ -1,5 +1,6 @@
 package org.pancakelab.service;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -63,7 +64,7 @@ public class PancakeService {
         }
 
         OrderInterface order = getOrder(orderId);
-        if (order instanceof NullOrder) {
+        if (!order.isValid()) {
             return new PancakeOperationResult(false, orderId, "Order not found.");
         }
         
@@ -94,7 +95,7 @@ public class PancakeService {
         }
 
         OrderInterface order = getOrder(orderId);
-        if (order instanceof NullOrder) {
+        if (!order.isValid()) {
             return new PancakeOperationResult(false, orderId, "Order not found.");
         }
         
@@ -119,7 +120,7 @@ public class PancakeService {
         }
 
         OrderInterface order = getOrder(orderId);
-        if (order instanceof NullOrder) {
+        if (!order.isValid()) {
             return new ViewOrderResult(false, orderId, List.of(), "Order not found.");
         }
 		return new ViewOrderResult(true, orderId, order.getPancakes(), "");
@@ -145,7 +146,7 @@ public class PancakeService {
         }
 
         OrderInterface order = getOrder(orderId);
-        if (order instanceof NullOrder) {
+        if (!order.isValid()) {
             return new PancakeOperationResult(false, orderId, "Order not found.");
         }
         
@@ -171,7 +172,7 @@ public class PancakeService {
         }
 
         OrderInterface order = getOrder(orderId);
-        if (order instanceof NullOrder) {
+        if (!order.isValid()) {
             return new PancakeOperationResult(false, orderId, "Order not found.");
         }
         
@@ -210,7 +211,7 @@ public class PancakeService {
         }
 
         OrderInterface order = getOrder(orderId);
-        if (order instanceof NullOrder) {
+        if (!order.isValid()) {
             return new PancakeOperationResult(false, orderId, "Order not found.");
         }
         
@@ -248,7 +249,7 @@ public class PancakeService {
         }
 
         OrderInterface order = getOrder(orderId);
-        if (order instanceof NullOrder) {
+        if (!order.isValid()) {
             return new DeliveryResult(false, orderId, "Order not found.");
         }
         
@@ -258,7 +259,7 @@ public class PancakeService {
 	
 	        return new DeliveryResult(order.isDelivered(), order.getId(),  order.getPancakesToDeliver(), "");
         } catch (Exception e) {
-        	return new DeliveryResult(false, order.getId(),  null, e.getMessage());
+        	return new DeliveryResult(false, order.getId(), new LinkedList<String>(), e.getMessage());
         }
     }
 }
