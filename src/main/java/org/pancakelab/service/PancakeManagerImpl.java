@@ -18,7 +18,6 @@ public class PancakeManagerImpl implements PancakeManager {
 	 */
 	@Override
     public void addPancakes(OrderInterface order, List<String> ingredients, int count) throws Exception {
-        
         count = Math.min(count, MAX_PANCAKE_COUNT);
         for (int i = 0; i < count && order.getPancakes().size() < MAX_PANCAKE_PER_ORDER; i++) {
         	order.addPancake(createPancake(ingredients));

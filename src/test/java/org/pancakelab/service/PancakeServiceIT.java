@@ -700,6 +700,17 @@ public class PancakeServiceIT {
         assertNotNull(orderView, "Order should exist");
         assertEquals(0, orderView.size(), "No pancakes should be added with negative count");
     }
+    
+    @Test
+    void testAddPancakesWithInvalidIngredient_ThenReturnFailure() {
+    	UUID orderId = createOrder(10, 20);
+
+        // Try adding with zero count
+        PancakeOperationResult result = pancakeService.addPancakes(orderId, List.of("Custard"), 1);
+
+        assertFalse(result.isSuccess());
+        assertEquals("Ingredient invalid value", result.getMessage());
+    }
 
     @Test
     void testAddPancakes_OrderNotFound() {
