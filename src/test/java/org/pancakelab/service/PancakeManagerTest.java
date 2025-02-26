@@ -5,6 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.pancakelab.model.ApprovedIngredients;
 import org.pancakelab.model.Order;
+import org.pancakelab.model.pancakes.PancakeBuilderFactoryImpl;
+import org.pancakelab.model.pancakes.PancakeBuilderImpl;
 
 import java.util.*;
 
@@ -16,7 +18,7 @@ class PancakeManagerTest {
 
     @BeforeEach
     void setUp() {
-        pancakeManager = new PancakeManagerImpl();
+        pancakeManager = new PancakeManagerImpl(new PancakeBuilderFactoryImpl());
         order = new Order(1, 101); // Building 1, Room 101
     }
 

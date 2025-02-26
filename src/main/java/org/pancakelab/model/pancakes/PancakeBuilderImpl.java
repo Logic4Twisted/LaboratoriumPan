@@ -3,8 +3,6 @@ package org.pancakelab.model.pancakes;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.pancakelab.model.ApprovedIngredients;
-
 public class PancakeBuilderImpl implements PancakeBuilder {
 	
 	private final List<String> ingredients = new LinkedList<String>();

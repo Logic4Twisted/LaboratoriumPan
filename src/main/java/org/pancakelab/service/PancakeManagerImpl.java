@@ -4,13 +4,19 @@ import java.util.List;
 
 import org.pancakelab.model.OrderInterface;
 import org.pancakelab.model.pancakes.PancakeBuilder;
-import org.pancakelab.model.pancakes.PancakeBuilderImpl;
+import org.pancakelab.model.pancakes.PancakeBuilderFactory;
 import org.pancakelab.model.pancakes.PancakeRecipe;
 
 public class PancakeManagerImpl implements PancakeManager {
 	// business constraints
 	public static final int MAX_PANCAKE_COUNT = 100;
 	public static final int MAX_PANCAKE_PER_ORDER = 500;
+	
+	private final PancakeBuilderFactory pancakeBuilderFactory;
+
+    public PancakeManagerImpl(PancakeBuilderFactory pancakeBuilderFactory) {
+        this.pancakeBuilderFactory = pancakeBuilderFactory;
+    }
 
 	/* Assumption:
 	 * Design pattern should be used to avoid hardcoding recipes for pancakes and to allow disciples to choose the ingredients ??
@@ -51,10 +57,10 @@ public class PancakeManagerImpl implements PancakeManager {
 	}
 	
 	private PancakeRecipe createPancake(List<String> ingredients) throws Exception {
-		PancakeBuilder pancakeBuilder = new PancakeBuilderImpl();
+		PancakeBuilder builder = pancakeBuilderFactory.createBuilder();
 		for (String ingredient : ingredients) {
-			pancakeBuilder.addIngredient(ingredient);
+			builder.addIngredient(ingredient);
 		}
-		return pancakeBuilder.build();
+		return builder.build();
 	}
 }

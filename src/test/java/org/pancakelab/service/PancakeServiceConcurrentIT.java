@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.pancakelab.model.ApprovedIngredients;
 import org.pancakelab.model.PancakeOperationResult;
 import org.pancakelab.model.pancakes.InMemoryOrderRepository;
+import org.pancakelab.model.pancakes.PancakeBuilderFactoryImpl;
+import org.pancakelab.model.pancakes.PancakeBuilderImpl;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -18,7 +20,7 @@ class PancakeServiceConcurrentIT {
 
     @BeforeEach
     void setUp() {
-        pancakeService = new PancakeService(new InMemoryOrderRepository(), new PancakeManagerImpl(), new OrderFactoryImp());
+        pancakeService = new PancakeService(new InMemoryOrderRepository(), new PancakeManagerImpl(new PancakeBuilderFactoryImpl()), new OrderFactoryImp());
     }
 
     @Test

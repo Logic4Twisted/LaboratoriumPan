@@ -9,7 +9,6 @@ import java.util.UUID;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.pancakelab.model.pancakes.OrderRepository;
-import org.pancakelab.model.pancakes.Pancake;
 import org.pancakelab.model.pancakes.PancakeRecipe;
 import org.pancakelab.service.OrderLog;
 

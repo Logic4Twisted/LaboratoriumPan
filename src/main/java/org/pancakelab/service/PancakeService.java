@@ -5,7 +5,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.pancakelab.model.ApprovedIngredients;
 import org.pancakelab.model.DeliveryResult;
 import org.pancakelab.model.NullOrder;
 import org.pancakelab.model.OrderInterface;

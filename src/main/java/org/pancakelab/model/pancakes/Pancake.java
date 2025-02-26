@@ -6,13 +6,12 @@ import java.util.List;
 import java.util.Optional;
 
 import org.pancakelab.model.ApprovedIngredients;
-import org.pancakelab.model.Ingredient;
 
 public class Pancake implements PancakeRecipe {
 	List<String> ingredients;
 	
 	public Pancake(List<String> ingredients) throws Exception {
-		this.ingredients = new LinkedList<String>();
+		this();
 		for (String ingredient : ingredients) {
 			addIngredient(ingredient);
 		}
@@ -75,11 +74,5 @@ public class Pancake implements PancakeRecipe {
      */
     public List<String> getAvailableIngredients() {
     	return new LinkedList<String>(ApprovedIngredients.getAll());
-    }
-    
-    private List<Ingredient> convertToIngredients(List<String> ingredientNames) {
-        return ingredientNames.stream()
-                .map(Ingredient::new)
-                .toList();
     }
 }

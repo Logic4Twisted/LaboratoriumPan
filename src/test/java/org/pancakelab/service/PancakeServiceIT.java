@@ -20,6 +20,8 @@ import org.pancakelab.model.DeliveryResult;
 import org.pancakelab.model.PancakeOperationResult;
 import org.pancakelab.model.ViewOrderResult;
 import org.pancakelab.model.pancakes.InMemoryOrderRepository;
+import org.pancakelab.model.pancakes.PancakeBuilderFactoryImpl;
+import org.pancakelab.model.pancakes.PancakeBuilderImpl;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -34,7 +36,7 @@ public class PancakeServiceIT {
     
     @BeforeEach
     void setUp() {
-    	pancakeService = new PancakeService(new InMemoryOrderRepository(), new PancakeManagerImpl(), new OrderFactoryImp());
+    	pancakeService = new PancakeService(new InMemoryOrderRepository(), new PancakeManagerImpl(new PancakeBuilderFactoryImpl()), new OrderFactoryImp());
     }
     
     @Test

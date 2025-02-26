@@ -4,25 +4,31 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.pancakelab.model.*;
 import org.pancakelab.model.pancakes.InMemoryOrderRepository;
+import org.pancakelab.model.pancakes.PancakeBuilder;
+import org.pancakelab.model.pancakes.PancakeBuilderFactory;
+import org.pancakelab.model.pancakes.PancakeBuilderFactoryImpl;
+import org.pancakelab.model.pancakes.PancakeBuilderImpl;
 
 import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class PancakeServiceValidationIT {
+class PancakeServiceValidationTest {
 
     private PancakeService pancakeService;
     private InMemoryOrderRepository orderRepository;
     private PancakeManager pancakeManager;
     private OrderFactory orderFactory;
+    private PancakeBuilderFactory pancakeBuilderFactory;
 
     private UUID validOrderId;
 
     @BeforeEach
     void setUp() {
+    	pancakeBuilderFactory = new PancakeBuilderFactoryImpl();
         orderRepository = new InMemoryOrderRepository();
-        pancakeManager = new PancakeManagerImpl();
+        pancakeManager = new PancakeManagerImpl(pancakeBuilderFactory);
         orderFactory = new OrderFactoryImp();
 
         pancakeService = new PancakeService(orderRepository, pancakeManager, orderFactory);
