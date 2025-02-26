@@ -6,7 +6,6 @@ import org.pancakelab.model.*;
 import org.pancakelab.model.pancakes.InMemoryOrderRepository;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;

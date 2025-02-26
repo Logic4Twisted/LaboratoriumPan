@@ -8,7 +8,7 @@ import org.pancakelab.model.Order;
 
 import java.util.*;
 
-class PancakeManagerIT {
+class PancakeManagerTest {
 
     private PancakeManagerImpl pancakeManager;
     private Order order;
