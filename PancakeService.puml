@@ -1,0 +1,199 @@
+@startuml
+class PancakeService {
+    - OrderRepository orderRepository
+    - PancakeManager pancakeManager
+    - OrderFactory orderFactory
+
+    + PancakeService(OrderRepository, PancakeManager, OrderFactory)
+    - OrderInterface getOrder(UUID orderId)
+    + PancakeOperationResult createOrder(int building, int room)
+    + PancakeOperationResult addPancakes(UUID orderId, List<String> ingredients, int count)
+    + PancakeOperationResult removePancakes(String description, UUID orderId, int count)
+    + ViewOrderResult viewOrder(UUID orderId)
+    + PancakeOperationResult cancelOrder(UUID orderId)
+    + PancakeOperationResult completeOrder(UUID orderId)
+    + Set<UUID> listCompletedOrders()
+    + PancakeOperationResult prepareOrder(UUID orderId)
+    + Set<UUID> listPreparedOrders()
+    + DeliveryResult deliverOrder(UUID orderId)
+}
+
+class OrderRepository {
+    + findById(UUID orderId) : Optional<OrderInterface>
+    + findAll() : List<OrderInterface>
+    + save(OrderInterface order)
+    + delete(UUID orderId)
+}
+
+class InMemoryOrderRepository {
+    - Map<UUID, OrderInterface> orders
+    + findById(UUID orderId) : Optional<OrderInterface>
+    + save(OrderInterface order)
+    + delete(UUID orderId)
+    + findAll() : Collection<OrderInterface>
+}
+
+class PancakeManager {
+    + complete(OrderInterface order)
+    + prepare(OrderInterface order)
+    + addPancakes(OrderInterface order, List<String> ingredients, int count)
+    + removePancakes(OrderInterface order, String description, int count)
+    + cancel(OrderInterface order)
+    + deliver(OrderInterface order)
+}
+
+class PancakeManagerImpl {
+    - PancakeBuilderFactory pancakeBuilderFactory
+    + PancakeManagerImpl(PancakeBuilderFactory pancakeBuilderFactory)
+    + addPancakes(OrderInterface order, List<String> ingredients, int count)
+    + removePancakes(OrderInterface order, String description, int count)
+    + cancel(OrderInterface order)
+    + complete(OrderInterface order)
+    + deliver(OrderInterface order)
+    + prepare(OrderInterface order)
+    - PancakeRecipe createPancake(List<String> ingredients)
+}
+
+class OrderFactory {
+    + createOrder(int building, int room) : OrderInterface
+}
+
+class OrderInterface {
+    + isValid() : boolean
+    + getId() : UUID
+    + getPancakes() : List<String>
+    + getPancakesToDeliver() : List<String>
+    + isCompleted() : boolean
+    + isPrepared() : boolean
+    + isDelivered() : boolean
+    + updateRepository(OrderRepository orderRepository)
+}
+
+class Order {
+    - UUID id
+    - int building
+    - int room
+    - OrderStatus status
+    - List<PancakeRecipe> pancakes
+    - ReentrantReadWriteLock lock
+    + Order(int building, int room)
+    + addPancake(PancakeRecipe pancake)
+    + removePancake(String description) : boolean
+    + getPancakes() : List<String>
+    + getPancakesToDeliver() : List<String>
+    + getId() : UUID
+    + getBuilding() : int
+    + getRoom() : int
+    + complete()
+    + prepare()
+    + deliver()
+    + cancel()
+    + updateRepository(OrderRepository orderRepository)
+    + isInitated() : boolean
+    + isCompleted() : boolean
+    + isPrepared() : boolean
+    + isDelivered() : boolean
+    + isValid() : boolean
+    + equals(Object o) : boolean
+    + hashCode() : int
+}
+
+class PancakeOperationResult {
+    + PancakeOperationResult(boolean success, UUID orderId)
+    + PancakeOperationResult(boolean success, UUID orderId, String message)
+}
+
+class ViewOrderResult {
+    + ViewOrderResult(boolean success, UUID orderId, List<String> pancakes, String message)
+}
+
+class DeliveryResult {
+    + DeliveryResult(boolean success, UUID orderId, String message)
+    + DeliveryResult(boolean success, UUID orderId, List<String> pancakes, String message)
+}
+
+class PancakeBuilderFactory {
+    + createBuilder() : PancakeBuilder
+}
+
+class PancakeBuilderFactoryImpl {
+    + createBuilder() : PancakeBuilder
+}
+
+class PancakeBuilder {
+    + addIngredient(String ingredient)
+    + build() : PancakeRecipe
+}
+
+class PancakeBuilderImpl {
+    - List<String> ingredients
+    + addIngredient(String ingredient) : PancakeBuilder
+    + build() : PancakeRecipe
+}
+
+class PancakeRecipe {
+    + description() : String
+}
+
+enum OrderStatus {
+    INITIATED
+    COMPLETED
+    PREPARED
+    DELIVERED
+    CANCELLED
+}
+
+class OrderLog {
+    + logAddPancake(Order order, String description, int size)
+    + logRemovePancakes(Order order, String description, int count, int size)
+    + logDeliverOrder(Order order, int size)
+    + logCancelOrder(Order order, int size)
+}
+
+class Pancake {
+    - List<String> ingredients
+
+    + Pancake(List<String> ingredients) throws Exception
+    + Pancake()
+    + List<String> getIngredients()
+    + void addIngredient(String ingredient) throws Exception
+    + boolean equals(Object obj)
+    + int hashCode()
+    - List<String> getApprovedIngredients(List<String> ingredients)
+    + List<String> getAvailableIngredients()
+}
+
+class ApprovedIngredients {
+    + static boolean isApproved(String ingredient)
+    + static List<String> getAll()
+}
+
+PancakeService --> OrderRepository
+PancakeService --> PancakeManager
+PancakeService --> OrderFactory
+PancakeService --> OrderInterface
+PancakeService --> PancakeOperationResult
+PancakeService --> ViewOrderResult
+PancakeService --> DeliveryResult
+
+PancakeManagerImpl --> PancakeBuilderFactory
+PancakeManagerImpl --> OrderInterface
+PancakeManagerImpl --> PancakeRecipe
+
+PancakeBuilderFactory -> PancakeBuilder
+PancakeBuilderFactoryImpl -> PancakeBuilderImpl
+
+Order --> OrderRepository
+Order --> PancakeRecipe
+Order --> OrderLog
+Order --> OrderStatus
+
+Pancake --> ApprovedIngredients
+
+PancakeRecipe <|-- Pancake
+OrderInterface <|-- Order
+PancakeManager <|-- PancakeManagerImpl
+OrderRepository <|-- InMemoryOrderRepository
+PancakeBuilderFactory <|-- PancakeBuilderFactoryImpl
+PancakeBuilder <|-- PancakeBuilderImpl
+@enduml
