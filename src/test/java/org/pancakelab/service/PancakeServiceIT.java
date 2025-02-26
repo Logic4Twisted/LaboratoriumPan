@@ -706,7 +706,7 @@ public class PancakeServiceIT {
     	UUID orderId = createOrder(10, 20);
 
         // Try adding with zero count
-        PancakeOperationResult result = pancakeService.addPancakes(orderId, List.of("Custard"), 1);
+        PancakeOperationResult result = pancakeService.addPancakes(orderId, List.of("Dark chocolate", "Custard"), 1);
 
         assertFalse(result.isSuccess());
         assertEquals("Ingredient invalid value", result.getMessage());

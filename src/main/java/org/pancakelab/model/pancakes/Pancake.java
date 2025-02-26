@@ -11,11 +11,10 @@ import org.pancakelab.model.Ingredient;
 public class Pancake implements PancakeRecipe {
 	List<String> ingredients;
 	
-	public Pancake(List<String> ingredients) {
-		if (ingredients != null) {
-			this.ingredients = new LinkedList<String>(getApprovedIngredients(ingredients));
-		} else {
-			this.ingredients = new LinkedList<String>();
+	public Pancake(List<String> ingredients) throws Exception {
+		this.ingredients = new LinkedList<String>();
+		for (String ingredient : ingredients) {
+			addIngredient(ingredient);
 		}
 	}
 	
@@ -28,7 +27,11 @@ public class Pancake implements PancakeRecipe {
 		return ingredients.stream().toList();
 	}
 	
-	public void addIngredient(String ingredient) {
+	public void addIngredient(String ingredient) throws Exception {
+		// validating ingredients
+		if (!ApprovedIngredients.isApproved(ingredient)) {
+			throw new Exception("Ingredient invalid value");
+		}
 		this.ingredients.addAll(getApprovedIngredients(List.of(ingredient)));
 	}
 	

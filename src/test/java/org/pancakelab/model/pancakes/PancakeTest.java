@@ -20,14 +20,14 @@ class PancakeTest {
     private Pancake pancake3;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         pancake1 = new Pancake(List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE, ApprovedIngredients.INGREDIENT_WHIPPED_CREAM));
         pancake2 = new Pancake(List.of(ApprovedIngredients.INGREDIENT_MILK_CHOCOLATE, ApprovedIngredients.INGREDIENT_HAZELNUTS));
         pancake3 = new Pancake(List.of(ApprovedIngredients.INGREDIENT_WHIPPED_CREAM, ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE));
     }
 
     @Test
-    void testConstructor_WithIngredients() {
+    void testConstructor_WithIngredients() throws Exception {
         List<String> expected = List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE, ApprovedIngredients.INGREDIENT_WHIPPED_CREAM);
         Pancake pancake = new Pancake(expected);
         
@@ -50,7 +50,7 @@ class PancakeTest {
     @Test
     void testAddNonApprovedIngredient() {
         Pancake pancake = new Pancake();
-        pancake.addIngredient("Sugar");
+        assertThrows(Exception.class, () -> pancake.addIngredient("Sugar"));
         assertNotEquals(List.of("Sugar"), pancake.getIngredients(), "Ingredient should not be added to the list");
     }
 

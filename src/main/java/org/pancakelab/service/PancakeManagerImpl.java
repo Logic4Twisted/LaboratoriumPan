@@ -2,7 +2,6 @@ package org.pancakelab.service;
 
 import java.util.List;
 
-import org.pancakelab.model.ApprovedIngredients;
 import org.pancakelab.model.OrderInterface;
 import org.pancakelab.model.pancakes.PancakeBuilder;
 import org.pancakelab.model.pancakes.PancakeBuilderImpl;

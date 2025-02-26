@@ -11,15 +11,12 @@ public class PancakeBuilderImpl implements PancakeBuilder {
 
 	@Override
 	public PancakeBuilder addIngredient(String ingredient) throws Exception {
-		if (ingredient == null || !ApprovedIngredients.isApproved(ingredient.toLowerCase())) {
-			throw new Exception("Ingredient invalid value");
-		}
 		this.ingredients.add(ingredient.toLowerCase());
         return this;
 	}
 
 	@Override
-	public PancakeRecipe build() {
+	public PancakeRecipe build() throws Exception {
 		return new Pancake(this.ingredients);
 	}
 }
