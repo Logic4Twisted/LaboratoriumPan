@@ -32,6 +32,8 @@ public class Order implements OrderInterface {
         pancakes = new LinkedList<PancakeRecipe>();
     }
     
+    
+    // Initiated --> Completed --> Prepared --> Delivered
     private static final Map<OrderStatus, OrderStatus> STATUS_TRANSITIONS = Map.of(
             OrderStatus.INITIATED, OrderStatus.COMPLETED,
             OrderStatus.COMPLETED, OrderStatus.PREPARED,
@@ -47,22 +49,25 @@ public class Order implements OrderInterface {
         }
     }
     
-    private void changeStatus(OrderStatus nextStatus) {
+    private void changeStatus(OrderStatus nextStatus) throws Exception {
     	lock.writeLock().lock();
     	try {
     		if (nextStatus == OrderStatus.CANCELLED) {
     			status = nextStatus;
-    		}
-    		if (STATUS_TRANSITIONS.getOrDefault(status, null) == nextStatus) {
+    		} else if (STATUS_TRANSITIONS.getOrDefault(status, null) == nextStatus) {
     			status = nextStatus;
+    		} else {
+    			throw new Exception("Cannot change status of the order to " + nextStatus.toString());
     		}
     	} finally {
     		lock.writeLock().unlock();
     	}
     }
     
-    public void addPancake(List<String> ingredients) {
-    	if (!isInitated()) return;
+    public void addPancake(List<String> ingredients) throws Exception {
+    	if (!isInitated()) {
+    		throw new Exception("Order is not in the state in which adding pancakes is possible");
+    	}
     	lock.writeLock().lock();
     	try {
 	    	Pancake pancake = new Pancake(ingredients);
@@ -73,8 +78,10 @@ public class Order implements OrderInterface {
     	}
     }
     
-    public boolean removePancake(String description) {
-    	if (!isInitated()) return false;
+    public boolean removePancake(String description) throws Exception {
+    	if (!isInitated()) {
+    		throw new Exception("Order is not in the state in which removing pancakes is possible");
+    	}
     	
     	lock.writeLock().lock();
     	try {
@@ -125,22 +132,22 @@ public class Order implements OrderInterface {
         return room;
     }
     
-    public void complete() {
+    public void complete() throws Exception {
     	changeStatus(OrderStatus.COMPLETED);
     }
     
-    public void prepare() {
+    public void prepare() throws Exception {
     	changeStatus(OrderStatus.PREPARED);
     }
     
-    public void deliver() {
+    public void deliver() throws Exception {
     	changeStatus(OrderStatus.DELIVERED);
     	if (isDelivered()) {
     		OrderLog.logDeliverOrder(this, getPancakes().size());
     	}
     }
     
-    public void cancel() {
+    public void cancel() throws Exception {
     	changeStatus(OrderStatus.CANCELLED);
     	OrderLog.logCancelOrder(this, getPancakes().size());
     }

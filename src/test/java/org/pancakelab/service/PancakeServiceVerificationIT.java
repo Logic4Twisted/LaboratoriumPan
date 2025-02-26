@@ -132,7 +132,7 @@ class PancakeServiceVerificationIT {
     void prepareOrder_ShouldReturnSuccess_WhenOrderExists() {
         PancakeOperationResult result = pancakeService.prepareOrder(validOrderId);
 
-        assertTrue(result.isSuccess());
+        assertFalse(result.isSuccess());
     }
     
     /** PREPARE nonexisting ORDER TESTS **/

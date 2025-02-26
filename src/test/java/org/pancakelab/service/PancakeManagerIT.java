@@ -22,21 +22,21 @@ class PancakeManagerIT {
 
     // Test Adding Pancakes Successfully
     @Test
-    void testAddPancakes_Success() {
+    void testAddPancakes_Success() throws Exception {
         pancakeManager.addPancakes(order, SAMPLE_INGREDIENTS, 5);
         assertEquals(5, order.getPancakes().size(), "Should add 5 pancakes to the order");
     }
 
     // Test Adding More Than MAX_PANCAKE_COUNT (Limit at 100)
     @Test
-    void testAddPancakes_RespectsMaxPancakeCount() {
+    void testAddPancakes_RespectsMaxPancakeCount() throws Exception {
         pancakeManager.addPancakes(order, SAMPLE_INGREDIENTS, 150);
         assertEquals(100, order.getPancakes().size(), "Should not exceed MAX_PANCAKE_COUNT (100)");
     }
 
     // Test Adding More Than MAX_PANCAKE_PER_ORDER (Limit at 500)
     @Test
-    void testAddPancakes_RespectsMaxPancakePerOrder() {
+    void testAddPancakes_RespectsMaxPancakePerOrder() throws Exception {
         pancakeManager.addPancakes(order, SAMPLE_INGREDIENTS, 500);
         assertEquals(PancakeManagerImpl.MAX_PANCAKE_COUNT, order.getPancakes().size(), "Should not exceed MAX_PANCAKE_PER_ORDER (500)");
 
@@ -47,14 +47,14 @@ class PancakeManagerIT {
 
     // Test Adding Zero Pancakes
     @Test
-    void testAddPancakes_ZeroCount() {
+    void testAddPancakes_ZeroCount() throws Exception {
         pancakeManager.addPancakes(order, SAMPLE_INGREDIENTS, 0);
         assertEquals(0, order.getPancakes().size(), "Adding zero pancakes should not modify the order");
     }
 
     // Test Adding Negative Count (Should Not Add)
     @Test
-    void testAddPancakes_NegativeCount() {
+    void testAddPancakes_NegativeCount() throws Exception {
         pancakeManager.addPancakes(order, SAMPLE_INGREDIENTS, -5);
         assertEquals(0, order.getPancakes().size(), "Negative count should not add pancakes");
     }
@@ -69,7 +69,7 @@ class PancakeManagerIT {
 
     // Test Removing Pancakes Successfully
     @Test
-    void testRemovePancakes_Success() {
+    void testRemovePancakes_Success() throws Exception {
         // Add 5 pancakes first
         pancakeManager.addPancakes(order, SAMPLE_INGREDIENTS, 5);
 
@@ -81,7 +81,7 @@ class PancakeManagerIT {
 
     // Test Removing More Than Available (Should Not Go Negative)
     @Test
-    void testRemovePancakes_ExceedingAvailable() {
+    void testRemovePancakes_ExceedingAvailable() throws Exception {
         pancakeManager.addPancakes(order, SAMPLE_INGREDIENTS, 3);
         pancakeManager.removePancakes(order, description(SAMPLE_INGREDIENTS), 10);
 
@@ -90,7 +90,7 @@ class PancakeManagerIT {
 
     // Test Removing Zero Pancakes (No Effect)
     @Test
-    void testRemovePancakes_ZeroCount() {
+    void testRemovePancakes_ZeroCount() throws Exception {
         pancakeManager.addPancakes(order, SAMPLE_INGREDIENTS, 5);
         pancakeManager.removePancakes(order, description(SAMPLE_INGREDIENTS), 0);
 
@@ -99,7 +99,7 @@ class PancakeManagerIT {
 
     // Test Removing Negative Count (Should Not Remove)
     @Test
-    void testRemovePancakes_NegativeCount() {
+    void testRemovePancakes_NegativeCount() throws Exception {
         pancakeManager.addPancakes(order, SAMPLE_INGREDIENTS, 5);
         pancakeManager.removePancakes(order, description(SAMPLE_INGREDIENTS), -3);
 
@@ -108,7 +108,7 @@ class PancakeManagerIT {
 
     // Test Removing from Empty Order (No Effect)
     @Test
-    void testRemovePancakes_EmptyOrder() {
+    void testRemovePancakes_EmptyOrder() throws Exception {
         pancakeManager.removePancakes(order, description(SAMPLE_INGREDIENTS), 3);
         assertEquals(0, order.getPancakes().size(), "Removing from an empty order should have no effect");
     }

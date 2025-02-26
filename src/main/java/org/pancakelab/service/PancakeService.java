@@ -62,21 +62,19 @@ public class PancakeService {
         if (ingredients == null || ingredients.isEmpty()) {
         	return new PancakeOperationResult(false, orderId, "Ingredient list is null or empty.");
         }
-        for (String ingredient : ingredients) {
-        	if (ingredient == null || !ApprovedIngredients.isApproved(ingredient)) {
-        		return new PancakeOperationResult(false, orderId, "Ingredient invalid value.");
-        	}
-        }
-
 
         OrderInterface order = getOrder(orderId);
         if (order instanceof NullOrder) {
             return new PancakeOperationResult(false, orderId, "Order not found.");
         }
         
-    	pancakeManager.addPancakes(order, ingredients, count);
-    	order.updateRepository(orderRepository);
-    	return new PancakeOperationResult(true, order.getId());
+        try {
+	    	pancakeManager.addPancakes(order, ingredients, count);
+	    	order.updateRepository(orderRepository);
+	    	return new PancakeOperationResult(true, order.getId());
+        } catch (Exception e) {
+        	return new PancakeOperationResult(false, order.getId(), e.getMessage());
+        }
     }
 
     /**
@@ -101,9 +99,13 @@ public class PancakeService {
             return new PancakeOperationResult(false, orderId, "Order not found.");
         }
         
-    	pancakeManager.removePancakes(order, description, count);
-    	order.updateRepository(orderRepository);
-    	return new PancakeOperationResult(true, order.getId());
+        try {
+	    	pancakeManager.removePancakes(order, description, count);
+	    	order.updateRepository(orderRepository);
+	    	return new PancakeOperationResult(true, order.getId());
+        } catch (Exception e) {
+        	return new PancakeOperationResult(false, orderId, e.getMessage());
+        }
     }
     
     /**
@@ -148,9 +150,14 @@ public class PancakeService {
             return new PancakeOperationResult(false, orderId, "Order not found.");
         }
         
-        pancakeManager.cancel(order);
-        order.updateRepository(orderRepository);
-        return new PancakeOperationResult(true, order.getId());
+        try {
+        	pancakeManager.cancel(order);
+            order.updateRepository(orderRepository);
+            return new PancakeOperationResult(true, order.getId());
+        } catch (Exception e) {
+        	return new PancakeOperationResult(false, orderId, e.getMessage()); 
+        }
+        
     }
 
     /**
@@ -168,9 +175,15 @@ public class PancakeService {
         if (order instanceof NullOrder) {
             return new PancakeOperationResult(false, orderId, "Order not found.");
         }
-    	pancakeManager.complete(order);
-    	order.updateRepository(orderRepository);
-    	return new PancakeOperationResult(true, order.getId());
+        
+        try {
+        	pancakeManager.complete(order);
+        	order.updateRepository(orderRepository);
+        	return new PancakeOperationResult(true, order.getId());
+        } catch (Exception e) {
+        	return new PancakeOperationResult(false, orderId, e.getMessage());  
+        }
+
     }
 
     /**
@@ -201,9 +214,14 @@ public class PancakeService {
         if (order instanceof NullOrder) {
             return new PancakeOperationResult(false, orderId, "Order not found.");
         }
-    	pancakeManager.prepare(order);
-    	order.updateRepository(orderRepository);
-    	return new PancakeOperationResult(true, order.getId());
+        
+        try {
+        	pancakeManager.prepare(order);
+        	order.updateRepository(orderRepository);
+        	return new PancakeOperationResult(true, order.getId());
+        } catch (Exception e) {
+        	return new PancakeOperationResult(false, orderId, e.getMessage());
+        }
     }
 
     /**
@@ -234,9 +252,14 @@ public class PancakeService {
         if (order instanceof NullOrder) {
             return new DeliveryResult(false, orderId, "Order not found.");
         }
-    	pancakeManager.deliver(order);
-    	order.updateRepository(orderRepository);
-
-        return new DeliveryResult(order.isDelivered(), order.getId(),  order.getPancakesToDeliver(), "");
+        
+        try {
+	    	pancakeManager.deliver(order);
+	    	order.updateRepository(orderRepository);
+	
+	        return new DeliveryResult(order.isDelivered(), order.getId(),  order.getPancakesToDeliver(), "");
+        } catch (Exception e) {
+        	return new DeliveryResult(false, order.getId(),  null, e.getMessage());
+        }
     }
 }

@@ -24,7 +24,13 @@ class OrderConcurrentTest {
     void testConcurrentAddPancakes() throws InterruptedException {
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
 
-        Runnable task = () -> order.addPancake(SAMPLE_INGREDIENTS);
+        Runnable task = () -> {
+			try {
+				order.addPancake(SAMPLE_INGREDIENTS);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		};
 
         IntStream.range(0, THREAD_COUNT).forEach(i -> executor.submit(task));
 
@@ -36,12 +42,23 @@ class OrderConcurrentTest {
 
     @Test
     void testConcurrentRemovePancakes() throws InterruptedException {
-    	for (int i = 0; i < 10; i++) 
-    		order.addPancake(SAMPLE_INGREDIENTS);
+    	try {
+        	for (int i = 0; i < 10; i++) {
+    			order.addPancake(SAMPLE_INGREDIENTS);
+        	}
+    	} catch (Exception e) {
+			e.printStackTrace();
+		}
 
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
 
-        Runnable task = () -> order.removePancake(pancakeDescrption(SAMPLE_INGREDIENTS));
+        Runnable task = () -> {
+			try {
+				order.removePancake(pancakeDescrption(SAMPLE_INGREDIENTS));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		};
 
         IntStream.range(0, THREAD_COUNT).forEach(i -> executor.submit(task));
 
@@ -55,7 +72,13 @@ class OrderConcurrentTest {
     void testConcurrentReadWritePancakes() throws InterruptedException {
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
 
-        Runnable writeTask = () -> order.addPancake(SAMPLE_INGREDIENTS);
+        Runnable writeTask = () -> {
+			try {
+				order.addPancake(SAMPLE_INGREDIENTS);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		};
         Runnable readTask = () -> assertNotNull(order.getPancakes());
 
         IntStream.range(0, THREAD_COUNT / 2).forEach(i -> executor.submit(writeTask));
@@ -72,9 +95,13 @@ class OrderConcurrentTest {
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
 
         Runnable task = () -> {
-            order.complete();
-            order.prepare();
-            order.deliver();
+            try {
+				order.complete();
+				order.prepare();
+	            order.deliver();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
         };
 
         IntStream.range(0, THREAD_COUNT).forEach(i -> executor.submit(task));
@@ -89,10 +116,34 @@ class OrderConcurrentTest {
     void testConcurrentOperations_NoDeadlocks() throws InterruptedException {
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
 
-        Runnable addTask = () -> order.addPancake(SAMPLE_INGREDIENTS);
-        Runnable removeTask = () -> order.removePancake(pancakeDescrption(SAMPLE_INGREDIENTS));
-        Runnable deliverTask = () -> order.deliver();
-        Runnable statusTask = () -> order.complete();
+        Runnable addTask = () -> {
+			try {
+				order.addPancake(SAMPLE_INGREDIENTS);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		};
+        Runnable removeTask = () -> {
+			try {
+				order.removePancake(pancakeDescrption(SAMPLE_INGREDIENTS));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		};
+        Runnable deliverTask = () -> {
+			try {
+				order.deliver();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		};
+        Runnable statusTask = () -> {
+			try {
+				order.complete();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		};
 
         IntStream.range(0, THREAD_COUNT).forEach(i -> {
             executor.submit(addTask);

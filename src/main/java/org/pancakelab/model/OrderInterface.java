@@ -12,21 +12,21 @@ public interface OrderInterface {
 
     int getRoom();
 
-    void addPancake(List<String> ingredients);
+    void addPancake(List<String> ingredients) throws Exception;
 
-    boolean removePancake(String description);
+    boolean removePancake(String description) throws Exception;
 
     List<String> getPancakes();
 
     List<String> getPancakesToDeliver();
 
-    void complete();
+    void complete() throws Exception;
 
-    void prepare();
+    void prepare() throws Exception;
 
-    void deliver();
+    void deliver() throws Exception;
 
-    void cancel();
+    void cancel() throws Exception;
 
     void updateRepository(OrderRepository orderRepository);
 
