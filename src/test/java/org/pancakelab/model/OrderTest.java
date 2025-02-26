@@ -23,7 +23,7 @@ public class OrderTest {
 	Order order;
 	
 	
-	private PancakeRecipe createPancake(List<String> ingredients) {
+	private PancakeRecipe createPancake(List<String> ingredients) throws Exception {
 		PancakeBuilder pancakeBuilder = new PancakeBuilderImpl();
 		for (String ingredient : ingredients) {
 			pancakeBuilder.addIngredient(ingredient);

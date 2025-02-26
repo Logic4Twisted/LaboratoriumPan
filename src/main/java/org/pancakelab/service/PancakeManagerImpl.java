@@ -18,17 +18,11 @@ public class PancakeManagerImpl implements PancakeManager {
 	 */
 	@Override
     public void addPancakes(OrderInterface order, List<String> ingredients, int count) throws Exception {
-        for (String ingredient : ingredients) {
-        	if (ingredient == null || !ApprovedIngredients.isApproved(ingredient)) {
-        		throw new Exception("Ingredient invalid value.");
-        	}
-        }
         
         count = Math.min(count, MAX_PANCAKE_COUNT);
         for (int i = 0; i < count && order.getPancakes().size() < MAX_PANCAKE_PER_ORDER; i++) {
         	order.addPancake(createPancake(ingredients));
         }
-        
     }
     
     @Override
@@ -58,7 +52,7 @@ public class PancakeManagerImpl implements PancakeManager {
 		order.prepare();
 	}
 	
-	private PancakeRecipe createPancake(List<String> ingredients) {
+	private PancakeRecipe createPancake(List<String> ingredients) throws Exception {
 		PancakeBuilder pancakeBuilder = new PancakeBuilderImpl();
 		for (String ingredient : ingredients) {
 			pancakeBuilder.addIngredient(ingredient);

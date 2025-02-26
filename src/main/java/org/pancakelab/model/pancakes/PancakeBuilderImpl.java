@@ -10,10 +10,11 @@ public class PancakeBuilderImpl implements PancakeBuilder {
 	private final List<String> ingredients = new LinkedList<String>();
 
 	@Override
-	public PancakeBuilder addIngredient(String ingredient) {
-		if (ingredient != null && ApprovedIngredients.isApproved(ingredient.toLowerCase())) {
-            this.ingredients.add(ingredient.toLowerCase());
-        }
+	public PancakeBuilder addIngredient(String ingredient) throws Exception {
+		if (ingredient == null || !ApprovedIngredients.isApproved(ingredient.toLowerCase())) {
+			throw new Exception("Ingredient invalid value.");
+		}
+		this.ingredients.add(ingredient.toLowerCase());
         return this;
 	}
 

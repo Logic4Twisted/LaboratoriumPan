@@ -10,7 +10,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class PancakeServiceVerificationIT {
+class PancakeServiceValidationIT {
 
     private PancakeService pancakeService;
     private InMemoryOrderRepository orderRepository;
