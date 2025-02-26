@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.pancakelab.model.pancakes.InMemoryOrderRepository;
 import org.pancakelab.model.pancakes.OrderRepository;
 import org.pancakelab.model.pancakes.Pancake;
+import org.pancakelab.model.pancakes.PancakeBuilder;
+import org.pancakelab.model.pancakes.PancakeBuilderImpl;
 import org.pancakelab.model.pancakes.PancakeRecipe;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,6 +21,15 @@ public class OrderTest {
 	
 	OrderRepository orderRepository;
 	Order order;
+	
+	
+	private PancakeRecipe createPancake(List<String> ingredients) {
+		PancakeBuilder pancakeBuilder = new PancakeBuilderImpl();
+		for (String ingredient : ingredients) {
+			pancakeBuilder.addIngredient(ingredient);
+		}
+		return pancakeBuilder.build();
+	}
 	
 	@BeforeEach
 	void setUp() {
@@ -145,7 +156,7 @@ public class OrderTest {
     
     @Test
     void testGetPancakesToDeliver() throws Exception {
-        order.addPancake(List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE));
+        order.addPancake(createPancake(List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE)));
 
         // INITIATED state should return an empty list
         assertTrue(order.getPancakesToDeliver().isEmpty(), "Pancakes should NOT be available for delivery in INITIATED state");
@@ -184,7 +195,7 @@ public class OrderTest {
 
     @Test
     void testAddPancake() throws Exception {
-        order.addPancake(darkChocolateRecepie);
+        order.addPancake(createPancake(darkChocolateRecepie));
         List<String> recipes = order.getPancakes();
 
         assertEquals(1, recipes.size(), "List should contain one pancake recipe");
@@ -193,8 +204,8 @@ public class OrderTest {
 
     @Test
     void testRemovePancake_Existing() throws Exception {
-        order.addPancake(darkChocolateRecepie);
-        order.addPancake(milkChocolateRecepie);
+        order.addPancake(createPancake(darkChocolateRecepie));
+        order.addPancake(createPancake(milkChocolateRecepie));
 
         order.removePancake(pancakeDescrption(darkChocolateRecepie));
         List<String> recipes = order.getPancakes();
@@ -206,7 +217,7 @@ public class OrderTest {
 
     @Test
     void testRemovePancake_NonExisting() throws Exception {
-        order.addPancake(darkChocolateRecepie);
+        order.addPancake(createPancake(darkChocolateRecepie));
 
         PancakeRecipe nonExisting = new Pancake(List.of(ApprovedIngredients.INGREDIENT_HAZELNUTS, ApprovedIngredients.INGREDIENT_WHIPPED_CREAM));
         order.removePancake(nonExisting.description());
@@ -218,7 +229,7 @@ public class OrderTest {
 
     @Test
     void testGetPancakeRecipes_ModificationDoesNotAffectOriginalList() throws Exception {
-        order.addPancake(darkChocolateRecepie);
+        order.addPancake(createPancake(darkChocolateRecepie));
         List<String> recipes = order.getPancakes();
      
         
@@ -233,7 +244,7 @@ public class OrderTest {
         Order order = new Order(1, 2);
 
         // Add pancakes while order is INITIATED
-        order.addPancake(darkChocolateRecepie);
+        order.addPancake(createPancake(darkChocolateRecepie));
         assertEquals(1, order.getPancakes().size(), "Pancake should be added in INITIATED state");
 
         // Complete the order
@@ -241,7 +252,7 @@ public class OrderTest {
         assertTrue(order.isCompleted(), "Order should be in COMPLETED state");
 
         // Try adding another pancake (should not be added)
-        Exception exception2 = assertThrows(Exception.class, () -> order.addPancake(milkChocolateRecepie));
+        Exception exception2 = assertThrows(Exception.class, () -> order.addPancake(createPancake(milkChocolateRecepie)));
         assertEquals("Order is not in the state in which adding pancakes is possible", exception2.getMessage());
         
         assertEquals(1, order.getPancakes().size(), "No additional pancakes should be added after COMPLETED state");
@@ -252,7 +263,7 @@ public class OrderTest {
         Order order = new Order(1, 2);
 
         // Add pancake while order is INITIATED
-        order.addPancake(darkChocolateRecepie);
+        order.addPancake(createPancake(darkChocolateRecepie));
         assertEquals(1, order.getPancakes().size(), "Pancake should be added in INITIATED state");
 
         // Complete the order
@@ -269,7 +280,7 @@ public class OrderTest {
         Order order = new Order(1, 2);
 
         // Add a pancake while order is INITIATED
-        order.addPancake(darkChocolateRecepie);
+        order.addPancake(createPancake(darkChocolateRecepie));
         assertEquals(1, order.getPancakes().size(), "Pancake should be added in INITIATED state");
 
         // Move to COMPLETED state
@@ -289,7 +300,7 @@ public class OrderTest {
         assertTrue(order.isDelivered(), "Order should be in DELIVERED state");
 
         // Try adding a pancake (should not be added)
-        Exception exception2 = assertThrows(Exception.class, () -> order.addPancake(milkChocolateRecepie));
+        Exception exception2 = assertThrows(Exception.class, () -> order.addPancake(createPancake(milkChocolateRecepie)));
         assertEquals("Order is not in the state in which adding pancakes is possible", exception2.getMessage());
 
         // Try removing a pancake (should not be removed)

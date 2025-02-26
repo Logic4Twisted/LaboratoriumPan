@@ -1,6 +1,8 @@
 package org.pancakelab.model;
 
 import org.pancakelab.model.pancakes.OrderRepository;
+import org.pancakelab.model.pancakes.PancakeRecipe;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -12,7 +14,7 @@ public interface OrderInterface {
 
     int getRoom();
 
-    void addPancake(List<String> ingredients) throws Exception;
+    void addPancake(PancakeRecipe pancake) throws Exception;
 
     boolean removePancake(String description) throws Exception;
 

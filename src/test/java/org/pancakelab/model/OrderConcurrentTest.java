@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.pancakelab.model.pancakes.PancakeBuilder;
+import org.pancakelab.model.pancakes.PancakeBuilderImpl;
+import org.pancakelab.model.pancakes.PancakeRecipe;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -14,6 +17,17 @@ class OrderConcurrentTest {
     private static final int THREAD_COUNT = 10;
     private Order order;
     private static final List<String> SAMPLE_INGREDIENTS = List.of(ApprovedIngredients.INGREDIENT_DARK_CHOCOLATE, ApprovedIngredients.INGREDIENT_HAZELNUTS);
+    
+	
+	
+	private PancakeRecipe createPancake(List<String> ingredients) {
+		PancakeBuilder pancakeBuilder = new PancakeBuilderImpl();
+		for (String ingredient : ingredients) {
+			pancakeBuilder.addIngredient(ingredient);
+		}
+		return pancakeBuilder.build();
+	}
+	
 
     @BeforeEach
     void setUp() {
@@ -26,7 +40,7 @@ class OrderConcurrentTest {
 
         Runnable task = () -> {
 			try {
-				order.addPancake(SAMPLE_INGREDIENTS);
+				order.addPancake(createPancake(SAMPLE_INGREDIENTS));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -44,7 +58,7 @@ class OrderConcurrentTest {
     void testConcurrentRemovePancakes() throws InterruptedException {
     	try {
         	for (int i = 0; i < 10; i++) {
-    			order.addPancake(SAMPLE_INGREDIENTS);
+    			order.addPancake(createPancake(SAMPLE_INGREDIENTS));
         	}
     	} catch (Exception e) {
 			e.printStackTrace();
@@ -65,7 +79,7 @@ class OrderConcurrentTest {
         executor.shutdown();
         assertTrue(executor.awaitTermination(5, TimeUnit.SECONDS));
 
-        assertTrue(order.getPancakes().size() <= 1, "Only one pancake should remain or be empty");
+        assertEquals(0, order.getPancakes().size(), "All removed");
     }
 
     @Test
@@ -74,7 +88,7 @@ class OrderConcurrentTest {
 
         Runnable writeTask = () -> {
 			try {
-				order.addPancake(SAMPLE_INGREDIENTS);
+				order.addPancake(createPancake(SAMPLE_INGREDIENTS));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -118,7 +132,7 @@ class OrderConcurrentTest {
 
         Runnable addTask = () -> {
 			try {
-				order.addPancake(SAMPLE_INGREDIENTS);
+				order.addPancake(createPancake(SAMPLE_INGREDIENTS));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

@@ -64,13 +64,12 @@ public class Order implements OrderInterface {
     	}
     }
     
-    public void addPancake(List<String> ingredients) throws Exception {
+    public void addPancake(PancakeRecipe pancake) throws Exception {
     	if (!isInitated()) {
     		throw new Exception("Order is not in the state in which adding pancakes is possible");
     	}
     	lock.writeLock().lock();
     	try {
-	    	Pancake pancake = new Pancake(ingredients);
 	    	pancakes.add(pancake);
 	    	OrderLog.logAddPancake(this, pancake.description(), getPancakes().size());
     	} finally {

@@ -4,6 +4,9 @@ import java.util.List;
 
 import org.pancakelab.model.ApprovedIngredients;
 import org.pancakelab.model.OrderInterface;
+import org.pancakelab.model.pancakes.PancakeBuilder;
+import org.pancakelab.model.pancakes.PancakeBuilderImpl;
+import org.pancakelab.model.pancakes.PancakeRecipe;
 
 public class PancakeManagerImpl implements PancakeManager {
 	// business constraints
@@ -23,7 +26,7 @@ public class PancakeManagerImpl implements PancakeManager {
         
         count = Math.min(count, MAX_PANCAKE_COUNT);
         for (int i = 0; i < count && order.getPancakes().size() < MAX_PANCAKE_PER_ORDER; i++) {
-        	order.addPancake(ingredients);
+        	order.addPancake(createPancake(ingredients));
         }
         
     }
@@ -55,5 +58,11 @@ public class PancakeManagerImpl implements PancakeManager {
 		order.prepare();
 	}
 	
-	
+	private PancakeRecipe createPancake(List<String> ingredients) {
+		PancakeBuilder pancakeBuilder = new PancakeBuilderImpl();
+		for (String ingredient : ingredients) {
+			pancakeBuilder.addIngredient(ingredient);
+		}
+		return pancakeBuilder.build();
+	}
 }

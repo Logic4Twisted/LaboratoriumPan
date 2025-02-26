@@ -9,27 +9,27 @@ import org.pancakelab.model.ApprovedIngredients;
 import org.pancakelab.model.Ingredient;
 
 public class Pancake implements PancakeRecipe {
-	List<Ingredient> ingredients;
+	List<String> ingredients;
 	
 	public Pancake(List<String> ingredients) {
 		if (ingredients != null) {
-			this.ingredients = new LinkedList<Ingredient>(convertToIngredients(getApprovedIngredients(ingredients)));
+			this.ingredients = new LinkedList<String>(getApprovedIngredients(ingredients));
 		} else {
-			this.ingredients = new LinkedList<Ingredient>();
+			this.ingredients = new LinkedList<String>();
 		}
 	}
 	
 	public Pancake() {
-		this.ingredients = new LinkedList<Ingredient>();
+		this.ingredients = new LinkedList<String>();
 	}
 
 	@Override
 	public List<String> getIngredients() {
-		return ingredients.stream().map(i -> i.getName()).toList();
+		return ingredients.stream().toList();
 	}
 	
 	public void addIngredient(String ingredient) {
-		this.ingredients.addAll(convertToIngredients(getApprovedIngredients(List.of(ingredient))));
+		this.ingredients.addAll(getApprovedIngredients(List.of(ingredient)));
 	}
 	
 	@Override
@@ -48,7 +48,7 @@ public class Pancake implements PancakeRecipe {
 	@Override
 	public int hashCode() {
 		int hashCode = 0;
-		for (Ingredient ingredient: ingredients) {
+		for (String ingredient: ingredients) {
 			hashCode += ingredient.hashCode();
 		}
 		return hashCode;

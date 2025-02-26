@@ -92,10 +92,6 @@ public class NullOrder implements OrderInterface {
     }
 
 	@Override
-	public void addPancake(List<String> ingredients) {
-	}
-
-	@Override
 	public List<String> getPancakesToDeliver() {
 		return new LinkedList<String>();
 	}
