@@ -38,6 +38,3 @@ The Sensei has put forth some conditions:
 Start now your assignment and save the Dojo.
 Please note: Kindly return the solution in a link to Github (please do NOT mention BeamTrail).
 Also, please do NOT mention the name of the project on Github.
-
-Notes:
-- I am only allowing addPancakes and removePancakes to be called before order is completed
